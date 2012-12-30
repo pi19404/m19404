@@ -130,7 +130,7 @@ Mat localContrast(Mat s)
     cv::Laplacian(d[0],d[0],image.depth(),3,1,0);
     cv::absdiff(d[0],tmp,d[0]);
     d[0].convertTo(d[0],CV_32FC1,1.0,0);
-    cvtColor(image,image,CV_YCrCb2BGR);
+
     return d[0];
 }
 
@@ -166,7 +166,7 @@ Mat saliency(Mat s)
     cv::pow(o3,0.5,o1);
     //o1.convertTo(o1,CV_8U,255.0,0);
     //cv::normalize(o1,o1,0,255,cv::NORM_MINMAX);
-    cvtColor(image,image,CV_Lab2BGR);
+
 
     return o1;
 
@@ -199,7 +199,7 @@ Mat LocalContrast(Mat s)
 
      cv::absdiff(d[0],blurred,diff);
      //Mat sharpened = d[0] * (1 + amount) + blurred * (-amount);
-    cvtColor(image,image,CV_Lab2BGR);
+
 
      return diff;
 
@@ -303,7 +303,7 @@ int main2(int argc, char *argv[])
    c1.copyTo(sum);
 
 
-   Mat result;
+
 
 
 
@@ -312,6 +312,7 @@ int main2(int argc, char *argv[])
    src2.convertTo(src2, CV_32FC3, 1.0/255.0);
     Mat m1,m2;
     {
+   Mat result1;
    cv::add(c1,c2,sum);
    //cv::add(sum,c2,sum);
 
@@ -319,15 +320,18 @@ int main2(int argc, char *argv[])
    cv::divide(c2,sum,m2);
 
    LaplacianBlending lBlend(src1,src2,m1,m2,4);
-   result=lBlend.blend();
+   result1=lBlend.blend();
 
-   result.convertTo(result,CV_8U,255.0,0);
-   imshow("global contrast ",result);
+   result1.convertTo(result1,CV_8U,255.0,0);
+   imshow("global contrast ",result1);
 string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r1"+name;
 
-    imwrite(i1,result);
+    imwrite(i1,result1);
     }
+
+
     {
+           Mat result2;
    cv::add(c3,c4,sum);
    //cv::add(sum,c2,sum);
 
@@ -335,14 +339,15 @@ string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r1"+n
    cv::divide(c4,sum,m2);
 
    LaplacianBlending lBlend(src1,src2,m1,m2,4);
-   result=lBlend.blend();
+   result2=lBlend.blend();
 
-result.convertTo(result,CV_8U,255.0,0);
+result2.convertTo(result2,CV_8U,255.0,0);
 string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r2"+name;
- imshow("saliency",result);
-    imwrite(i1,result);
+ imshow("saliency",result2);
+    imwrite(i1,result2);
     }
     {
+   Mat result3;
    cv::add(c5,c6,sum);
    //cv::add(sum,c2,sum);
 
@@ -350,16 +355,17 @@ string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r2"+n
    cv::divide(c6,sum,m2);
 
    LaplacianBlending lBlend(src1,src2,m1,m2,4);
-   result=lBlend.blend();
+   result3=lBlend.blend();
 
 
-    result.convertTo(result,CV_8U,255.0,0);
+    result3.convertTo(result3,CV_8U,255.0,0);
     string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r3"+name;
-   imshow("exposedness",result);
-    imwrite(i1,result);
+   imshow("exposedness",result3);
+    imwrite(i1,result3);
     }
 
     {
+   Mat result4;
    cv::add(c7,c8,sum);
    //cv::add(sum,c2,sum);
 
@@ -367,12 +373,12 @@ string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r2"+n
    cv::divide(c8,sum,m2);
 
    LaplacianBlending lBlend(src1,src2,m1,m2,4);
-   result=lBlend.blend();
+   result4=lBlend.blend();
 
-result.convertTo(result,CV_8U,255.0,0);
+result4.convertTo(result4,CV_8U,255.0,0);
 string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r4"+name;
-   imshow("local contrast",result);
-    imwrite(i1,result);
+   imshow("local contrast",result4);
+    imwrite(i1,result4);
     }
     cv::add(c1,c2,sum);
     cv::add(sum,c3,sum);

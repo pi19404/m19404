@@ -1,97 +1,24 @@
+/*
+ * This file is main file for demo temporal filter program
+ * using opencv
+ * Copyright (C) 2012 by pi19404
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "TemporalFilter.hpp"
 
-//#include <iostream> // for standard I/O
-//#include <string>   // for strings
-
-//#include <opencv2/core/core.hpp>        // Basic OpenCV structures (cv::Mat)
-//#include <opencv2/highgui/highgui.hpp>  // Video write
-
-//int fps=30;
-//int F=0;
-//int main(int argc, char *argv[])
-//{
-
-
-//    string ins="/home/pi19404/Downloads/person15_walking_d1_uncomp.avi";
-//    VideoCapture inputVideo(ins);              // Open input
-
-
-
-//    if (!inputVideo.isOpened())
-//    {
-//        cout  << "Could not open the input video: " << ins << endl;
-//        return -1;
-//    }
-
-//    int ex = static_cast<int>(inputVideo.get(CV_CAP_PROP_FOURCC));     // Get Codec Type- Int form
-
-//    // Transform from int to char via Bitwise operators
-//    char EXT[] = {(char)(ex & 0XFF) , (char)((ex & 0XFF00) >> 8),(char)((ex & 0XFF0000) >> 16),(char)((ex & 0XFF000000) >> 24), 0};
-
-
-//    //Size S=Size(320,240);
-//    VideoWriter outputVideo;
-//    string source="/tmp/out.avi";
-//    Size S = Size((int) inputVideo.get(CV_CAP_PROP_FRAME_WIDTH),    //Acquire input size
-//                  (int) inputVideo.get(CV_CAP_PROP_FRAME_HEIGHT));
-//    outputVideo.open(source, ex,inputVideo.get(CV_CAP_PROP_FPS),S,true);
-//    if (!outputVideo.isOpened())
-//       {
-//           cout  << "Could not open the output video for write: " << source << endl;
-//           return -1;
-//       }
-
-//    Temporal_Filter filter;
-
-//    Mat simage;
-//    Mat eimage;
-//    Mat a,dst,image;
-
-
-//    a.create(240,320,CV_8UC(1));
-//    int k=0;
-
-
-//    clock_t begin = clock();
-//    while(1){
-
-//    inputVideo >> image;              // read
-//    if (image.empty()) break;         // check if at end
-
-//    cvtColor(image,image,CV_BGR2GRAY);
-//    resize(image,a, a.size(), 0, 0, INTER_NEAREST);
-
-//    imshow("input",a);
-//    Mat out;
-//    a.copyTo(out);
-
-
-//    dst=filter.temporal_filter(out);
-
-
-//    imshow("output",dst);
-
-//    outputVideo.write(dst);  //or
-//    if(cv::waitKey(30)>0)
-//        break;
-//    k++;
-//    if(k==fps)
-//    {
-//    clock_t end = clock();
-//    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-
-
-//    k=0;
-//    cerr << "a " << (double)fps/elapsed_secs << endl;
-//    begin = clock();
-//    }
-
-//    }
-//    return 0;
-
-
-
-//}
 #include <iostream> // for standard I/O
 #include <string>   // for strings
 

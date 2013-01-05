@@ -47,17 +47,17 @@ Mat generateEMasks(Mat s1,Mat s2){
    Mat src;
    s1.copyTo(src);
 
-   Mat src2;
-   s2.copyTo(src2);
+   //Mat src2;
+   //s2.copyTo(src2);
    //converting to floating point images and extracting illumination channel
    src.convertTo(src,CV_32FC3,1.0,0);
-   src2.convertTo(src2,CV_32FC3,1.0,0);
+   //src2.convertTo(src2,CV_32FC3,1.0,0);
 
    cvtColor(src,src,CV_BGR2HSV_FULL);
-   cvtColor(src2,src2,CV_BGR2HSV_FULL);
+   //cvtColor(src2,src2,CV_BGR2HSV_FULL);
 
    src.convertTo(src,CV_32FC3,1.0/255.0,0);
-   src2.convertTo(src2,CV_32FC3,1.0/255.0,0);
+   //src2.convertTo(src2,CV_32FC3,1.0/255.0,0);
 
 
    src.copyTo(dst);
@@ -67,10 +67,10 @@ Mat generateEMasks(Mat s1,Mat s2){
    std::vector<cv::Mat_<float> > dchan,dchan1;
 
     cv::split(src,ichan);
-    cv::split(src2,ichan1);
+    //cv::split(src2,ichan1);
 
     cv::split(dst,dchan);
-    cv::split(dst,dchan1);
+    //cv::split(dst,dchan1);
 
 
 
@@ -89,14 +89,14 @@ Mat generateEMasks(Mat s1,Mat s2){
 
 
     idx=2;
-    cv::add(ichan1[idx],-_gMean,dchan1[idx]);
-    multiply(dchan1[idx],dchan1[idx],dchan1[idx], 1.0/(2*_gVariance*_gVariance));
-    cv::exp(-dchan1[idx], dchan1[idx]);
+    //cv::add(ichan1[idx],-_gMean,dchan1[idx]);
+    //multiply(dchan1[idx],dchan1[idx],dchan1[idx], 1.0/(2*_gVariance*_gVariance));
+    //cv::exp(-dchan1[idx], dchan1[idx]);
 
 
 
     cvtColor(src,src,CV_HSV2BGR_FULL);
-    cvtColor(src2,src2,CV_HSV2BGR_FULL);
+    //cvtColor(src2,src2,CV_HSV2BGR_FULL);
 
 
     dchan[idx].convertTo(dchan[idx],CV_32FC1,1.0,0);
@@ -222,15 +222,29 @@ int main2(int argc, char *argv[])
 
 
 
-    if(argc <3)
-        return -1;
+//    if(argc <3)
+        //return -1;
 
-    string dir=argv[1];
-    string name=argv[2];
+  //  string dir=argv[1];
+   // string name=argv[2];
 
-    Mat a;
+   Mat a,image;
 
-    Mat image=cv::imread(dir+"/"+name,1);
+   //    cerr << dir+"/"+name << endl;
+   //    Mat image=cv::imread(dir+"/"+name,1);
+
+       cv::VideoCapture cam(0);
+       if(!cam.isOpened()){
+           std::cout<< "Camera not ready\n";
+           return -1;
+       }
+   //     clock_t begin = clock();
+       while(1){
+
+
+       cam>>image;
+
+    //Mat image=cv::imread(dir+"/"+name,1);
 
 
      clock_t begin = clock();
@@ -238,24 +252,37 @@ int main2(int argc, char *argv[])
     a.create(240,320,CV_8UC(3));
     resize(image,a, a.size(), 0, 0, INTER_NEAREST);
 
-    Mat src1=o1.run(a);
+    Mat src1;//o1.run(a);
     Mat src2=o2.run2(a,6,0);
 
-
-    string i1=argv[1]+name;
-    string i2=argv[1]+name;
-    imwrite(i1,src1);
-    imwrite(i2,src2);
+    string name="";
+    string i1="";//argv[1]+name;
+    string i2="";//argv[1]+name;
+    //imwrite(i1,src1);
+    //imwrite(i2,src2);
 
     imshow("original image",a);
-    imshow("input 1 ",src1);
-    imshow("input 2 ",src2);
+    imshow("input 1 ",src2);
+    //imshow("input 2 ",src2);
+
+
+    //cerr << "showing images " << endl;
+        Mat c11;
+    Mat c1=generateEMasks(a,a);
+    c1.convertTo(c11,CV_8U,255.0,0);
+
+    //c11=saliency(c11);
 
 
 
 
-    Mat c1=LocalContrast(src1);
-    Mat c2=LocalContrast(src2);
+      //cv::normalize(c11,c11,255,cv::NORM_MINMAX);
+      cv::Laplacian(c11,c11,c11.depth(),3,1,0);
+      imshow("ddddd",c11);
+    if(1==0)
+    {
+
+   Mat c2=LocalContrast(src2);
     Mat c3=saliency(src1);
     Mat c4=saliency(src2);
 
@@ -266,8 +293,9 @@ int main2(int argc, char *argv[])
     Mat c8= localContrast(src2);
 
 
+
 //uncomment for storing images
-//    Mat c11,c12,c13,c14,c15,c16,c17,c18;
+//    Mat c11,c12,c13,c14,c15,c16,c17,c18a
 //    cv::normalize(c1,c11,0,1,cv::NORM_MINMAX);
 //    cv::normalize(c2,c12,0,1,cv::NORM_MINMAX);
 //    cv::normalize(c3,c13,0,1,cv::NORM_MINMAX);
@@ -326,7 +354,7 @@ int main2(int argc, char *argv[])
    imshow("global contrast ",result1);
 string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r1"+name;
 
-    imwrite(i1,result1);
+    //imwrite(i1,result1);
     }
 
 
@@ -344,7 +372,7 @@ string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r1"+n
 result2.convertTo(result2,CV_8U,255.0,0);
 string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r2"+name;
  imshow("saliency",result2);
-    imwrite(i1,result2);
+    //imwrite(i1,result2);
     }
     {
    Mat result3;
@@ -361,7 +389,7 @@ string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r2"+n
     result3.convertTo(result3,CV_8U,255.0,0);
     string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r3"+name;
    imshow("exposedness",result3);
-    imwrite(i1,result3);
+   // imwrite(i1,result3);
     }
 
     {
@@ -378,8 +406,9 @@ string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r2"+n
 result4.convertTo(result4,CV_8U,255.0,0);
 string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r4"+name;
    imshow("local contrast",result4);
-    imwrite(i1,result4);
+ //   imwrite(i1,result4);
     }
+
     cv::add(c1,c2,sum);
     cv::add(sum,c3,sum);
     cv::add(sum,c4,sum);
@@ -435,12 +464,26 @@ string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r4"+n
 
     c1.convertTo(c1,CV_8U,255.0,0);
     imshow("naive blend",c1);
-string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r5"+name;
-imwrite(i1,c1);
+//string i1="/media/SOFTWARES/Dropbox/Dropbox/repository/im/documents/fusion/r5"+name;
+//imwrite(i1,c1);
+}
+    }
+          cv::waitKey(1);
+          k++;
+          if(k==fps)
+          {
+          clock_t end = clock();
+          double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+
+          k=0;
+          cerr << "a " << (double)fps/elapsed_secs << endl;
+          begin = clock();
+          }
+
 }
 
 
-      cv::waitKey(0);
 
 }
 

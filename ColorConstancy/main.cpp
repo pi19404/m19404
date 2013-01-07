@@ -47,9 +47,9 @@ int main(int argc, char *argv[])
 
     imshow("original",input);
     imshow("contrast stretching",a.run(input));
-    imshow("gray world RGB",b1.run2(input,1,0));
+    imshow("gray world RGB",b1.run2(input,1,2));
     imshow("gray world Lab",b1.run1(input,1));
-    imshow("Shades of gray",b1.run2(input,6,0));
+    imshow("Shades of gray",b1.run2(input,6,2));
     imshow("maxRGB",b3.run(input,6,0));
     imshow("gray edge",b2.run(input,1,0));
     imshow("max edge",b4.run(input,1,0));

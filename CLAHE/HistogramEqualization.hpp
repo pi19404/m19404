@@ -49,10 +49,11 @@ public:
 /**
  * @brief this method constructs lookup table for transformation function for histogram equalization ie CDF of histogram
  * @param input image
- * @param number of bins of histogram
+ * @param number
+ * of bins of histogram
  * @return transformed image using lookup table
  */
-Mat make_lut(Mat r,int bins);
+void make_lut(Mat r,int bins);
 /**
  * @brief method constructs the histogram for given image
  * @param image is input image

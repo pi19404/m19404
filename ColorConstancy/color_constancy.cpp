@@ -271,6 +271,10 @@ void color_correction::gray_world::process(Mat src1,float *ml,float *ma,float *m
        *mb=pow((float)*mb/(src1.cols*src1.rows),(float)1/p);
        *ml=pow((float)*ml/(src1.cols*src1.rows),(float)1/p);
 
+       (*ma)=128+(0.5*255 *(*ma));
+       (*mb)=128+(0.5*255 *(*mb));
+       (*ml)=128+(0.5*255 *(*ml));
+
        float r=0;
 
        if(m==0)

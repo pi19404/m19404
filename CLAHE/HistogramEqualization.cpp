@@ -84,7 +84,7 @@ Mat HistogramEqualization::run(Mat image,int type)
 
 
 
-Mat HistogramEqualization::make_lut(Mat r,int bins)
+void HistogramEqualization::make_lut(Mat r,int bins)
 {
 Mat dst;
 lut.create(256,1,CV_8UC(1));
@@ -100,8 +100,8 @@ for(int i=min;i<=max;i++)
     lut.at<uchar>(i,1)=(((float)(i-min)*bins/(float)(max-min)));
 
 }
-LUT(r,lut,dst);
-return dst;
+//LUT(r,lut,dst);
+//return dst;
 }
 
 Mat HistogramEqualization::make_histogram(Mat image,int bins)
@@ -117,7 +117,7 @@ Mat HistogramEqualization::make_histogram(Mat image,int bins)
         {
             int val0=image.at<uchar>(i,j);
             int val1=lut.at<uchar>(val0,1);
-            hist1.at<float>(val1,1)=hist1.at<float>(val1,1)+1;
+            hist1.at<float>(val1,1)=round(hist1.at<float>(val1,1))+1;
 
 
         }
@@ -224,6 +224,7 @@ Mat HistogramEqualization::interpolate(Mat image,int xsize,int ysize,int xdivs,i
                     if(mode==1)
                     {
                     float fval=((x2*y2)*val1)+(x1*y2*val2)+(y1*x2*val3)+(x1*y1*val4);
+
                     ix.at<uchar>(l,m)=ceil((float)fval/(float)(subX*subY));
                     }
                     else if(mode==0)
@@ -260,9 +261,11 @@ Mat HistogramEqualization::clip_histogram(unsigned  long clip,Mat hist1,int bins
             index=index+1;
             for(int k=0;k<bins;k++)
             {
-                double nexcess=(double)hist1.at<float>(k,1)-(unsigned long)clip;
+
+                long nexcess=hist1.at<float>(k,1)-clip;
                 if(nexcess>0)
                     excess=nexcess+excess;      //count excess number of bins
+
             }
 
         //
@@ -274,10 +277,10 @@ Mat HistogramEqualization::clip_histogram(unsigned  long clip,Mat hist1,int bins
 
     if(excess>0)
     {
-    unsigned long BinIncr = ceil((float)excess / (float)bins);              /* average binincrement */
+    unsigned long BinIncr = ceil(excess / bins);              /* average binincrement */
     if(BinIncr==0)
         BinIncr=1;
-    unsigned long upper =  (float)clip - (float)BinIncr;                    /* Bins larger than ulUpper set to cliplimit */
+    unsigned long upper =  clip - BinIncr;                    /* Bins larger than ulUpper set to cliplimit */
 
 
     for (int i = 0; i < bins; i++) {
@@ -291,7 +294,7 @@ Mat HistogramEqualization::clip_histogram(unsigned  long clip,Mat hist1,int bins
             if(val > upper && val<clip) {              /* high bin count */
                 if(excess>0)
                 {
-              excess-=val-upper;
+                    excess-=val-upper;
                 }
               val=clip;
           }
@@ -321,7 +324,8 @@ do{
     old_excess=excess;
     while(excess>0)
     {
-        int step=ceil((float)bins/(float)excess);  //average number of bins excess/bins
+
+        int step=round(bins/excess);  //average number of bins excess/bins
         if(step<1)
             step=1;
         for(int i=index1;i<bins;i=i+step)
@@ -340,7 +344,7 @@ do{
          }
         index1=index1+1;
     }
-}while ((excess>0) && (excess < old_excess));
+}while ((excess>1) && (excess < old_excess));
     }
             }
             else
@@ -426,6 +430,7 @@ Mat HistogramEqualization::AHE(Mat image,int xdivs,int ydivs,int bins,int mode,f
 
     make_lut(r,bins);
 
+
     unsigned long xsize=((float)newW/(float)xdivs);
     unsigned long ysize=((float)newH/(float)ydivs);
     hist.resize(xdivs*ydivs);
@@ -442,14 +447,17 @@ Mat HistogramEqualization::AHE(Mat image,int xdivs,int ydivs,int bins,int mode,f
 
             Mat roiImg=r(roi);
 
+
             Mat result=make_histogram(roiImg,bins);
             Mat result1;
             unsigned long clip=((float)(limit*xsize*ysize)/(float)bins);
+
             if(limit>1)
             result1=clip_histogram(clip,result,bins);
             else
             result1=result;
             unsigned long size1=(unsigned long)xsize * (unsigned long)ysize;
+
             Mat o=map_histogram(bins,(int)min,(int)max,(unsigned long)size1,result1);
             o.copyTo(hist[(j*xdivs)+i]);
 
@@ -458,11 +466,65 @@ Mat HistogramEqualization::AHE(Mat image,int xdivs,int ydivs,int bins,int mode,f
 
     }
 
+
     interpolate(r,xsize,ysize,xdivs,ydivs,mode);
 
 
 
-    cv::resize(r,bgr_planes[2],bgr_planes[2].size(),0,0,CV_INTER_CUBIC);
+    cv::resize(r,bgr_planes[2],bgr_planes[0].size(),0,0,CV_INTER_CUBIC);
+
+    cv::resize(bgr_planes[1],r,r.size(),0,0,CV_INTER_CUBIC);
+
+    max=0,min=0;
+    cv::minMaxLoc(r,&min,&max,&i1,&i1);
+
+
+
+    make_lut(r,bins);
+
+
+    xsize=((float)newW/(float)xdivs);
+    ysize=((float)newH/(float)ydivs);
+    hist.resize(xdivs*ydivs);
+
+
+    for(int j=0;j<ydivs;j++)
+    {
+
+
+        for(int i=0;i<xdivs;i++)
+        {
+
+            Rect roi(i*xsize,j*ysize,xsize,ysize);
+
+            Mat roiImg=r(roi);
+
+
+            Mat result=make_histogram(roiImg,bins);
+            Mat result1;
+            unsigned long clip=((float)(limit*xsize*ysize)/(float)bins);
+
+            if(limit>1)
+            result1=clip_histogram(clip,result,bins);
+            else
+            result1=result;
+            unsigned long size1=(unsigned long)xsize * (unsigned long)ysize;
+
+            Mat o=map_histogram(bins,(int)min,(int)max,(unsigned long)size1,result1);
+            o.copyTo(hist[(j*xdivs)+i]);
+
+
+        }
+
+    }
+
+
+    interpolate(r,xsize,ysize,xdivs,ydivs,mode);
+
+
+
+    cv::resize(r,bgr_planes[1],bgr_planes[1].size(),0,0,CV_INTER_CUBIC);
+
     cv::merge(bgr_planes,dst);
     cv::cvtColor(dst,dst,CV_HSV2BGR_FULL);
 

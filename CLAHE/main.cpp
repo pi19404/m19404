@@ -1,5 +1,5 @@
 /*
- * This file is main file for demo temporal filter program
+ * This file is main file for CLAHE image enhancement technique
  * using opencv
  * Copyright (C) 2012 by pi19404
  *
@@ -22,7 +22,7 @@
 
 #include <opencv2/core/core.hpp>        // Basic OpenCV structures (cv::Mat)
 #include <opencv2/highgui/highgui.hpp>  // Video write
-#include "clahe.h"
+
 
 int n=10;
 int nbins=256;
@@ -63,21 +63,6 @@ void on_trackbar( int, void* )
     Mat ahe3=p.AHE(src,nx,ny,bins,1,limit);
     imshow("CLAHE",ahe3);
 
-    if(1==0)
-    {
-    Mat a1,a2;
-    vector<Mat> planes;
-    cvtColor(src,src,CV_BGR2HSV_FULL);
-    cv::split(src,planes);
-    cvtColor(src,src,CV_HSV2BGR_FULL);
-    IplImage s1=IplImage(planes[2]);
-    planes[2].copyTo(a2);
-    IplImage s2=IplImage(a2);
-    int limit_counter=limit*0.1;
-    cvCLAdaptEqualize(&s1,&s2, (unsigned int) nx, (unsigned int) ny,(unsigned int) bins, (float) limit, CV_CLAHE_RANGE_INPUT);
-    imshow("oriiii ",a2);
-    cerr << "returned" << endl;
-    }
 
     string oname1=dname+"/o"+name;
     string oname=dname+"/o1"+name;

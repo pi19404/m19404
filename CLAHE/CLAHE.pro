@@ -18,10 +18,10 @@ LIBS += -L/usr/local/lib `pkg-config --libs opencv`
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    HistogramEqualization.cpp \
-    clahe.cpp
+    HistogramEqualization.cpp
+
 
 HEADERS  += mainwindow.h \
-    HistogramEqualization.hpp \
-    clahe.h \
-    useful_macros.h
+    HistogramEqualization.hpp
+
+

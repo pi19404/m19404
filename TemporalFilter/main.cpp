@@ -80,7 +80,8 @@ int main(int argc, char *argv[])
 
     Mat src, res;
     vector<Mat> spl;
-
+    Mat a;
+    a.create(240,320,CV_8U(3));
     for(;;) //Show the image captured in the window and repeat
     {
         inputVideo >> src;              // read
@@ -88,7 +89,7 @@ int main(int argc, char *argv[])
         if (src.empty()) break;         // check if at end
         imshow("input",src);
         cvtColor(src,src,CV_BGR2GRAY);
-        //resize(image,a, a.size(), 0, 0, INTER_NEAREST);
+        resize(src,a, a.size(), 0, 0, INTER_NEAREST);
         dst=filter.temporal_filter(src);
 
         cvtColor(dst,res,CV_GRAY2BGR);

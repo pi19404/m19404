@@ -63,7 +63,7 @@ Mat HistogramEqualization::run(Mat image,int type)
 {
     Mat dst,src;
     Mat hist;
-    if(type==GLOBAL)
+    if(type==0)
     {
         vector<Mat> bgr_planes;
         cvtColor(image,src,CV_BGR2HSV_FULL);
@@ -380,6 +380,10 @@ Mat HistogramEqualization::map_histogram(int bins,int Min,int Max,unsigned long 
         return hist2;
 }
 
+
+
+
+
 Mat HistogramEqualization::AHE(Mat image,int xdivs,int ydivs,int bins,int mode,float limit)
 {
 
@@ -387,23 +391,10 @@ Mat HistogramEqualization::AHE(Mat image,int xdivs,int ydivs,int bins,int mode,f
 
     image.copyTo(src);
     vector<Mat> bgr_planes;
+    if(HistogramEqualization::COLOR_SPACE::HSV==colorspace)
     cvtColor(src,src,CV_BGR2HSV_FULL);
+
     split( src,bgr_planes );
-
-
-
-
-
-    Mat b_hist, g_hist, r_hist;
-   /// Establish the number of bins
-   int histSize = 128;
-   /// Set the ranges ( for B,G,R) )
-   float range[] = { 0, 256 } ;
-   const float* histRange = { range };
-   /// Set the ranges ( for B,G,R) )
-
-
-   bool uniform = true; bool accumulate = false;
 
 
     int width=src.cols;
@@ -417,10 +408,18 @@ Mat HistogramEqualization::AHE(Mat image,int xdivs,int ydivs,int bins,int mode,f
         newH = height+(height%ydivs);
 
 
+    int nc=channel.size();
+    int ci=0;
+    int c=0;
 
+    //processing channels for CLAHE
+    while(ci<nc)
+    {
+    c=channel.at(ci);
+    //cerr << "local channel " << c << ":" << nc <<endl;
     Mat r;
     r.create(newH,newW,CV_8UC(1));
-    cv::resize(bgr_planes[2],r,r.size(),0,0,CV_INTER_CUBIC);
+    cv::resize(bgr_planes[c],r,r.size(),0,0,CV_INTER_CUBIC);
 
     double max=0,min=0;
     cv::Point i1;
@@ -450,7 +449,7 @@ Mat HistogramEqualization::AHE(Mat image,int xdivs,int ydivs,int bins,int mode,f
 
             Mat result=make_histogram(roiImg,bins);
             Mat result1;
-            unsigned long clip=((float)(limit*xsize*ysize)/(float)bins);
+            unsigned long clip=((float)(limits.at(ci)*xsize*ysize)/(float)bins);
 
             if(limit>1)
             result1=clip_histogram(clip,result,bins);
@@ -471,61 +470,76 @@ Mat HistogramEqualization::AHE(Mat image,int xdivs,int ydivs,int bins,int mode,f
 
 
 
-    cv::resize(r,bgr_planes[2],bgr_planes[0].size(),0,0,CV_INTER_CUBIC);
-
-    cv::resize(bgr_planes[1],r,r.size(),0,0,CV_INTER_CUBIC);
-
-    max=0,min=0;
-    cv::minMaxLoc(r,&min,&max,&i1,&i1);
+    cv::resize(r,bgr_planes[c],bgr_planes[c].size(),0,0,CV_INTER_CUBIC);
+     ci++;
+    }
 
 
+    //cerr << "number of local channels " << nc <<endl;
+    vector <int> gchannel;
+    //gchannel.resize(3-nc);
 
-    make_lut(r,bins);
+    if(channel.capacity()==1)
+    {
+         int c=channel.at(0);
+         int i=0;
+         while(i<3-nc)
+         {
+             if(i!=c)
+                 gchannel.push_back(i);
+             i++;
+         }
 
+    }
+    else if(channel.capacity()==2)
+    {
+         int c1=channel.at(0);
+         int c2=channel.at(0);
+         int i=0;
+         while(i<3-nc)
+         {
+             if(i!=c1 && i!=c2)
+                 gchannel.push_back(i);
+             i++;
+         }
 
-    xsize=((float)newW/(float)xdivs);
-    ysize=((float)newH/(float)ydivs);
-    hist.resize(xdivs*ydivs);
+    }
+    else if(channel.capacity()==0)
+    {
+         int i=0;
+         while(i<3)
+         {
 
+                 gchannel.push_back(i);
+                  i++;
+         }
 
-    for(int j=0;j<ydivs;j++)
+    }
+    else if(channel.capacity()==3)
+        gchannel.resize(0);
+
+    //cerr << "number of global channels " << gchannel.size() << endl;
+    //processing channels for global processing
+    if(gchannel.size()>0)
     {
 
 
-        for(int i=0;i<xdivs;i++)
-        {
-
-            Rect roi(i*xsize,j*ysize,xsize,ysize);
-
-            Mat roiImg=r(roi);
+        int i=0;
+        while(i<gchannel.size())
+         {
 
 
-            Mat result=make_histogram(roiImg,bins);
-            Mat result1;
-            unsigned long clip=((float)(limit*xsize*ysize)/(float)bins);
+            int c=gchannel.at(i);
+      //      cerr << "global channel " << c <<endl;
 
-            if(limit>1)
-            result1=clip_histogram(clip,result,bins);
-            else
-            result1=result;
-            unsigned long size1=(unsigned long)xsize * (unsigned long)ysize;
+                cv::equalizeHist(bgr_planes[c],bgr_planes[c]);
 
-            Mat o=map_histogram(bins,(int)min,(int)max,(unsigned long)size1,result1);
-            o.copyTo(hist[(j*xdivs)+i]);
-
-
+            i++;
         }
-
     }
 
-
-    interpolate(r,xsize,ysize,xdivs,ydivs,mode);
-
-
-
-    cv::resize(r,bgr_planes[1],bgr_planes[1].size(),0,0,CV_INTER_CUBIC);
-
     cv::merge(bgr_planes,dst);
+    if(HistogramEqualization::COLOR_SPACE::HSV==colorspace)
     cv::cvtColor(dst,dst,CV_HSV2BGR_FULL);
 
 

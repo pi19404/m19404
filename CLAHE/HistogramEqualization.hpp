@@ -42,10 +42,32 @@ HistogramEqualization()
 
 }
 
+//class defining colorspace constants
+class  COLOR_SPACE
+{
+public:
+    static const int RGB=0;
+    static const int HSV=1;
+    static const int YCrCb=2;
+    static const int Lab=3;
+
+};
 const static int GLOBAL=0,LOCAL=1;
 Mat lut;
-vector<Mat> hist;
+vector<Mat> hist;              //storing histogram of channels
+vector<int> channel;        // containing a list of channels to be processed
+vector <float> limits;        //clip limits for individual channels
+int colorspace ;                 //variable containing color space for pre processing
+
+
 public:
+
+
+void setChannel()
+{
+
+}
+
 /**
  * @brief this method constructs lookup table for transformation function for histogram equalization ie CDF of histogram
  * @param input image

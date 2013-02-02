@@ -26,7 +26,7 @@
 
 int n=10;
 int nbins=256;
-int clip_factor=14;
+int clip_factor=50;
 
 Mat src;
 string dname,name;
@@ -65,6 +65,16 @@ void on_trackbar( int, void* )
     float limit=clip_factor*0.1;
 
 
+    p.colorspace=HistogramEqualization::COLOR_SPACE::RGB;
+
+    //push channels for which to perform local histogram equalization
+    p.channel.push_back(2);
+    p.channel.push_back(0);
+    p.channel.push_back(1);
+    p.limits.push_back(50*0.1);
+    p.limits.push_back(50*0.1);
+    p.limits.push_back(50*0.1);
+
     Mat ahe=p.AHE(src,nx,ny,bins,0,limit);
 
 
@@ -98,6 +108,7 @@ void on_trackbar( int, void* )
 
      ahe=p.AHE(src,nx,ny,bins,1,limit);
      imshow("CLAHE",ahe);
+
     cv::imwrite(oname9,ahe);
     cv::imwrite(oname10,p.plot_hist(ahe));
 

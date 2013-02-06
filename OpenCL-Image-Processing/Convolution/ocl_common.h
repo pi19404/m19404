@@ -180,6 +180,7 @@ public:
     OCLX()
     {
         flag=0;
+        flagx=0;
     }
 
 
@@ -564,7 +565,17 @@ public:
     }
 
 
+cl_mem  create_rw_buffer(size_t bytes )
+{
 
+    cl_mem_flags flags = CL_MEM_READ_WRITE;
+    //if(id==0)
+    cl_int clErr;
+     cl_mem bufferx = clCreateBuffer(context,flags,bytes,NULL,NULL);
+     //checkErr(clErr,__FILE__,__LINE__);
+        //cl_int  clErr = clEnqueueWriteBuffer(queue,dbuffer,CL_TRUE,0,bytes,NULL,0,NULL,&event[id]);
+    return bufferx;
+}
 
 //function to write data to global buffer from host->device
     cl_int write_buffer(cl_mem dbuffer,size_t bytes,void *hbuffer,cl_event *event,int id)
@@ -758,12 +769,14 @@ public:
         string name[10];
         name[0]="conv2D_1";
         name[1]="conv2D_2";
-        //name[2]="conv1D_3";
+        name[2]="conv_row";
+       name[3]="conv_col";
 
         read_program((char *)source.c_str(),program,options);
         read_kernel(*program,&kernel[0],(char *)name[0].c_str());
         read_kernel(*program,&kernel[1],(char *)name[1].c_str());
-        //read_kernel(*program,&kernel[2],(char *)name[2].c_str());
+        read_kernel(*program,&kernel[2],(char *)name[2].c_str());
+        read_kernel(*program,&kernel[3],(char *)name[3].c_str());
 
     }
 
@@ -774,7 +787,7 @@ public:
     void *memory1;
 
     //common global memory pointer
-    cl_mem dimage1,dimage2,dimage3;
+    cl_mem dimage1,dimage2,dimage3,dimage4;
     //initialization flag for code to be run during first execution
     int flag;
 
@@ -782,7 +795,7 @@ public:
     /**
         funcation that call the kernel code for 2D convolution operation
       */
-    cl_int kernel_conv2(uchar *input,int width,int height,uchar *mask,int mwidth,int mheight,uchar *output,cl_kernel *ke,cl_program program)
+    cl_int kernel_conv2(uchar *input,int width,int height,uchar *mask,int mwidth,int mheight,int channel,uchar *output,cl_kernel *ke,cl_program program)
     {
 
 
@@ -804,32 +817,20 @@ public:
                       flag=1;
                  }
 
-                 size_t global[3] = {width,height,3};
+                 size_t global[3] = {width,height,channel};
                  size_t local[3] = {16,16,1};
 
                  //setting the kernel arguments
                  status= clSetKernelArg(kernel, 0, sizeof(cl_mem), &dimage1);
                  CHECK_OPENCL_ERROR(status,"");
 
-                 status= clSetKernelArg(kernel, 1, sizeof(cl_int),&width);
-                 CHECK_OPENCL_ERROR(status,"");
-
-                 status= clSetKernelArg(kernel, 2, sizeof(cl_int),&height);
-                 CHECK_OPENCL_ERROR(status,"");
 
 
-                 status= clSetKernelArg(kernel, 3, sizeof(cl_mem), &dimage2);
+                 status= clSetKernelArg(kernel, 1, sizeof(cl_mem), &dimage2);
                  CHECK_OPENCL_ERROR(status,"");
 
 
-                 status= clSetKernelArg(kernel, 4, sizeof(cl_int),&mwidth);
-                 CHECK_OPENCL_ERROR(status,"");
-
-                 status= clSetKernelArg(kernel, 5, sizeof(cl_int),&mheight);
-                 CHECK_OPENCL_ERROR(status,"");
-
-
-                 status= clSetKernelArg(kernel, 6, sizeof(cl_mem), &dimage3);
+                 status= clSetKernelArg(kernel, 2, sizeof(cl_mem), &dimage3);
                  CHECK_OPENCL_ERROR(status,"");
 
 
@@ -843,6 +844,88 @@ public:
 
     }
 
+    /*
+      OPENCL API TO CALL THE KERNEL FOR SEPARABLE CONVOLUTION IMPLEMENTATIION
+      */
+
+    int flagx;
+    cl_int kernel_conv_separable(uchar *input,int width,int height,uchar *mask,int mwidth,int mheight,uchar *output,float *temp,cl_kernel *ke,cl_program program)
+    {
+
+
+        cl_kernel kernel=ke[0];
+        cl_int status;
+
+
+
+                 cl_event event[5];
+                 size_t bytes1=width*height*sizeof(unsigned char);
+                 size_t bytes2=mwidth*mheight*sizeof(unsigned char);
+                 size_t bytes3=max(width,height)*max(width,height)*sizeof(float);
+
+
+                 if(flagx==0)
+                 {
+                      dimage1=create_rw_buffer(bytes1,input,0,NULL);
+                      dimage2=create_rw_buffer(bytes2,mask,0,NULL);
+                      dimage3=create_rw_buffer(bytes1,output,0,NULL);
+                      dimage4=create_rw_buffer(bytes3,temp,0,NULL);
+                      flagx=1;
+                 }
+
+                 size_t global[3] = {1,height,1};
+                 size_t local[3] = {1,16,1};
+
+                 //setting the kernel arguments
+                 status= clSetKernelArg(kernel, 0, sizeof(cl_mem), &dimage1);
+                 CHECK_OPENCL_ERROR(status,"");
+;
+
+
+                 status= clSetKernelArg(kernel, 1, sizeof(cl_mem), &dimage2);
+                 CHECK_OPENCL_ERROR(status,"");
+
+
+                 status= clSetKernelArg(kernel, 2, sizeof(cl_mem), &dimage4);
+                 CHECK_OPENCL_ERROR(status,"");
+
+                 int mode=0;
+                 status= clSetKernelArg(kernel, 3, sizeof(cl_int),&mode);
+                 CHECK_OPENCL_ERROR(status,"");
+
+                 //caling the kernel for row convolution
+                  status = clEnqueueNDRangeKernel(queue,kernel,3,NULL,global,local,0,NULL,&event[0]);
+                  CHECK_OPENCL_ERROR(status,"");
+
+
+
+                  kernel=ke[1];
+                  status= clSetKernelArg(kernel, 0, sizeof(cl_mem), &dimage4);
+                  CHECK_OPENCL_ERROR(status,"");
+
+                  status= clSetKernelArg(kernel, 1, sizeof(cl_mem), &dimage2);
+                  CHECK_OPENCL_ERROR(status,"");
+
+
+                  status= clSetKernelArg(kernel, 2, sizeof(cl_mem), &dimage3);
+                  CHECK_OPENCL_ERROR(status,"");
+
+                  mode=1;
+                  status= clSetKernelArg(kernel, 3, sizeof(cl_int),&mode);
+                  CHECK_OPENCL_ERROR(status,"");
+
+                  global[1] = width;
+                  //calling the kernel for column convolution after row convolution has completed
+                  status = clEnqueueNDRangeKernel(queue,kernel,3,NULL,global,local,1,event,&event[1]);
+                  CHECK_OPENCL_ERROR(status,"");
+
+
+                 //waiting for the kernel to complete operations
+                  status = clWaitForEvents(1,&event[0]);
+                  CHECK_OPENCL_ERROR(status,"");
+
+
+    }
 
 
     /**

@@ -1,0 +1,8 @@
+Setting of real/effective user Id to 0/0 failed
+FATAL: Module fglrx not found.
+Error! Fail to load fglrx kernel module! Maybe you can switch to root user to load kernel module directly
+Reading Kernel File ../Convolution/conv1.cl
+Average Time to execute naive parallel algorithm 8.83333  us
+Average  Time to optimized parallel algorithm 4.93333  us
+Average Time to execute serial 0.766667  us
+Error is 2116

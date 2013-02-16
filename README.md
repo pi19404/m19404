@@ -8,8 +8,13 @@ Refer to Listed Blogs : http://pi-virtualworld.blogspot.in/ ,http://eternalwande
 Below are some of algorithms for which code is added in repository
 
 Color-Constancy-Algorithms :Gray World,shade of gray,max rgb,gray edge,max edge,contrast stretching
+
 Image enhancement using Fusion : Image enhancement using Fusion algorithm
+
 Temporal Image filter : Laplacian of Gaussian Temporal Filter for motion segmentation
+
 Controlled Adaptive Local Histogram Equalization for image enhancement
+
 Histogram of Oriented Gradients (HOG) descriptor computation
+
 Parallel Programming using OpenCL - Color Conversion BGR-HSB,BGR-GRAY,HSV-BGR,2D Convolution,Box Filter,Convolution Using Seperable Filters

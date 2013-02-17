@@ -35,13 +35,29 @@ public class QuickFind {
     {
         int pid = id[p];
         int qid = id[q];
+        if(pid==qid)
+            return;
         for (int i = 0; i < id.length; i++)
         if (id[i] == pid) id[i] = qid;
+    }
+    
+    public void print(){
+        String s=new String();
+        for(int i=0;i<id.length;i++)
+            s=s+" "+id[i];
+        System.out.println(s); 
     }
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        QuickFind u=new QuickFind(10);
+        u.union(6,9);
+        u.union(3,5);
+        u.union(1,5);
+        u.union(4,9);
+        u.union(0,3);        
+        u.union(7,1);
+        u.print();
     }
 }

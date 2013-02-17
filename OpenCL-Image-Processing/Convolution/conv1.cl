@@ -57,9 +57,6 @@ if(gy <iter)
 		}
 		//writing to the transposed locations
 		output[(x*WIDTHSTEP)+(gy)*STEP+0]=(float)value;
-//		*p=value;
-//		output[(x*WIDTHSTEP)+(gy)*STEP+0]=(float)value;
-//		output[(x*WIDTHSTEP)+STEP*(gy)]=value;
 		if(STEP==3)
 		{
 			output[(x*WIDTHSTEP)+(gy)*STEP+1]=value1;
@@ -91,7 +88,7 @@ const int n=MASK_DIM/2;
 
 const int loop=mode*HEIGHT+(1-mode)*WIDTH;
 const int iter=mode*WIDTH+(1-mode)*HEIGHT;
-const int scale=MASK_WIDTH*MASK_HEIGHT;
+const int scale=SCALE;
 if(gy <iter)
 {
 
@@ -123,8 +120,8 @@ if(gy <iter)
 //		output[(x*WIDTHSTEP)+STEP*(gy)]=value;
 		if(STEP==3)
 		{
-			output[(x*WIDTHSTEP)+(gy)*STEP+1]=(DATA_TYPE)value1/scale;
-			output[(x*WIDTHSTEP)+(gy)*STEP+2]=(DATA_TYPE)value2/scale;
+			output[(x*WIDTHSTEP)+(gy)*STEP+1]=value1/scale;
+			output[(x*WIDTHSTEP)+(gy)*STEP+2]=value2/scale;
 		}				
 
 
@@ -135,7 +132,11 @@ if(gy <iter)
 
 }
 
+//${NDKROOT}/platforms/android-9/arch-arm/usr/include
+//${NDKROOT}/sources/cxx-stl/gnu-libstdc++/include
+//${ProjDirPath}/../../sdk/native/jni/include
 
+	
 
 
 

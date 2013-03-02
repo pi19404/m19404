@@ -16,6 +16,7 @@
  */
 #include <iostream>
 #include "RegionGrowing.hpp"
+#include "timeMeasure.hpp"
 using namespace std;
 
 int main(int argv, char** argc){
@@ -37,11 +38,14 @@ int main(int argv, char** argc){
 
     Mat a,src;
     a.create(240,320,CV_8UC(3));
+    TimeMeasure time1;
+    seed_fill_stack rr;
 
-    seed_fill rr;
-
-
+    struct timeval start,end,result;
+    int k1=0;
     int k=0;
+    gettimeofday(&start,NULL);
+
     do
     {
 
@@ -52,16 +56,28 @@ int main(int argv, char** argc){
         resize(src,a, a.size(), 0, 0, INTER_AREA);
 
 
+
+
+        Mat region_grow=rr.RegionGrowing (a,xx,yy,Scalar(255,255,255));
+
+        cv::circle(a,Point(xx,yy),10,Scalar(255,255,255),1,8);
         imshow("input image",a);
-
-        Mat region_grow=rr.RegionGrowing (a,xx,yy);
-
-          cv::imwrite("/data1/xx"+a2+".png",region_grow);
+          //cv::imwrite("/data1/xx"+a2+".png",region_grow);
           imshow("pre process",region_grow);
-          k=cv::waitKey(0);
+          k1=cv::waitKey(1);
 
+          k=k+1;
+          if(k%30==0 && k>0)
+          {
+              gettimeofday(&end,NULL);
+              long int diff=time1.timeval_subtract(&result,&end,&start);
+              double elapsed_secs = diff ;
+              cerr << "FPS is " << (double)30*1000000/elapsed_secs << endl;
+              gettimeofday(&start,NULL);
+              k=0;
+          }
 
-    }while(k!='r');
+    }while(k1!='r');
 
 
     return 0;

@@ -21,24 +21,66 @@
 seed_fill::seed_fill()
 {
     threshold=80;
+    bsize=5;
 }
 
+
+
 /** main function to call for region growing */
-Mat seed_fill::RegionGrowing(Mat a,int x,int y)
+Mat seed_fill::RegionGrowing(Mat a,int x,int y,Scalar color)
 {
     //setting up input and output matrices
     a.copyTo(input);
     a.copyTo(output);
+
+    //cv::Canny(input,edge,150,255,3,true);
+
+    nMinY=0;
+    nMinX=0;
+    nMaxY=input.rows-1;
+    nMaxX=input.cols-1;
+    int morph_size=1;
+    Mat element = getStructuringElement( cv::MORPH_RECT, Size( 2*morph_size + 1, 2*morph_size+1 ), Point( morph_size, morph_size ) );
+    ///cv::morphologyEx (input,input,cv::MORPH_OPEN,element,Point(1,1),1);
+
     output.setTo(cv::Scalar::all(0));
     //getting seed pixel values
     fill_color=GetPixel(x,y);
+    //fill_color=color;
 
     //generating the edge map
-    cv::Canny(input,edge,150,255,3,true);
+    Mat edge1;
+    cv::GaussianBlur (input,input,Size(3,3),1);
+    cv::Laplacian (input,edge1,input.depth (),1,1);
+
+    //
+    //cv::split(input,im);
+    //cv::morphologyEx (edge1,edge1,cv::MORPH_CLOSE,element,Point(1,1),1);
+    vector <Mat> em;
+    cv::split(edge1,em);cv::add (em[0],em[1],edge);cv::add (edge,em[2],edge);
+    edge=edge/3;
+
+
+
+    double K=1;
+    edge.convertTo (edge,CV_32FC(3),-1.0/(255.0*K),0);
+    cv::exp (edge,edge);
+    cv::threshold(edge,edge, std::exp(-1/K)+0.001, 0, THRESH_TOZERO );
+    edge=1-edge;
+    imshow("edge map",edge);
+    edge=255*edge;
+
+
+    double maxedge,minedge;
+    cv::minMaxLoc (edge,&minedge,&maxedge,0,0);
+    edge.convertTo (edge,CV_8UC(1),1,0);
 
     SeedFill_1(x,y);
+
     cvtColor(output,output,CV_BGR2GRAY);
     input.setTo (Scalar(0,255,255),output);
+
+
     return input;
 }
 
@@ -114,32 +156,74 @@ float seed_fill::ColorDist(Scalar a,Scalar b,int x,int y)
     float dist=0;
     float dist1=0;
 
-    Scalar c=Scalar(255,255,255);
+    Scalar c;
+    c[0]=255;c[1]=255,c[2]=255;
 
-    //computing color distance
+    //computing color distance from seed pixel
     dist=ColorDist3(a,b);
-
     //computing distance from white pixel
     dist1=ColorDist3(a,c);
 
 
 
-    //ROI for computing mean value of edge map
-    Rect r=Rect(x-3>=0?x-3:0,y-3>=0?y-3:0,3,3);
-    Mat rx=edge(r);
-    Scalar m=cv::mean(rx);
-    float mx=m[0];
+    int width=input.cols;
+    int height=input.rows;
+
+    //Computing the mean value of color and edge map
 
 
-    //color threshold check for overexposed areas
-    if(dist1+mx<threshold/2 && dist1+mx<dist)
+    int s1=x-bsize/2>=0?x-bsize/2:0;
+    int s2=y-bsize/2>=0?y-bsize/2:0;
+    int s3=(x-bsize/2+bsize)<=width?bsize:x-bsize/2+bsize-width-1;
+    int s4=(y-bsize/2+bsize)<=height?bsize:y-bsize/2+bsize-height-1;
+    Rect r=Rect(s1,s2,s3,s4);
+
+    float f1=0,f2=0,f3=0;
+    float f4=0,f5=0,f6=0;
+    Mat rx=edge;
+    uchar *ptr1=(uchar*)input.data;
+    uchar *ptr=(uchar*)rx.data;
+
+    for(int i1=0;i1<r.height;i1++)
     {
-        return dist1;
+
+        for(int j1=0;j1<r.width;j1++)
+        {
+            //computing the mean values for the edge map
+             f1=f1+ptr[(i1+r.y)*rx.step+rx.channels ()*(j1+r.x)];
+
+           //computing the mean values of white color pixe;s
+            f4=f4+ptr1[(i1+r.y)*input.step+input.channels()*(j1+r.x)];
+            f5=f5+ptr1[(i1+r.y)*input.step+input.channels ()*(j1+r.x)+1];
+            f6=f6+ptr1[(i1+r.y)*input.step+input.channels ()*(j1+r.x)+2];
+
+        }
+    }
+    f1=f1/(r.width*r.height);
+
+    f4=f4/(r.width*r.height);
+    f5=f5/(r.width*r.height);
+    f6=f6/(r.width*r.height);
+
+
+
+    Scalar cc=Scalar(ceil(f4),ceil(f5),ceil(f6));
+    float dist2=ColorDist3(cc,c);
+
+    float mx=f1;//+f2+f3;
+
+    //compring the distance threshold
+    //color threshold check for overexposed areas
+    //||((dist1+mx) < threshold && ( (dist1)<dist) ))
+    if(((dist2+mx) < threshold ))
+    {
+
+            return 0;
     }
     else
     {
-
-        return dist;
+        //cerr << ": " << mx;
+        return dist+mx;
 
     }
 
@@ -245,5 +329,293 @@ void seed_fill::SeedFill_1(int x, int y)
         SeedFill_1(x,y-1);
 
     }
+}
+
+bool seed_fill::check_color(int x,int y)
+{
+    Scalar b  = GetPixel(x,y);
+    float c= ColorDist(b,fill_color,x,y);
+    bool set=isSet(x,y);
+    bool flag=false;
+    flag=( (c< threshold && x >=0 && x <input.cols && y >=0 && y <input.rows &&set==false));
+    return flag;
+}
+
+void seed_fill::SeedFill_3(int x, int y)
+{
+
+        //bool set=isSet(x,y);
+        //if(set==false)
+            LineFill_3(x,x,y,fill_color);
+    }
+
+    // Fill background with given color
+
+void seed_fill_stack::SeedFill_4(int x, int y)
+{
+    cv::namedWindow ("iii");
+    int left,right;
+    int xa;
+    int xb;
+    if( x < nMinX || x > nMaxX || y < nMinX || y > nMaxY )
+         return;
+
+    //pushing initial seed pixel
+    lines.push (line_element(x,x,y,-1));
+
+    //performing the operation till stack is not empty
+    while(lines.size ()>0)
+    {
+
+
+        line_element p=lines.top ();
+        lines.pop ();
+        for( xa = p.left; xa >= nMinX && check_color(xa, p.y) == true; xa-- );
+        if(xa<p.left)
+        xa=xa+1;
+
+
+        for(xb=p.right ;xb < nMaxX && check_color(xb, p.y) == true; xb++);
+        if(xb>p.right)
+            xb=xb-1;
+
+
+        left=xa;
+        do
+        {
+        //cerr << "1:" <<xa << ": " << xb << ":" << left << ":" << p.y << endl;
+        for(xa=left;xa<nMaxX && check_color(xa, p.y) == true;xa++)
+        {
+                        SetPixel(xa, p.y, fill_color);
+        }
+
+        //cerr << "2:" <<xa << ": " << xb << ":" << left << endl;
+        if(xa>left)
+        {
+            lines.push (line_element(left,xa-1,p.y-1,-p.nexty));
+            lines.push (line_element(left,xa-1,p.y+1,-p.nexty));
+        }
+
+        for(;xa<xb && check_color(xa, p.y) == false;xa++);
+        left=xa;
+
+        //cerr << "3:" <<xa << ": " << xb << ":" << left << endl;
+        }while(xa<xb);
+
+        /*
+        //cerr << "completed " << endl;
+        if(xa<p.left)
+        {
+            left=xa+1;
+            if(left<p.left)
+            {
+                  //              lines.push (line_element(left,p.left-1,p.y+1,-p.nexty));
+                                lines.push (line_element(left,p.left-1,p.y-1,-p.nexty));
+            }
+
+            xa=p.left+1;
+            do{
+
+                for(;xa<nMaxX && check_color(xa, p.y) == true; xa++)
+                {
+
+                }
+                imshow("iii",output);
+
+                //lines.push (line_element(left,xa-1,p.y+1,-p.nexty));
+                lines.push (line_element(left,xa-1,p.y-1,-p.nexty));
+
+
+                if(xa>xb)
+                {
+                //lines.push (line_element(xb+1,xa-1,p.y+1,-p.nexty));
+                lines.push (line_element(xb+1,xa-1,p.y-1,-p.nexty));
+                }
+
+
+                for(;xa<=xb && check_color(xa, p.y) == false; xa++){;}
+                left=xa;
+            }while(xa<=xb);
+
+        }
+        else
+        {
+            for(;xa<=xb && check_color(xa, p.y) == false; xa++){;}
+            left=xa;
+
+            do{
+
+                for(xa=left;xa<p.right && check_color(xa, p.y) == true; xa++)
+                {
+                    SetPixel(xa, p.y, fill_color);
+                }
+                lines.push (line_element(left,xa-1,p.y+1,-p.nexty));
+                lines.push (line_element(left,xa-1,p.y-1,-p.nexty));
+
+
+                if(xa>xb)
+                {
+                lines.push (line_element(xb+1,xa-1,p.y+1,-p.nexty));
+                lines.push (line_element(xb+1,xa-1,p.y-1,-p.nexty));
+                }
+
+
+                for(;xa<=xb && check_color(xa, p.y) == false; xa++){;}
+                left=xa;
+            }while(xa<=xb);
+
+        }
+                //adding intermediate line segment
+            //filling the line segments
+
+
+            /*for(xb=right;xb>=nMinX && check_color(xb, p.y) == true; xb--)
+            {
+                SetPixel(xb, p.y, fill_color);
+            }*/
+
+
+
+
+           //     cv::waitKey(1);
+               //adding left line segment
+               /*if( left !=xa )
+               {
+
+                   lines.push (line_element(left,xa-1,p.y-1,-p.nexty));
+                   lines.push (line_element(left,xa-1,p.y+1,-p.nexty));
+               }*/
+
+
+            /*if(right!=xb)
+            {
+                  lines.push (line_element(xb+1,right,p.y+1,-p.nexty));
+                  lines.push (line_element(xb+1,right,p.y-1,-p.nexty));
+            }
+            else
+            {
+                continue;
+            }*/
+
+
+    }
+
 
 }
+
+    void seed_fill::LineFill_3(int x1, int x2, int y,
+            Scalar fill_color)
+    {
+        int xL,xR;
+        if( y < nMinY || nMaxY < y )
+            return;
+        for( xL = x1; xL >= nMinX; --xL ) { // scan left
+            if( check_color(xL,y)==false)
+                break;
+            SetPixel(xL, y);
+        }
+        for( xR = x2;  xR <= nMaxX; ++xR ) { // scan right
+            if( check_color(xR,y)==false)
+                break;
+            SetPixel(xR, y);
+        }
+
+
+        if( xL < x1 ) {
+            LineFill_3(xL, xR, y-1, fill_color); // fill child
+            LineFill_3(xL, xR, y+1, fill_color); // fill child
+            ++x1;
+        }
+
+        if(  xR > x2 ) {
+            LineFill_3(xL, xR, y-1, fill_color); // fill child
+            LineFill_3(xL, xR, y+1, fill_color); // fill child
+            --x2;
+        }
+        for( xR = x1; xR <= x2 && xR <= nMaxX; ++xR ) {  // scan betweens
+            if( check_color(xR,y) ==true)
+            SetPixel(xR, y);
+            else {
+                if( x1 < xR ) {
+                    // fill child
+                    LineFill_3(x1, xR-1, y-1, fill_color);
+                    // fill child
+                    LineFill_3(x1, xR-1, y+1, fill_color);
+                    x1 = xR;
+                }
+                // Note: This function still works if this step is removed.
+                for( ; xR <= x2 && xR <= nMaxX; ++xR) { // skip over border
+                    if( check_color(xR,y)==true) {
+                        x1 = xR--;
+                        break;
+                    }
+                }
+            }
+        }
+
+
+
+}
+
+    /** main function to call for region growing */
+    Mat seed_fill_stack::RegionGrowing(Mat a,int x,int y,Scalar color)
+    {
+        //setting up input and output matrices
+        a.copyTo(input);
+        a.copyTo(output);
+
+        //cv::Canny(input,edge,150,255,3,true);
+
+        nMinY=0;
+        nMinX=0;
+        nMaxY=input.rows-1;
+        nMaxX=input.cols-1;
+        int morph_size=1;
+        Mat element = getStructuringElement( cv::MORPH_RECT, Size( 2*morph_size + 1, 2*morph_size+1 ), Point( morph_size, morph_size ) );
+        ///cv::morphologyEx (input,input,cv::MORPH_OPEN,element,Point(1,1),1);
+
+        output.setTo(cv::Scalar::all(0));
+        //getting seed pixel values
+        fill_color=GetPixel(x,y);
+        fill_color=color;
+
+        //generating the edge map
+        Mat edge1;
+        cv::Laplacian (input,edge1,input.depth (),1,1);
+
+        //
+        //cv::split(input,im);
+        //cv::morphologyEx (edge1,edge1,cv::MORPH_CLOSE,element,Point(1,1),1);
+        vector <Mat> im,em;
+        cv::split(edge1,em);
+        cv::add (em[0],em[1],edge);
+        cv::add (edge,em[2],edge);
+        cv::GaussianBlur (edge,edge,Size(3,3),1);
+        //threshold(dst,dst, maxVal*qualityLevel, 0, THRESH_TOZERO );
+
+        double K=1;
+        edge.convertTo (edge,CV_32FC(3),-1.0/(255.0*K),0);
+        cv::exp (edge,edge);
+        cv::threshold(edge,edge, std::exp(-1/K)+0.001, 0, THRESH_TOZERO );
+        edge=1-edge;
+        imshow("edge map",edge);
+        edge=255*edge;
+        //cv::normalize(edge,edge,0,255,CV_MINMAX);
+
+        double maxedge,minedge;
+        cv::minMaxLoc (edge,&minedge,&maxedge,0,0);
+        edge.convertTo (edge,CV_8UC(1),1,0);
+        //cerr << "max edge is  " << maxedge << " min edge " << minedge <<endl;
+        //cv::add (im[0],em[0],im[0]);
+       // cv::add (im[1],em[1],im[1]);
+       // cv::add (im[2],em[2],im[2]);
+
+        SeedFill_4(x,y);
+        //imshow("input -",input);
+        cvtColor(output,output,CV_BGR2GRAY);
+        input.setTo (Scalar(0,255,255),output);
+
+
+        return input;
+    }
+

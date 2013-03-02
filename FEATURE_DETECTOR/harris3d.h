@@ -54,10 +54,11 @@ public:
     TemporalBoxFilter(int value)
     {
 
+        float sigma=1;
         ksize=value;
         kernel=(float *)malloc(ksize*sizeof(float));
         for(int i=0;i<ksize;i++)
-        kernel[i]=1;
+            kernel[i]=(1/sqrt(2*3.1412*sigma))*exp(-(i-ksize/2)*(i-ksize/2)/(2*sigma));
         cerr << "initialization completed " << endl;
     }
 
@@ -80,7 +81,7 @@ public:
                           for(int l=0;l<ksize;l++)
                            {
 
-                               int sindex=(index-l)%(ksize);
+                               int sindex=(index+1+l)%(ksize);
                               if(sindex<0)
                                   sindex=sindex+(ksize);
                               float *ptr=(float *)image[sindex].ptr<float>(i);
@@ -124,8 +125,8 @@ class SpatioTemporalDerivativeFilter
         bsize=5;
         ksize=3;
         kernel=(float *)malloc(ksize*sizeof(float));
-        kernel[0]=1;
-        kernel[1]=-2;
+        kernel[0]=-1;
+        kernel[1]=0;
         kernel[2]=1;
         aperture_size=3;
         borderType=cv::BORDER_DEFAULT;
@@ -140,9 +141,9 @@ class SpatioTemporalDerivativeFilter
         bsize=value[2];
         ksize=3;
         kernel=(float *)malloc(ksize*sizeof(float));
-        kernel[0]=1;
-        kernel[1]=-2;
-        kernel[2]=1;
+        kernel[0]=-1;
+        kernel[1]=2;
+        kernel[2]=-1;
         aperture_size=3;
         borderType=cv::BORDER_DEFAULT;
     }
@@ -154,7 +155,7 @@ class SpatioTemporalDerivativeFilter
 
       for(int k=0;k<bsize;k++)
       {
-          int sindex=(index-k)%(bsize+2);
+          int sindex=(index+1+k)%(bsize+2);
           if(sindex<0)
               sindex=sindex+(bsize+2);
 
@@ -180,6 +181,7 @@ class SpatioTemporalDerivativeFilter
         //out1.setTo (cv::Scalar::all (0));
 
 
+
         for(int i=0;i<image[0].rows;i++)
         {
             for(int j=0;j<image[0].cols;j++)
@@ -190,14 +192,13 @@ class SpatioTemporalDerivativeFilter
                         float value=0;
                         for(int l=0;l<ksize;l++)
                          {
-                             int sindex=(index-k-l)%(bsize+2);
+
+
+                             int sindex=(index+1+l+k)%(bsize+2);
                             if(sindex<0)
                                 sindex=sindex+(bsize+2);
-                            if(j==0 && i==0)
-                            {
-                                //cerr << sindex << "-" << index << ":" ;
-                            }
-
+//                            if(i==0&&j==0)
+//                                cerr << ":" << sindex ;
                             value=value+(kernel[l]*(float)image[sindex].at<uchar>(i,j));
                         }
 
@@ -232,17 +233,19 @@ Mat final_output;
 Mat final_return;
 SpatioTemporalDerivativeFilter t;       //object for computing spatio-temporal derivatives
 TemporalBoxFilter t1;
+Mat current_frame;
 double qualityLevel;
 public:
 harris3d()
     {
+    current_frame=Mat();
    start=false;
     block_size.resize(3);
-    block_size[2]=3;            //block size in termporal scale
-    block_size[0]=3;            //block size in  x spatial dimension
-    block_size[1]=3;            //block size in y spatial dimension
+    block_size[2]=7;            //block size in termporal scale
+    block_size[0]=11;            //block size in  x spatial dimension
+    block_size[1]=11;            //block size in y spatial dimension
     minDistance=10;
-    qualityLevel=0.01;
+    qualityLevel=0.00001;
     image.resize (block_size[2]+2);
     index=0;
     t.set_bsize (block_size);
@@ -261,6 +264,10 @@ harris3d()
 //        index=0;
 //    }
 
+Mat ret_current_frame()
+{
+    return current_frame;
+}
 
         bool start;
      vector<cv::Point2f> run(Mat src)
@@ -281,7 +288,6 @@ harris3d()
         {
             start=true;
           }
-
         if(start==false && index<ksize)
         {
 
@@ -297,15 +303,15 @@ harris3d()
             matrix1.copyTo (final_return);
             //cerr << index << ": " << output[index].rows << ": " << output[index].cols << endl;
         }
-
-            if(start==true)
+    else if(start==true)
             {
                 t.process(image,index,block_size[2],Dt,Dx,Dy);
-                Mat xx;
-                /*
+   //             Mat xx;
+
                 Mat xx=cv::abs(Dt[2]);
                 cv::normalize(xx,xx,0,1,CV_MINMAX);
                 imshow("Dt",xx);
+                /*
                 xx=cv::abs(Dx[2]);
                 cv::normalize(xx,xx,0,1,CV_MINMAX);
 
@@ -366,8 +372,8 @@ harris3d()
                 cv::split(block_data[k],channels);
                 for(int l=0;l<channels.size ();l++)
                 {
-
-                    cv::boxFilter (channels[l],channels[l],channels[l].depth(),Size(block_size[0],block_size[1]));
+                    cv::GaussianBlur (channels[l],channels[l],Size(block_size[0],block_size[1]),0.1);
+                    //cv::boxFilter (channels[l],channels[l],channels[l].depth(),Size(block_size[0],block_size[1]));
 
                 }
             }
@@ -524,10 +530,17 @@ harris3d()
      }
 
 
+             //int cindex=(index+2+(ksize/2))%(ksize+2);
+             //cerr << "current frame is " << index <<endl ;
+             int cindex=(index-ksize/2)%(ksize+2);
+             if(cindex<0)
+                 cindex=(cindex+ksize+2);
+             image[cindex].copyTo(current_frame);
+             //cerr << "written current frame " << index << ":" << cindex <<":" << current_frame.rows << ":" << current_frame.cols << endl;
 
             }
 
-                //imshow("3d Harris ",xx1);
+            //imshow("3d Harris ",xx1);
                 index =(index+1) % (ksize+2);
                 return corners;
 

@@ -28,6 +28,7 @@
 #include "harris_corner.hpp"
 #include "harris3d.h"
 #include "timeMeasure.hpp"
+#include "fast.h"
 using namespace std;
 using namespace cv;
 
@@ -46,7 +47,7 @@ int main(int argc,char *argv[])
     if(argc <5 )
     {
         cerr << "Usage : FEATURE_DETECTOR  directory filename V/I(for video/file )  detector_id"   << endl;
-        cerr << "detector id is 0 for good feature to track,1 for harris corner detector,2 is for 3d harris corner detector" << endl;
+        cerr << "detector id is 0 for good feature to track,1 for harris corner detector,2 is for 3d harris corner detector,3 is for FastFeature Detector" << endl;
         return -1;
     }
     string a1=(argv[1]);
@@ -75,17 +76,24 @@ int main(int argc,char *argv[])
         vmode=0;
     }
 
-
+    cv::namedWindow ("input");
+    cv::namedWindow ("output");
+    cerr << "Press key to start " << endl;
+    cv::waitKey (0);
 
     a.create(240,320,CV_8UC(1));
     t.create(240,320,CV_8UC(3));
     resize(src,a, a.size(), 0, 0, INTER_NEAREST);
 
     feature_detector::feature_detector *detector;
+    feature_detector::harris3d tr2;
+    feature_detector::good_features_to_track tr1;
+    feature_detector::fast tr3;
     if(did==0)
     {
 
-        detector=new feature_detector::good_features_to_track();
+
+         detector=&tr1;
     }
     else if(did==1)
     {
@@ -93,8 +101,28 @@ int main(int argc,char *argv[])
     }
     else if(did==2)
     {
-        detector=new feature_detector::harris3d();
+
+         detector=&tr2;
     }
+    else if(did==3)
+    {
+         detector=&tr3;
+    }
+
+
+         Size S = Size(320,240);
+
+        VideoWriter outputVideo;                                        // Open the output
+         outputVideo.open("out.avi", CV_FOURCC('M', 'J', 'P', 'G'),10, S,true);
+
+
+
+         if (!outputVideo.isOpened())
+         {
+             cout  << "Could not open the output video for write: " << source << endl;
+             return -1;
+         }
+
     int k=0;
     gettimeofday(&start,NULL);
     int i=0;
@@ -113,7 +141,7 @@ int main(int argc,char *argv[])
         cvtColor(t,t1,CV_BGR2GRAY);
         t1.copyTo(a);
 
-        imshow("input",a);
+        imshow("input",t);
         vector <Point> corners2;
         if(did==1||did==0)
         {
@@ -145,14 +173,63 @@ int main(int argc,char *argv[])
         }
         else if(did==2)
         {
+
+
             Mat t3;
             t.copyTo (t3);
             vector<Point2f> corners3=detector->run(a);
+
+            //cerr << corners3.size ();
+            if(corners3.size ()>0)
+            {
+            Mat t4=detector->ret_current_frame();
+
+            if(t4.rows>0 && t4.cols >0)
+            {
+               cvtColor(t4,t4,CV_GRAY2BGR);
             for( int i =  0; i < corners3.size(); i++ )
             {
+
+                    circle(t4,corners3[i], 3, Scalar(255,255,0), -1, 8);
+            }
+            imshow("output",t4);
+            }
+            else
+            {
+                for( int i =  0; i < corners3.size(); i++ )
+                {
+
+                        circle(t3,corners3[i], 3, Scalar(255,255,0), -1, 8);
+                }
+                imshow("output",t3);
+            }
+            }
+
+        }
+        else if(did==3)
+        {
+//            FastFeatureDetector fx;
+            Mat t3;
+            t.copyTo (t3);
+  /*          vector<KeyPoint> keypoints1;
+            fx.detect (a,keypoints1);
+
+           for(vector<KeyPoint>::const_iterator it = keypoints1.begin(); it < keypoints1.end(); ++it )
+            {
+               circle(t3, it->pt, 3, Scalar(255,255,0));
+             }
+           imshow("output1",t3);
+           */
+           t.copyTo (t3);
+
+            vector<Point2f> corners3=detector->run(a);
+            for( int i =  0; i < corners3.size(); i++ )
+            {
+
                     circle(t3,corners3[i], 3, Scalar(255,255,0), -1, 8);
             }
-                    imshow("Harris 3d",t3);
+            imshow("output",t3);
+            outputVideo << t3;
         }
 
         i=i+1;
@@ -174,6 +251,7 @@ int main(int argc,char *argv[])
     }while(k!='e');
 
 
+    outputVideo.release ();
 
 
 }

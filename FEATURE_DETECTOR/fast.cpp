@@ -60,9 +60,11 @@ vector<Point2f> feature_detector::fast::run (Mat src)
             checks1.push_back ((int)offset[i].y*src.step+(int)offset[i].x);
     }
     vector<Point2f> corners;
+    vector<Point2f> corners1;
 
     Mat dst;
     src.copyTo (dst);
+
     dst.convertTo (dst,CV_32FC(1),1,0);
     dst.setTo (cv::Scalar::all (0));
     //int value[offset.size ()];
@@ -113,13 +115,19 @@ vector<Point2f> feature_detector::fast::run (Mat src)
 
                     int flag1=(k==0)?(x<v1-threshold):(x>v1+threshold);
                     count=(flag1==1)?count+1:0; //set count to 0 if no suitable pixels found
+                    //computing the response function
                     response_tmp=(flag1==1)?response_tmp+std::abs(x-v1-threshold):0;
+
+
+                    //computing harris corner response
+
+
                     if(count > K ) break;	//12 continous pixel detected
                 }
 
                 if(count>K)
                 {
-                //corners1.push_back(Point2f(j,i));
+                corners1.push_back(Point2f(j,i));
 
                 ptr1[j]=response_tmp;
                 //response.push_back (response_tmp);
@@ -130,11 +138,14 @@ vector<Point2f> feature_detector::fast::run (Mat src)
             }
         }
 
+       //computing the harris scores for corner filtering
+      //using kepoint structure
 
 
         //thresholding the eigen values
         double maxVal = 0,minVal=0;
         minMaxLoc(dst, &minVal, &maxVal, 0, 0,Mat() );
+        minMaxLoc(corners1, &minVal, &maxVal, 0, 0,Mat() );
         //cerr << maxVal <<":" <<minVal << endl;
         //threshold(dst,dst, maxVal*qualityLevel, 0, THRESH_TOZERO );
 
@@ -144,7 +155,6 @@ vector<Point2f> feature_detector::fast::run (Mat src)
 
 
         //selecting points at minimum distance from each other
-
         //if(1==1)
         Mat tmp;
         src.copyTo (tmp);

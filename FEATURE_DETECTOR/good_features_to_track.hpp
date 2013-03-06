@@ -14,7 +14,9 @@
  *   limitations under the License.
  * ========================================================================
  */
+#ifndef GOOD_FEATURES_TO_TRACK_HPP
 #define GOOD_FEATURES_TO_TRACK_HPP
+
 #include "feature_detector.hpp"
 
 namespace  feature_detector
@@ -241,7 +243,7 @@ void setblock_size(int value)
         {
 
             b.push_back(i);
-            circle(tmp,tmp_corners[i], 3, Scalar(255,255,255), -1, 8);
+//            circle(tmp,tmp_corners[i], 3, Scalar(255,255,255), -1, 8);
 
         }
 
@@ -270,7 +272,7 @@ void setblock_size(int value)
             if(good==true)
             {
 
-                circle(xx1,tmp_corners[b[i]],3, Scalar(255,ncorners,ncorners), -1, 8);
+//                circle(xx1,tmp_corners[b[i]],3, Scalar(255,ncorners,ncorners), -1, 8);
                 corners.push_back(tmp_corners[b[i]]);
                 ncorners++;
 

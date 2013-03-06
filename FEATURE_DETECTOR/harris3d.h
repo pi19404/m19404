@@ -241,11 +241,11 @@ harris3d()
     current_frame=Mat();
    start=false;
     block_size.resize(3);
-    block_size[2]=7;            //block size in termporal scale
-    block_size[0]=11;            //block size in  x spatial dimension
-    block_size[1]=11;            //block size in y spatial dimension
+    block_size[2]=5;            //block size in termporal scale
+    block_size[0]=5;            //block size in  x spatial dimension
+    block_size[1]=5;            //block size in y spatial dimension
     minDistance=10;
-    qualityLevel=0.00001;
+    qualityLevel=0.001;
     image.resize (block_size[2]+2);
     index=0;
     t.set_bsize (block_size);

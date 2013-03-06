@@ -29,6 +29,7 @@
 #include "harris3d.h"
 #include "timeMeasure.hpp"
 #include "fast.h"
+#include "fast3d.hpp"
 using namespace std;
 using namespace cv;
 
@@ -46,8 +47,8 @@ int main(int argc,char *argv[])
     struct timeval start,end,result;
     if(argc <5 )
     {
-        cerr << "Usage : FEATURE_DETECTOR  directory filename V/I(for video/file )  detector_id"   << endl;
-        cerr << "detector id is 0 for good feature to track,1 for harris corner detector,2 is for 3d harris corner detector,3 is for FastFeature Detector" << endl;
+        cerr << "Usage : FEATURE_DETECTOR  directory filename V/I/C(for video/file/camera )  detector_id"   << endl;
+        cerr << "detector id is 0 for good feature to track,1 for harris corner detector,2 is for 3d harris corner detector,3 is for FastFeature,4  is for fast3d Detector" << endl;
         return -1;
     }
     string a1=(argv[1]);
@@ -59,10 +60,13 @@ int main(int argc,char *argv[])
     VideoCapture inputVideo;
     TimeMeasure time1;
         Mat a,src,t;
-    if(strcmp(a3.c_str (),"V")==0)
+    if((strcmp(a3.c_str (),"V")==0)||(strcmp(a3.c_str (),"C")==0))
     {
         vmode=1;
+        if((strcmp(a3.c_str (),"V")==0))
             inputVideo.open (source);
+        else
+            inputVideo.open (0);
             if (!inputVideo.isOpened())
             {
                 cout  << "Could not open the input video: " << source << endl;
@@ -70,7 +74,7 @@ int main(int argc,char *argv[])
             }
             inputVideo >> src;
     }
-    else
+    else if(strcmp(a3.c_str (),"I")==0)
     {
         src=imread(source);
         vmode=0;
@@ -89,6 +93,7 @@ int main(int argc,char *argv[])
     feature_detector::harris3d tr2;
     feature_detector::good_features_to_track tr1;
     feature_detector::fast tr3;
+    feature_detector::fast3d tr4;
     if(did==0)
     {
 
@@ -108,7 +113,10 @@ int main(int argc,char *argv[])
     {
          detector=&tr3;
     }
-
+    else if(did==4)
+    {
+         detector=&tr4;
+    }
 
          Size S = Size(320,240);
 
@@ -136,10 +144,13 @@ int main(int argc,char *argv[])
         else
         x.copyTo(src);
 
+
         if (src.empty()) break;         // check if at end
         resize(src,t, t.size(), 0, 0, INTER_AREA);
-        cvtColor(t,t1,CV_BGR2GRAY);
+        Mat tx=t;//t(Rect(100,100,100,100));
+        cvtColor(tx,t1,CV_BGR2GRAY);
         t1.copyTo(a);
+
 
         imshow("input",t);
         vector <Point> corners2;
@@ -154,8 +165,8 @@ int main(int argc,char *argv[])
         vector<Point2f> corners3=detector->run(a);
 
         Mat t2,t3;
-        t.copyTo(t2);
-        t.copyTo(t3);
+        tx.copyTo(t2);
+        tx.copyTo(t3);
 //        cerr << corners1.size() <<":" << corners2.size()<< endl;
 
         for( int i =  0; i < corners2.size(); i++ )
@@ -176,7 +187,7 @@ int main(int argc,char *argv[])
 
 
             Mat t3;
-            t.copyTo (t3);
+            tx.copyTo (t3);
             vector<Point2f> corners3=detector->run(a);
 
             //cerr << corners3.size ();
@@ -206,11 +217,11 @@ int main(int argc,char *argv[])
             }
 
         }
-        else if(did==3)
+        else if(did==3||4)
         {
 //            FastFeatureDetector fx;
             Mat t3;
-            t.copyTo (t3);
+
   /*          vector<KeyPoint> keypoints1;
             fx.detect (a,keypoints1);
 
@@ -220,15 +231,25 @@ int main(int argc,char *argv[])
              }
            imshow("output1",t3);
            */
-           t.copyTo (t3);
-
+           //a.copyTo (t3);
+            tx.copyTo (t3);
             vector<Point2f> corners3=detector->run(a);
+            if(did==4 && corners3.size ()>0)
+            {
+                Mat t4=detector->ret_current_frame();
+                t4.copyTo (t3);
+                cv::cvtColor(t3,t3,CV_GRAY2BGR);
+            }
+
+
+
             for( int i =  0; i < corners3.size(); i++ )
             {
 
                     circle(t3,corners3[i], 3, Scalar(255,255,0), -1, 8);
             }
             imshow("output",t3);
+
             outputVideo << t3;
         }
 

@@ -55,10 +55,15 @@ class feature_detector
 public:
     feature_detector()
     {
-        maxCorners=100;
+        maxCorners=50;
     }
 protected:
-
+    template<class T> struct index_cmp {
+    index_cmp(const T arr) : arr(arr) {}
+    bool operator()(const size_t a, const size_t b) const
+    { return arr[a] > arr[b]; }
+    const T arr;
+    };
     uint maxCorners;
 
     //uint ;        //max corners to be returned
@@ -76,6 +81,12 @@ public:
     {
         maxCorners=value;
     }
+
+    virtual Mat ret_current_frame()
+    {
+        return Mat();
+    }
+
 
     //method to set minDistance value
     void setminDistance(uint value)

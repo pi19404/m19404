@@ -20,8 +20,6 @@ class Histogram{
         //Returns image threshold values for pixels less than lowerRatio% and greater than (100-upperRatio)% of total pixels
         std::vector<int> getThresh(cv::Mat srcImage, float s1, float s2);
 
-        //Returns a vector of images to visualize histogram
-        std::vector<cv::Mat> drawHistograms(cv::Mat srcImage);
 
     private:
         cv::Mat _histMat; //Histogram Mat
@@ -30,11 +28,7 @@ class Histogram{
         float _range[2]; //Range to be considered
         const float* _histRange;  //Range for all the matrices
 
-        //Parameters related to drawing histogram
-        int _offSetX;
-        int _offSetY;
-        int _widthPerBin;
-        int _binHeight;
+
 };
 
 #endif

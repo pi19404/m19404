@@ -100,7 +100,7 @@ int main(int argv, char** argc){
         Scalar m4=stretch.getLUT (m3);
 
         resize(src,a, a.size(), 0, 0, INTER_AREA);
-        /*cerr << "input image        -minimum  " << m1[0] << ":" << m1[1] <<":" << m1[2] << endl;
+        cerr << "input image        -minimum  " << m1[0] << ":" << m1[1] <<":" << m1[2] << endl;
         cerr << "stretched image    -minimum  " << m2[0] << ":" << m2[1] <<":" << m2[2] << endl;
         cerr << "input image        -maximum  " << m3[0] << ":" << m3[1] <<":" << m3[2] << endl;
         cerr << "stretched image    -maximum  " << m4[0] << ":" << m4[1] <<":" << m4[2] << endl;
@@ -126,11 +126,11 @@ int main(int argv, char** argc){
 
         cerr << endl;
         cerr << endl;
-        */
+
         stretch.setmode (Mode::V1);
         out1=stretch.GlobalContrastStretching (a);
         imshow("modified  stretch",out1);
-        /*
+
         m2=stretch.getLUT (m1);
         m4=stretch.getLUT (m3);
         cerr << endl;
@@ -143,15 +143,8 @@ int main(int argv, char** argc){
           imshow("modified  stretch",out1);
         cerr << endl;
         cerr << endl;
-*/
-        stretch.setmode (Mode::CLAHE);
-        vector<int> ch;
-        ch.push_back (0);ch.push_back (0);ch.push_back (1);
-        stretch.set_channels (ch);
-        out1=stretch.AHE (a,10,10,256);
-        imshow("modified  stretch 2",out1);
-        //cv::minMaxLoc (out1,&min1,&max1,0,0);
-        //cerr << "input image " << min1 <<":" << max1 << endl;
+
+
         k=cv::waitKey (1);
        i=i+1;
        if(i%30==0 && i>0)

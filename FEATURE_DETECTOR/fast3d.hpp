@@ -41,9 +41,20 @@ Mat current_frame;
 int borderType;
 int threshold;
 int block_size;
+int corner_count;
 //Mat final_output;
 double qualityLevel;
 public:
+
+bool status()
+{
+    return start;
+}
+void set_status(bool st)
+{
+    start=false;
+}
+
 fast3d()
 {
     block_size=10;
@@ -57,6 +68,8 @@ fast3d()
     index=0;
     threshold=10;
     maxCorners=100;
+    start=false;
+    corner_count=0;
 }
 
 // response comparison, for list sorting
@@ -73,6 +86,11 @@ struct pred
         return a.response > b.response;
     }
 };
+
+void reset()
+{
+    start=false;
+}
 
 Mat ret_current_frame()
 {
@@ -234,7 +252,7 @@ Mat ret_current_frame()
                     double l2 = u + v;    //maximum eigen values
 
                     //storing the response function
-                    k.response=l1;
+                    k.response=l2;
                 }
 
                //sort(keypoints.begin(), keypoints.end(), pred());
@@ -373,6 +391,7 @@ Mat ret_current_frame()
                      break;
              }
 
+             corner_count=ncorners;
              int cindex=(index+2)%(aperture_size);
              if(cindex<0)
                  cindex=(cindex+aperture_size);
@@ -383,12 +402,17 @@ Mat ret_current_frame()
 
                 index =(index+1) % (aperture_size);
 
+
                 return corners;
 
 
 
     }
 
+      int get_count()
+     {
+            return corner_count;
+        }
 };
 }
 #endif // HARRIS3D_H

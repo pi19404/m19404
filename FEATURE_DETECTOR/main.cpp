@@ -30,6 +30,7 @@
 #include "timeMeasure.hpp"
 #include "fast.h"
 #include "fast3d.hpp"
+#include "OpticalFlow1.h"
 using namespace std;
 using namespace cv;
 
@@ -44,6 +45,7 @@ using namespace cv;
 int main(int argc,char *argv[])
 {
 
+    opticalflow1 flow;
     struct timeval start,end,result;
     if(argc <5 )
     {
@@ -120,20 +122,12 @@ int main(int argc,char *argv[])
 
          Size S = Size(320,240);
 
-        VideoWriter outputVideo;                                        // Open the output
-         outputVideo.open("out.avi", CV_FOURCC('M', 'J', 'P', 'G'),10, S,true);
-
-
-
-         if (!outputVideo.isOpened())
-         {
-             cout  << "Could not open the output video for write: " << source << endl;
-             return -1;
-         }
-
+    int vindex=0;
     int k=0;
     gettimeofday(&start,NULL);
     int i=0;
+    bool record=false;
+    VideoWriter outputVideo;                                        // Open the output
     do//Show the image captured in the window and repeat
     {
         Mat t1;
@@ -147,7 +141,10 @@ int main(int argc,char *argv[])
 
         if (src.empty()) break;         // check if at end
         resize(src,t, t.size(), 0, 0, INTER_AREA);
-        Mat tx=t;//t(Rect(100,100,100,100));
+        Rect roi=Rect(t.cols/2-50,t.rows/2-50,100,150);
+        Mat draw=t;
+        Mat tx=t(roi);
+
         cvtColor(tx,t1,CV_BGR2GRAY);
         t1.copyTo(a);
 
@@ -221,9 +218,13 @@ int main(int argc,char *argv[])
         {
 //            FastFeatureDetector fx;
             Mat t3;
+            //tx=flow.run (tx);
 
-  /*          vector<KeyPoint> keypoints1;
-            fx.detect (a,keypoints1);
+            //imshow("flow",t);
+
+/*
+            vector<KeyPoint> keypoints1;
+            fx.detecct (a,keypoints1);
 
            for(vector<KeyPoint>::const_iterator it = keypoints1.begin(); it < keypoints1.end(); ++it )
             {
@@ -231,26 +232,54 @@ int main(int argc,char *argv[])
              }
            imshow("output1",t3);
            */
-           //a.copyTo (t3);
+
+
+
+
+            a.copyTo (t3);
             tx.copyTo (t3);
             vector<Point2f> corners3=detector->run(a);
-            if(did==4 && corners3.size ()>0)
+            detector->setMaxCorners (300);
+            int count=detector->get_count();
+            if(did==4 && corners3.size ()<10 )
             {
                 Mat t4=detector->ret_current_frame();
-                t4.copyTo (t3);
+                if(t4.rows>0 && t4.cols>0)
+                {
+                t4.copyTo (t3);                
                 cv::cvtColor(t3,t3,CV_GRAY2BGR);
+                }
+                record=false;
+                vindex=vindex+1;
+                outputVideo.release ();
             }
+            else
+            {
+                record=true;
+                char file[1000];
+                sprintf(file,"/data1/%d_out.avi",vindex);
+                S=a.size();
+                 outputVideo.open(file, CV_FOURCC('M', 'J', 'P', 'G'),10, S,true);
 
+                 if (!outputVideo.isOpened())
+                 {
+                     cout  << "Could not open the output video for write: " << source << endl;
+                     return -1;
+                 }
 
+            }
 
             for( int i =  0; i < corners3.size(); i++ )
             {
-
-                    circle(t3,corners3[i], 3, Scalar(255,255,0), -1, 8);
+                circle(tx,corners3[i], 3, Scalar(255,255,0), -1, 8);
             }
-            imshow("output",t3);
+            Mat xx=draw(roi);
+            tx.copyTo (xx);
+            cv::rectangle (draw,roi,Scalar(0,255,255),3);
+            imshow("output",draw);
+            //cv::rectangle (t,roi,Scalar(255,0,0),1,8);
+            //outputVideo << t3;
 
-            outputVideo << t3;
         }
 
         i=i+1;
@@ -272,7 +301,7 @@ int main(int argc,char *argv[])
     }while(k!='e');
 
 
-    outputVideo.release ();
+
 
 
 }

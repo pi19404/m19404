@@ -93,7 +93,10 @@ public:
     {
         minDistance=value;
     }
-
+    int get_count()
+   {
+        return 0;
+      }
 };
 }
 

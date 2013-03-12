@@ -39,6 +39,7 @@ public:
 /** The main method to call to perform color correction using modified contrast stretching The only input required is the input image
 *   The method computes the lower and higher threshold pixel values and then calls the contrast_stretching method **/
 Mat  run(Mat);
+Mat  run1(Mat src);
 };
 
 

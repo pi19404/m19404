@@ -58,8 +58,8 @@ int main(int argc, char *argv[])
     // Transform from int to char via Bitwise operators
     char EXT[] = {(char)(ex & 0XFF) , (char)((ex & 0XFF00) >> 8),(char)((ex & 0XFF0000) >> 16),(char)((ex & 0XFF000000) >> 24), 0};
 
-    Size S = Size((int) inputVideo.get(CV_CAP_PROP_FRAME_WIDTH),    // Acquire input size
-                  (int) inputVideo.get(CV_CAP_PROP_FRAME_HEIGHT));
+    Size S = Size(320,240);   // Acquire input size
+                  //(int) inputVideo.get(CV_CAP_PROP_FRAME_HEIGHT));
 
     VideoWriter outputVideo;                                        // Open the output
     if (askOutputType)
@@ -81,16 +81,19 @@ int main(int argc, char *argv[])
     Mat src, res;
     vector<Mat> spl;
     Mat a;
-    a.create(240,320,CV_8U(3));
+    a.create(240,320,CV_8UC(3));
+
+
     for(;;) //Show the image captured in the window and repeat
     {
         inputVideo >> src;              // read
 
         if (src.empty()) break;         // check if at end
-        imshow("input",src);
+
         cvtColor(src,src,CV_BGR2GRAY);
         resize(src,a, a.size(), 0, 0, INTER_NEAREST);
-        dst=filter.temporal_filter(src);
+        imshow("input",a);
+        dst=filter.temporal_filter(a);
 
         cvtColor(dst,res,CV_GRAY2BGR);
        //outputVideo.write(res); //save or

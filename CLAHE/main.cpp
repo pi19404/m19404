@@ -119,7 +119,7 @@ void on_trackbar( int, void* )
 
 }
 
-int main(int argc,char *argv[])
+int mainx(int argc,char *argv[])
 {
 
     Mat image;

@@ -18,7 +18,10 @@ LIBS += -L/usr/local/lib `pkg-config --libs opencv`
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    HistogramEqualization.cpp
+    HistogramEqualization.cpp \
+    ../ColorConstancy/color_constancy.cpp \
+    ../FusionEnhancement/laplacianBlend.cpp \
+    main1.cpp
 
 
 HEADERS  += mainwindow.h \

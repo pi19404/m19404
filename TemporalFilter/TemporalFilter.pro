@@ -16,8 +16,8 @@ LIBS += -L/usr/local/lib `pkg-config --libs opencv`
 
 
 SOURCES += main.cpp \
-    TemporalFilter.cpp \
-    old_main.cpp
+    TemporalFilter.cpp
+
 
 HEADERS += \
     TemporalFilter.hpp

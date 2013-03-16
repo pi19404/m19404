@@ -42,14 +42,19 @@ Mat  color_correction::contrast_stretching::run(Mat src)
 
           int N=src.rows*src.cols;
 
-          float s1=3,s2=3;
+          float s11=5,s12=5;
+          float s21=5,s22=5;
+          float s31=0,s32=1;
 
 
 
 
 
           vector<Mat> bgr_planes;
-          split( src, bgr_planes );
+          vector<Mat> bgr_planes1;
+//          cv::cvtColor(src,src,CV_BGR2HSV_FULL);
+          split( src, bgr_planes);
+          split( src, bgr_planes1);
 
 
           /// Establish the number of bins
@@ -97,30 +102,168 @@ Mat  color_correction::contrast_stretching::run(Mat src)
 
           //find the lower and uppder saturation thresholds for all the three channels
 
-          while( vmin1<histSize-1 && cbhist[vmin1] <= (float)N * s1 / 100)
+          while( vmin1<histSize-1 && cbhist[vmin1] <= (float)N * s11 / 100)
           {
               vmin1 = vmin1 + 1;
 
           }
 
-          while(vmax1 < histSize  && cbhist[vmax1] > (float)N * (1 - s2 / 100))
+          while(vmax1 < histSize  && cbhist[vmax1] > (float)N * (1 - s12 / 100))
               vmax1 = vmax1 - 1;
 
           if(vmax1 < histSize -1)
               vmax1 =vmax1 + 1;
 
 
-          while(vmin2<histSize-1 && cghist[vmin2] <= (float)N * s1 / 100)
+          while(vmin2<histSize-1 && cghist[vmin2] <= (float)N * s21 / 100)
               vmin2 = vmin2 + 1;
 
-          while(vmax2 < histSize && cghist[vmax2] >(float) N * (1 - s2 / 100))
+          while(vmax2 < histSize && cghist[vmax2] >(float) N * (1 - s22 / 100))
               vmax2 = vmax2 - 1;
 
 
-          while(vmin3<histSize-1 && crhist[vmin3] <= (float)N * s1 / 100)
+          while(vmin3<histSize-1 && crhist[vmin3] <= (float)N * s31 / 100)
               vmin3 = vmin3 + 1;
 
-          while(vmax3 < histSize &&  crhist[vmax3] > (float)N * (1 - s2 / 100))
+          while(vmax3 < histSize &&  crhist[vmax3] > (float)N * (1 - s32 / 100))
+              vmax3 = vmax3 - 1;
+
+
+
+          if(vmax2 < histSize -1)
+              vmax2 =vmax2 + 1;
+
+          if(vmax3 < histSize -1)
+              vmax3 =vmax3 + 1;
+
+
+
+          double a1,a2;
+          Point i1,i2;
+          cv::minMaxLoc(bgr_planes[2],&a1,&a2,&i1,&i1);
+          Scalar s;
+          s=cv::mean(bgr_planes[2]);
+          cerr << s[0] << ":" << a1 << " vmin " << vmin3 << " vmax" << vmax3 << ":" << a2 << endl;
+
+
+        //perform contrast stretching
+        cstretch(src,dst,vmin1,vmax1,0);
+        cstretch(src,dst,vmin2,vmax2,1);
+        if(a2>150)
+        {
+            if(vmax3<50)
+                vmax3=50;
+                cstretch(src,dst,vmin3,vmax3,2);
+        }
+
+        cv::split(dst,bgr_planes);
+   //     bgr_planes[0]= bgr_planes1[0];
+    //    bgr_planes[1]= bgr_planes1[1];
+        //bgr_planes[2]= bgr_planes1[2];
+        cv::merge(bgr_planes,dst);
+    //    cv::cvtColor(dst,dst,CV_HSV2BGR_FULL);
+   //     cv::cvtColor(src,src,CV_HSV2BGR_FULL);
+        //dst.copyTo(src);
+        return dst;
+    }
+
+Mat  color_correction::contrast_stretching::run1(Mat src)
+{
+
+
+        Mat dst;
+        src.copyTo(dst);
+
+          Mat src1;
+          src.copyTo(src1);
+
+
+          int N=src.rows*src.cols;
+
+          float s11=1,s12=1;
+          float s21=1,s22=1;
+          float s31=1,s32=1;
+
+
+
+
+
+          vector<Mat> bgr_planes;
+          vector<Mat> bgr_planes1;
+          cv::cvtColor(src,src,CV_BGR2HSV_FULL);
+          split( src, bgr_planes);
+          split( src, bgr_planes1);
+
+
+          /// Establish the number of bins
+          int histSize = 256;
+
+          /// Set the ranges ( for B,G,R) )
+          float range[] = { 0, 256} ;
+          const float* histRange = { range };
+
+          bool uniform = true; bool accumulate = false;
+
+          Mat b_hist, g_hist, r_hist;
+          float cbhist[histSize],cghist[histSize],crhist[histSize];
+          int vmin1=0,vmin2=0,vmin3=0;
+          int vmax1 = histSize-1 ,vmax2=histSize-1,vmax3=histSize-1;
+          vmax2=vmax1;
+          vmax3=vmax1;
+
+
+          /// Compute the histograms:
+          calcHist( &bgr_planes[0], 1, 0, Mat(), b_hist, 1, &histSize, &histRange, uniform, accumulate );
+          calcHist( &bgr_planes[1], 1, 0, Mat(), g_hist, 1, &histSize, &histRange, uniform, accumulate );
+          calcHist( &bgr_planes[2], 1, 0, Mat(), r_hist, 1, &histSize, &histRange, uniform, accumulate );
+
+
+
+          //compute the CDF
+          for(int i=0;i<histSize;i++)
+          {
+              if(i==0)
+              {
+                cbhist[i]=b_hist.at<float>(i);
+                cghist[i]=g_hist.at<float>(i);
+                crhist[i]=r_hist.at<float>(i);
+              }
+              else
+              {
+                cbhist[i]=(cbhist[i-1]+b_hist.at<float>(i));
+                cghist[i]=(cghist[i-1]+g_hist.at<float>(i));
+                crhist[i]=(crhist[i-1]+r_hist.at<float>(i));
+               }
+
+          }
+
+
+          //find the lower and uppder saturation thresholds for all the three channels
+
+          while( vmin1<histSize-1 && cbhist[vmin1] <= (float)N * s11 / 100)
+          {
+              vmin1 = vmin1 + 1;
+
+          }
+
+          while(vmax1 < histSize  && cbhist[vmax1] > (float)N * (1 - s12 / 100))
+              vmax1 = vmax1 - 1;
+
+          if(vmax1 < histSize -1)
+              vmax1 =vmax1 + 1;
+
+
+          while(vmin2<histSize-1 && cghist[vmin2] <= (float)N * s21 / 100)
+              vmin2 = vmin2 + 1;
+
+          while(vmax2 < histSize && cghist[vmax2] >(float) N * (1 - s22 / 100))
+              vmax2 = vmax2 - 1;
+
+
+          while(vmin3<histSize-1 && crhist[vmin3] <= (float)N * s31 / 100)
+              vmin3 = vmin3 + 1;
+
+          while(vmax3 < histSize &&  crhist[vmax3] > (float)N * (1 - s32 / 100))
               vmax3 = vmax3 - 1;
 
 
@@ -137,14 +280,20 @@ Mat  color_correction::contrast_stretching::run(Mat src)
 
 
         //perform contrast stretching
-        cstretch(src1,dst,vmin1,vmax1,0);
-        cstretch(src1,dst,vmin2,vmax2,1);
-        cstretch(src1,dst,vmin3,vmax3,2);
+        cstretch(src,dst,vmin1,vmax1,0);
+        cstretch(src,dst,vmin2,vmax2,1);
+        cstretch(src,dst,vmin3,vmax3,2);
 
+        cv::split(dst,bgr_planes);
+        bgr_planes[0]= bgr_planes1[0];
+        bgr_planes[1]= bgr_planes1[1];
+        //bgr_planes[2]= bgr_planes1[2];
+        cv::merge(bgr_planes,dst);
+        cv::cvtColor(dst,dst,CV_HSV2BGR_FULL);
+        cv::cvtColor(src,src,CV_HSV2BGR_FULL);
         //dst.copyTo(src);
         return dst;
     }
-
 
 
 void color_correction::contrast_stretching::cstretch(Mat src,Mat dst,int min,int max,int index)
@@ -256,9 +405,9 @@ void color_correction::gray_world::process(Mat src1,float *ml,float *ma,float *m
            for(int j=0;j<src1.cols;j++)
            {
                Vec3b v1=src1.at<cv::Vec3b>(i,j);
-               float lc=pow(v1.val[0],p);
-               float ac=pow(v1.val[1],p);
-               float bc=pow(v1.val[2],p);
+               float lc=(int)pow(v1.val[0],p);
+               float ac=(int)pow(v1.val[1],p);
+               float bc=(int)pow(v1.val[2],p);
                *ma=*ma+ac;
                *mb=*mb+bc;
                *ml=*ml+lc;
@@ -271,9 +420,11 @@ void color_correction::gray_world::process(Mat src1,float *ml,float *ma,float *m
        *mb=pow((float)*mb/(src1.cols*src1.rows),(float)1/p);
        *ml=pow((float)*ml/(src1.cols*src1.rows),(float)1/p);
 
-       (*ma)=128+(0.5*255 *(*ma));
-       (*mb)=128+(0.5*255 *(*mb));
-       (*ml)=128+(0.5*255 *(*ml));
+
+
+       //(*ma)=128+(0.5*255 *(*ma));
+       //(*mb)=128+(0.5*255 *(*mb));
+       //(*ml)=128+(0.5*255 *(*ml));
 
        float r=0;
 
@@ -339,6 +490,7 @@ Mat  color_correction::gray_world::run2(Mat src,int p,int m)
 
      float ma=0,mb=0,ml=0;
      process(src1,&ml,&ma,&mb,p,m);
+     cerr << ":" << ml << ":" << ma <<":" << mb << endl;
      for ( ; it!= itend; ++it, ++itout)
      {
 
@@ -349,7 +501,7 @@ Mat  color_correction::gray_world::run2(Mat src,int p,int m)
          float a=v1.val[1];
          float b=v1.val[2];
 
-         if(m==0)
+         if(m==1)
          {
          a=a*(ma);
          b= b*(mb);
@@ -357,13 +509,14 @@ Mat  color_correction::gray_world::run2(Mat src,int p,int m)
          }
          else
          {
-         //if(a<(float)95*255/100)
+//         if(a<(float)85*255/100 && a>10*255/100)
          a=a*(ma);
-         //if(b<(float)95*255/100)
+  //       if(b<(float)85*255/100 && a>10*255/100)
          b= b*(mb);
-        // if(l<(float)95*255/100)
+    //    if(l<(float)85*255/100 && a>10*255/100)
          l= l*(ml);
          }
+
 
          if(a>255)
              a=255;

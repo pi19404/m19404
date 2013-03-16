@@ -42,7 +42,10 @@ Mat output;         //output image
 Mat edge;           //edge map
 int threshold;      //set threshold default is 80
 int bsize;              //local neighborhood size for computing mean value
+int dist_scale;
+
 public:
+bool flag;
 Scalar fill_color;  //seed pixel color
 /*constructor for seed fill
   */
@@ -111,6 +114,10 @@ bool check_color(int x,int y);
 void SeedFill_3(int x, int y);
 int nMinX, nMaxX, nMinY, nMaxY;
 void LineFill_3(int x1, int x2, int y,Scalar fill_color);
+void Clear();
+int area;
+Point2f seed_point;
+bool check_dist(int x,int y);
 };
 
 //class defining the element held in stack
@@ -141,11 +148,16 @@ public:
   void SeedFill_4(int x, int y);     //scan line algorithm
   Mat RegionGrowing(Mat a,int x,int y,Scalar color); //main function to be called for region growing
 
-  seed_fill_stack()
+
+seed_fill_stack()
   {
-      //default value of local neighborhood size for mean value computation
+      threshold=20;
       bsize=5;
+      dist_scale=4;
+      flag=false;
   }
+
+
 };
 
 

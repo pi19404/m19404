@@ -1,6 +1,6 @@
-#include "fast.h"
+#include "Fast.hpp"
 
-feature_detector::fast::fast()
+FeatureDetection::Fast::Fast()
 {
 
     qualityLevel=0.1;
@@ -33,7 +33,7 @@ feature_detector::fast::fast()
 init=false;
 }
 
-vector<Point2f> feature_detector::fast::run (Mat src)
+vector<Point2f> FeatureDetection::Fast::run (Mat src)
 {
 
     if(init==false)
@@ -127,7 +127,7 @@ vector<Point2f> feature_detector::fast::run (Mat src)
 
                 if(count>K)
                 {
-                corners1.push_back(Point2f(j,i));
+                ///corners1.push_back(Point2f(j,i));
 
                 ptr1[j]=response_tmp;
                 //response.push_back (response_tmp);
@@ -142,130 +142,13 @@ vector<Point2f> feature_detector::fast::run (Mat src)
       //using kepoint structure
 
 
-        //thresholding the eigen values
-        double maxVal = 0,minVal=0;
-        minMaxLoc(dst, &minVal, &maxVal, 0, 0,Mat() );
-        minMaxLoc(corners1, &minVal, &maxVal, 0, 0,Mat() );
-        //cerr << maxVal <<":" <<minVal << endl;
-        //threshold(dst,dst, maxVal*qualityLevel, 0, THRESH_TOZERO );
-
-        // included in opencv code hence added
-
-        //dilate(dst,tmp, Mat());
+        filter_corners (dst);
 
 
-        //selecting points at minimum distance from each other
-        //if(1==1)
-        Mat tmp;
-        src.copyTo (tmp);
-        cvtColor(tmp,tmp,CV_GRAY2BGR);
-        {
-        const int cell_size =cvRound(minDistance);
-        int xx=floor(src.cols/cell_size);
-        int yy=floor(src.rows/cell_size);
-
-        std::vector  <double>eig;
-
-        vector <Point2f> tmp_corners ;
+        _subPixel.RefineCorner (src,corners);
 
 
+        return corners;
 
-
-
-        //accessing the cell blocks of size min distance
-
-        for(int x=0;x<xx;x++)
-        {
-            for(int y=0;y<yy;y++)
-            {
-                int w=cell_size;
-                if((x+1)*(cell_size)>src.cols)
-                    w=(x+1)*(cell_size)-src.cols;
-                int h=cell_size;
-                if((y+1)*(cell_size)>src.rows)
-                    h=(y+1)*(cell_size)-src.rows;
-
-                Rect roi(x*cell_size,y*cell_size,w,h);
-                //cerr <<  roi.x << ":" << roi.width <<":" <<  dst.cols << endl;
-                //cerr <<  roi.y << ":" << roi.height <<":" <<  dst.rows << ":" << (y+1)*(cell_size) << ":" << src.rows <<endl;
-                //selecting the subregion
-                Mat r=dst(roi);
-                //selecting the maximum eigen value pixel in the subregion
-                //double maxVal;
-                Point minLoc;
-                double m1=0;
-                minMaxLoc( r, 0, &m1,0,&minLoc, Mat());
-                if(m1>=maxVal*qualityLevel)
-                {
-                //threshold(r,r,m1, 0, THRESH_TOZERO );
-                minLoc.x=minLoc.x+x*cell_size;
-                minLoc.y=minLoc.y+y*cell_size;
-                //
-                eig.push_back(m1);
-                tmp_corners.push_back(minLoc);
-                }
-
-            }
-
-        }
-
-
-        if(eig.size()<maxCorners)
-            maxCorners=(eig.size());
-
-        //initialising index vector
-        vector <int> b;
-        for (unsigned i = 0; i < eig.size(); ++i)
-        {
-
-            b.push_back(i);
-//            circle(tmp,tmp_corners[i], 3, Scalar(255,255,255), -1, 8);
-
-        }
-
-
-        //sorting the eigen value vector
-        sort(b.begin(), b.end(), index_cmp<vector<double>&>(eig));
-        int ncorners=0;
-        for (int i = 0; i < eig.size(); ++i)
-        {
-            bool good=true;
-            //populating vectors of corners detected
-
-            for(int k=0;k<corners.size();k++)
-            {
-                double dx=tmp_corners[b[i]].x-corners[k].x;
-                double dy=tmp_corners[b[i]].y-corners[k].y;
-                if( dx*dx + dy*dy < minDistance* minDistance )
-                {
-                    //cv::circle(tmp,tmp_corners[b[i]], 3, Scalar(255,k,0), -1);
-                    good =false;
-                    break;
-
-                }
-
-            }
-
-
-            if(good==true)
-            {
-
-//                circle(xx1,tmp_corners[b[i]],3, Scalar(255,ncorners,ncorners), -1, 8);
-                corners.push_back(tmp_corners[b[i]]);
-                ncorners++;
-
-            }
-
-            if(ncorners >=maxCorners)
-                break;
-        }
-}
-
-
-        //imshow("XXXX",tmp);
-//corner filtering
-        //cerr << ":" << corners.size () << endl;
-
-return corners;
 }
 

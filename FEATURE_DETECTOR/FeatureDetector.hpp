@@ -28,11 +28,21 @@
 #include <opencv2/core/core.hpp>        // Basic OpenCV structures (cv::Mat)
 #include <opencv2/imgproc/imgproc.hpp>        // Basic OpenCV structures (cv::Mat)
 #include <opencv2/highgui/highgui.hpp>  // Video write
+#include "SubPixelCorner.hpp"
+#include <iostream>
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
+#include <sstream>
+#include <opencv2/core/core.hpp>        // Basic OpenCV structures (cv::Mat)
+#include <opencv2/imgproc/imgproc.hpp>        // Basic OpenCV structures (cv::Mat)
+#include <opencv2/highgui/highgui.hpp>  // Video write
 
 using namespace cv;
 using namespace std;
-namespace  feature_detector
+
+namespace  FeatureDetection
 {
+
 template<class T>
 struct accessor {
 
@@ -49,14 +59,35 @@ private:
 
 };
 
-class feature_detector
-{
 
+class FeatureDetector
+{
 public:
-    feature_detector()
+
+    // response function for keypoint comparison
+    bool compare_response(cv::KeyPoint first,cv::KeyPoint second)
     {
-        maxCorners=50;
+      if (first.response < second.response) return true;
+      else return false;
     }
+
+    //function used by sort function for sorting keypoints according to response
+    struct pred
+    {
+        bool operator()(KeyPoint const & a, KeyPoint const & b) const
+        {
+            return a.response > b.response;
+        }
+    };
+
+
+    //consuructor for feature detection
+
+
+
+    //function to filter features using maxima suppression and min distance criteria
+    void filter_corners(Mat dst);
+
 protected:
     template<class T> struct index_cmp {
     index_cmp(const T arr) : arr(arr) {}
@@ -64,36 +95,39 @@ protected:
     { return arr[a] > arr[b]; }
     const T arr;
     };
-    uint maxCorners;
 
-    //uint ;        //max corners to be returned
+
+    uint maxCorners;    //maximum number of corners to be detected
+    double qualityLevel;    //quality level for corner response function
     int minDistance;        //min distance between detected points
-    cv::vector<cv::Point2f> corners;
-    ///pure virtual function to be redefined by the base class
-    //main function to be called for feature detection which accepts the
-    //input image and return a vector of 2D points.
+
+
+    cv::vector<cv::Point2f> corners;    //vector for corners
+
+    int corner_count; //total corner count returned
+
 public:
     virtual vector<cv::Point2f> run(Mat src)=0;
-
+     FeatureDetector();
+     SubPixelCorner _subPixel;              //object supporting methods for subpixel estimation
 
     //method to set the maxCorners value
-    void setMaxCorners(uint value)
-    {
-        maxCorners=value;
-    }
+    virtual void setMaxCorners(uint value);
 
     virtual Mat ret_current_frame()
-    {
-        return Mat();
-    }
+     {
+         return Mat();
+     }
+
 
 
     //method to set minDistance value
-    void setminDistance(uint value)
-    {
-        minDistance=value;
-    }
+    void setminDistance(uint value);
 
+    int get_count()
+   {
+        return 0;
+      }
 };
 }
 

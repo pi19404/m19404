@@ -13,5 +13,8 @@ HEADERS += \
     ocl_common.h
 
 OTHER_FILES += \
-    conv1.cl
+    conv1.cl \
+    ../../../../../../tmp/header
 
+
+PRECOMPILED_HEADER = /tmp/header

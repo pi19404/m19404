@@ -21,6 +21,59 @@ using namespace std;
 
 int main(int argv, char** argc){
 
+    //string a1=(argc[1]);
+    //string a2=(argc[2]);
+
+    //objects to pre process image
+    //preprocess p;
+    //p.set_hfilter_flag(true);
+
+
+    //string source=a1+"/"+a2;
+ //   VideoCapture inputVideo(source);              // Open input
+    seed_fill_stack fill;
+    VideoCapture inputVideo(0);
+    if (!inputVideo.isOpened())
+    {
+        cout  << "Could not open the input video: "<< endl;
+        return -1;
+    }
+    int xx=150;
+    int yy=150;
+
+    Mat a,src;
+    a.create(240,320,CV_8UC(3));
+    inputVideo >> src;
+    resize(src,a, a.size(), 0, 0, INTER_NEAREST);
+
+
+    int k=0;
+    Mat i4;
+
+
+    do//Show the image captured in the window and repeat
+    {
+        inputVideo >> src;              // read
+
+        ///src=imread(source);
+        Mat x=src;
+
+        if (src.empty()) break;         // check if at end
+        resize(src,a, a.size(), 0, 0, INTER_AREA);
+
+
+        Mat grow=fill.RegionGrowing (a,150,150,Scalar(0,0,0));
+        cv::circle(grow,Point(150,150),10,Scalar(0,0,255),-1);
+       imshow("DDDD",grow);
+
+
+    k=cv::waitKey (1);
+    }while(k!='r');
+
+}
+
+int main1(int argv, char** argc){
+
 
     if(argv <4 )
     {

@@ -12,22 +12,26 @@
 #include <opencv2/core/core.hpp>        // Basic OpenCV structures (cv::Mat)
 #include <opencv2/imgproc/imgproc.hpp>        // Basic OpenCV structures (cv::Mat)
 #include <opencv2/highgui/highgui.hpp>  // Video write
-#include "feature_detector.hpp"
+#include "FeatureDetector.hpp"
 using namespace cv;
 using namespace std;
-namespace  feature_detector
+namespace  FeatureDetection
 {
-class fast: public feature_detector
+class Fast: public FeatureDetector
 {
 public:
-    fast();
+    Fast();
     int threshold;                       //threshold for corner detection
+
     vector<Point2f> offset;       //relative offset of the points on the circle from center point
-     uchar threshold_tab[512];
-    vector<cv::Point2f> run(Mat src);
+
+
+    uchar threshold_tab[512];   //thresholds points on circle based on comparison with center pixels for count
+    vector<Point2f> run (Mat src);
+
+
     vector <uchar > checks;
-    vector <uchar > checks1;
-    double qualityLevel; //prameter for eigen value threshold;
+    vector <uchar > checks1;   
     bool init;
     int K;
 };

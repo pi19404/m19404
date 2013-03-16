@@ -1,10 +1,11 @@
 #ifndef OPTICALFLOW1_H
 #define OPTICALFLOW1_H
 
-#include "feature_detector.hpp"
-#include "fast3d.hpp"
+#include "FeatureDetector.hpp"
+#include "Fast3D.hpp"
 #include "opencv2/video/tracking.hpp"
 #include "opencv2/video/video.hpp"
+#include "SubPixelCorner.hpp"
 class opticalflow1
 {
 public:
@@ -15,7 +16,7 @@ public:
     vector<uchar> status;       //contains the status of detected corner points
     vector<float> error;           //contains error information of detected corner points
 
-    feature_detector::fast3d detector;  //fast3d detector for feature detection
+    FeatureDetection::Fast3D detector;  //fast3d detector for feature detection
 
     Size winSize;
     int pyrLevel;
@@ -69,16 +70,19 @@ public:
 
         winSize=Size(15,15);
         pyrLevel=3;
-        term=TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, 10, 0.01);
+        term=TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, 30, 0.1);
 
         max_fe=0.3;
-        minFeatures=10;
+        minFeatures=0.1*_MaxPoints;
+        _MinPoints=minFeatures;
         _cur_index=0;
         _prev_index=0;
-        minFailCount=3;
+        minFailCount=5;
         counta=0;
         status1=false;
         start=false;
+        _valid_count=0;
+
     }
 
     bool acceptTrackedPoint(int i)
@@ -155,6 +159,8 @@ public:
 
     }
 
+
+    FeatureDetection::SubPixelCorner subpix;
     //track features using KLT tracker
     void track_features()
     {
@@ -163,10 +169,16 @@ public:
         if(_count<=_MinPoints)
             return;
 
+
+        corners[_cur_index].resize(_count);
         cv::calcOpticalFlowPyrLK (_gray[_prev_index],_gray[_cur_index],
                                   corners[_prev_index],corners[_cur_index],status,error,winSize,pyrLevel,term,flags);
 
         flags=CV_LKFLOW_PYR_A_READY;
+
+
+
+
         _tracked_count=corners[_cur_index].size();
 
     }
@@ -206,10 +218,12 @@ public:
     Mat run(Mat image)
     {
 
+
         image.copyTo (_image[_cur_index]);
         cvtColor(image,_gray[_cur_index],CV_BGR2GRAY);
 
 
+/*
         //cerr << _cur_index << ":"  << _prev_index << ":" <<endl;
         if(_cur_index==1||start==true)
         {
@@ -220,21 +234,25 @@ public:
                         imshow("flow", image);
 
         }
+
         _prev_index = _cur_index;
         _cur_index = (_cur_index+1)%2;
 
         return image;
-        if(1==0)
+        */
+        //if(1==1)
         {
         prev_init=need_to_init;
 
+        //cerr << "nedd to init " << need_to_init << endl;
         //check if features needs to be initialized again
         vector <Point2f> curr_corners=detector.run (_gray[_cur_index]);;
-        for(int k=0;k<detector.get_count ();k++)
+        for(int k=0;k<curr_corners.size ();k++)
         {
-            //cv::line (image,corners[_prev_index][k],corners[_cur_index][k],Scalar(0,0,255),1);
+        //    cv::line (image,corners[_prev_index][k],corners[_cur_index][k],Scalar(0,0,255),1);
             cv::circle (image,curr_corners[k],3,Scalar(0,255,0),-1);
         }
+
 
         if(need_to_init==true||motion==true)
         {
@@ -242,12 +260,14 @@ public:
             color=Scalar(0,255,255);
             //_count=curr_corners.size ();
             int k=0;
+            corners[_cur_index].resize(detector.get_count ());
             for(k=0;k<detector.get_count ();k++)
                 corners[_cur_index][k]=curr_corners[k];
+            //corners[_cur_index]=curr_corners;
 
             //obtain the count of detected features
             _count=k;
-            cerr << "Detecting " << _count << endl;
+            //cerr << "Detecting " << _count <<":" << detector.status () << endl;
             //check if detector has processed the frames
 
             if(detector.status ()==true && _count >_MinPoints)
@@ -270,6 +290,10 @@ public:
                         UpdatePoints (i);
 
             }
+
+            //
+
+
             if(prev_init==true)
             minFeatures=(int)(3*max_fe *_MaxPoints);
             else if(prev_init==false && _tracked_count >= max_fe/2*_MaxPoints)
@@ -277,6 +301,8 @@ public:
             else if(prev_init==false && _tracked_count < max_fe/2*_MaxPoints)
             minFeatures=_MaxPoints;
 
+            corners[_cur_index].resize(_valid_count);
+            subpix.RefineCorner (_gray[_cur_index],corners[_cur_index]);
             if(_valid_count>=minFeatures)
             {
                     ///plot features compute histogram of Optical Flow
@@ -288,7 +314,7 @@ public:
 
             }
 
-        //need_to_init=true;
+        need_to_init=true;
         }
 
 

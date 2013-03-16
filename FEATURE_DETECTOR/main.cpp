@@ -23,13 +23,14 @@
 #include <opencv2/core/core.hpp>        // Basic OpenCV structures (cv::Mat)
 #include <opencv2/imgproc/imgproc.hpp>        // Basic OpenCV structures (cv::Mat)
 #include <opencv2/highgui/highgui.hpp>  // Video write
-#include "feature_detector.hpp"
-#include "good_features_to_track.hpp"
-#include "harris_corner.hpp"
-#include "harris3d.h"
+#include "FeatureDetector.hpp"
+#include "GoodFeatureToTrack.hpp"
+
+#include "HarrisCorner.hpp"
+#include "Harris3D.hpp"
 #include "timeMeasure.hpp"
-#include "fast.h"
-#include "fast3d.hpp"
+#include "Fast.hpp"
+#include "Fast3D.hpp"
 #include "OpticalFlow1.h"
 using namespace std;
 using namespace cv;
@@ -87,15 +88,17 @@ int main(int argc,char *argv[])
     cerr << "Press key to start " << endl;
     cv::waitKey (0);
 
-    a.create(240,320,CV_8UC(1));
-    t.create(240,320,CV_8UC(3));
+    a.create(2*240,2&320,CV_8UC(1));
+    t.create(2*240,2*320,CV_8UC(3));
     resize(src,a, a.size(), 0, 0, INTER_NEAREST);
+    //src.copyTo(a);
+    //src.copyTo(t);
 
-    feature_detector::feature_detector *detector;
-    feature_detector::harris3d tr2;
-    feature_detector::good_features_to_track tr1;
-    feature_detector::fast tr3;
-    feature_detector::fast3d tr4;
+    FeatureDetection::FeatureDetector *detector;
+    FeatureDetection::Harris3D tr2;
+    FeatureDetection::GoodFeatureToTrack tr1;
+    FeatureDetection::Fast tr3;
+    FeatureDetection::Fast3D tr4;
     if(did==0)
     {
 
@@ -104,7 +107,7 @@ int main(int argc,char *argv[])
     }
     else if(did==1)
     {
-        detector=new feature_detector::harris_corner();
+        detector=new FeatureDetection::HarrisCorner();
     }
     else if(did==2)
     {
@@ -142,6 +145,7 @@ int main(int argc,char *argv[])
         if (src.empty()) break;         // check if at end
         resize(src,t, t.size(), 0, 0, INTER_AREA);
         Rect roi=Rect(t.cols/2-50,t.rows/2-50,100,150);
+        roi=Rect(0,0,t.cols,t.rows);
         Mat draw=t;
         Mat tx=t(roi);
 
@@ -150,7 +154,9 @@ int main(int argc,char *argv[])
 
 
         imshow("input",t);
-        vector <Point> corners2;
+        vector <Point2f> corners2;
+        detector->setMaxCorners (100);
+
         if(did==1||did==0)
         {
         if(did==0)
@@ -158,26 +164,35 @@ int main(int argc,char *argv[])
         else if(did==1)
         goodFeaturesToTrack(a, corners2,100, 0.01, 10, Mat(),3,1,0.04);
 
+        detector->_subPixel.enable=true;
 
         vector<Point2f> corners3=detector->run(a);
 
+        detector->_subPixel.enable=false;
+        vector<Point2f> corners4=detector->run(a);
+
+
+
+
+          //vector<Point2f> corners4=detector->run(a);
         Mat t2,t3;
         tx.copyTo(t2);
         tx.copyTo(t3);
 //        cerr << corners1.size() <<":" << corners2.size()<< endl;
 
-        for( int i =  0; i < corners2.size(); i++ )
-        {
-                circle(t2,corners2[i], 3, Scalar(255,255,0), -1, 8);
-        }
         for( int i =  0; i < corners3.size(); i++ )
         {
-                circle(t3,corners3[i], 3, Scalar(255,255,0), -1, 8);
+                circle(t2,corners3[i], 3, Scalar(255,255,0), -1, 8);
+                circle(t2,corners4[i], 3, Scalar(0,255,255), -1, 8);
+        }
+        for( int i =  0; i < corners4.size(); i++ )
+        {
+                circle(t3,corners4[i], 3, Scalar(255,255,0), -1, 8);
         }
 
 
-        imshow("OpenCV method",t2);
-        imshow("implemented method",t3);
+        imshow("with subpixel",t2);
+        imshow("without subpixel",t3);
         }
         else if(did==2)
         {
@@ -194,7 +209,7 @@ int main(int argc,char *argv[])
 
             if(t4.rows>0 && t4.cols >0)
             {
-               cvtColor(t4,t4,CV_GRAY2BGR);
+            cvtColor(t4,t4,CV_GRAY2BGR);
             for( int i =  0; i < corners3.size(); i++ )
             {
 
@@ -216,11 +231,15 @@ int main(int argc,char *argv[])
         }
         else if(did==3||4)
         {
+
+            /*
 //            FastFeatureDetector fx;
             Mat t3;
-            //tx=flow.run (tx);
+            tx=flow.run (tx);
+            cv::rectangle (t,roi,Scalar(0,255,255),3);
+            imshow("flow",t);
 
-            //imshow("flow",t);
+*/
 
 /*
             vector<KeyPoint> keypoints1;
@@ -234,7 +253,7 @@ int main(int argc,char *argv[])
            */
 
 
-
+            Mat t3;
 
             a.copyTo (t3);
             tx.copyTo (t3);
@@ -246,7 +265,7 @@ int main(int argc,char *argv[])
                 Mat t4=detector->ret_current_frame();
                 if(t4.rows>0 && t4.cols>0)
                 {
-                t4.copyTo (t3);                
+                t4.copyTo (t3);
                 cv::cvtColor(t3,t3,CV_GRAY2BGR);
                 }
                 record=false;
@@ -305,9 +324,3 @@ int main(int argc,char *argv[])
 
 
 }
-
-
-
-
-
-

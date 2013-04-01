@@ -88,8 +88,8 @@ int main(int argc,char *argv[])
     cerr << "Press key to start " << endl;
     cv::waitKey (0);
 
-    a.create(2*240,2&320,CV_8UC(1));
-    t.create(2*240,2*320,CV_8UC(3));
+    a.create(1*240,1*320,CV_8UC(1));
+    t.create(1*240,1*320,CV_8UC(3));
     resize(src,a, a.size(), 0, 0, INTER_NEAREST);
     //src.copyTo(a);
     //src.copyTo(t);
@@ -145,7 +145,7 @@ int main(int argc,char *argv[])
         if (src.empty()) break;         // check if at end
         resize(src,t, t.size(), 0, 0, INTER_AREA);
         Rect roi=Rect(t.cols/2-50,t.rows/2-50,100,150);
-        roi=Rect(0,0,t.cols,t.rows);
+        //roi=Rect(0,0,t.cols,t.rows);
         Mat draw=t;
         Mat tx=t(roi);
 
@@ -232,14 +232,15 @@ int main(int argc,char *argv[])
         else if(did==3||4)
         {
 
-            /*
+
 //            FastFeatureDetector fx;
-            Mat t3;
+            Mat t3=t(roi);
             tx=flow.run (tx);
+            tx.copyTo (t3);
             cv::rectangle (t,roi,Scalar(0,255,255),3);
             imshow("flow",t);
 
-*/
+
 
 /*
             vector<KeyPoint> keypoints1;
@@ -252,7 +253,7 @@ int main(int argc,char *argv[])
            imshow("output1",t3);
            */
 
-
+/*
             Mat t3;
 
             a.copyTo (t3);
@@ -298,7 +299,7 @@ int main(int argc,char *argv[])
             imshow("output",draw);
             //cv::rectangle (t,roi,Scalar(255,0,0),1,8);
             //outputVideo << t3;
-
+*/
         }
 
         i=i+1;

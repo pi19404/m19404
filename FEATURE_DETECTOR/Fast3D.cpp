@@ -28,7 +28,7 @@ Fast3D::Fast3D()
     qualityLevel=0.01;
     image.resize(aperture_size);
     index=0;
-    threshold=40;
+    threshold=10;
     maxCorners=100;
     start=false;
     corner_count=0;
@@ -215,7 +215,7 @@ else if(start==true)
         image[cindex].copyTo(current_frame);
 
         //subpixel corner refinement
-        _subPixel.RefineCorner (image[index],corners);
+        //_subPixel.RefineCorner (image[cindex],corners);
        }
 
 

@@ -59,7 +59,7 @@ public:
         _MaxPoints=30;     //maximum number of feature to be processed
         _count=0;
         _MinPoints=10;
-        _MinDist=3;
+        _MinDist=1;
         _MaxErr=550;
 
         detector.setMaxCorners (_MaxPoints);
@@ -125,6 +125,7 @@ public:
                 need_to_init=true;
                 ///detector.reset ();
                 counta=0;
+
             }
         }
         if((_valid_count < minFeatures ) && _valid_count >0 && minFeatures >0)
@@ -166,11 +167,11 @@ public:
     {
         _valid_count=0;
         _tracked_count=0;
-        if(_count<=_MinPoints)
+        if(corners[_prev_index].size()<=_MinPoints)
             return;
 
 
-        corners[_cur_index].resize(_count);
+        corners[_cur_index].resize(corners[_prev_index].size());
         cv::calcOpticalFlowPyrLK (_gray[_prev_index],_gray[_cur_index],
                                   corners[_prev_index],corners[_cur_index],status,error,winSize,pyrLevel,term,flags);
 
@@ -183,33 +184,59 @@ public:
 
     }
 
-    static void drawOptFlowMap( const Mat& flow, Mat& cflowmap, int step,
+    static Mat drawOptFlowMap( const Mat& flow, Mat& yy, int step,
                        double, const Scalar& color)
    {
 
-        Mat yy;
+        Mat cflowmap;
+        yy.copyTo (cflowmap);
 
-        cvtColor(cflowmap,yy,CV_BGR2GRAY);
-        yy.convertTo(yy,CV_32FC(1),1.0/255.0,0);
+
+
+        //cvtColor(cflowmap,yy,CV_BGR2GRAY);
+        cflowmap.convertTo(cflowmap,CV_32FC3,1.0/255.0,0);
        for(int y = 0; y < cflowmap.rows; y = y+1)
        {
-           float * ptr=yy.ptr<float> (y);
+           float * ptr=cflowmap.ptr<float> (y);
 
            for(int x = 0; x < cflowmap.cols; x = x+1)
            {
                //cerr << x <<":" << y <<endl;
-               const Point2f& fxy = flow.at<Point2f>(y, x);
-              ptr[1*x]=fxy.x*fxy.x+fxy.y*fxy.y;//-fxy.x*fxy.y;//fxy.y*fxy.y
+               const Point2f& fxy = flow.at<Point2f>(y,x);
+
+              ptr[3*x]=fxy.x;
+              ptr[3*x+1]=fxy.y;//*fxy.y;//-fxy.x*fxy.y;//fxy.y*fxy.y
+              ptr[3*x+2]=0;
               //ptr[3*x+1]=fxy.x+fxy.y;
               //ptr[3*x+2]=fxy.x+fxy.y;
                //line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)), color);
-               //circle(cflowmap, Point(x,y), 2, color, -1);
+               //circle(cflowmap, Point(x,y), 1, color, -1);
            }
-       }
 
-       cv::normalize(yy,yy,0,255,CV_MINMAX);
-       cvtColor(yy,yy,CV_GRAY2BGR);
-       yy.convertTo (cflowmap,CV_8UC(3),1.0,0);
+
+       }
+       Mat x1,x2,x3,x4;
+       cv::Sobel (cflowmap,x1,cflowmap.depth (),1,0,3);
+       cv::Sobel (cflowmap,x2,cflowmap.depth (),0,1,3);
+       //cv::magnitude (x1,x2,x3);
+       vector<Mat> ch1,ch2;
+       cv::split(x1,ch1);
+       cv::split(x2,ch2);
+
+       cv::add (ch1[0],ch1[1],x3);
+       cv::add (ch2[0],ch2[1],x4);
+
+       //cv::add (ch2[1],x3,x3);
+       //x3.copyTo (c);
+       cv::magnitude (x3,x4,x3);
+
+       x3.convertTo (x3,CV_8UC(1),255.0,0);
+       cv::normalize(x3,x3,0,255,CV_MINMAX);
+
+       cvtColor(x3,cflowmap,CV_GRAY2BGR);
+       cflowmap.convertTo (cflowmap,CV_8UC(3),1.0,0);
+       return cflowmap;
+
 
    }
 
@@ -223,23 +250,25 @@ public:
         cvtColor(image,_gray[_cur_index],CV_BGR2GRAY);
 
 
-/*
+
         //cerr << _cur_index << ":"  << _prev_index << ":" <<endl;
+         Mat aa=image;
         if(_cur_index==1||start==true)
         {
                         start=true;
                         calcOpticalFlowFarneback(_gray[_prev_index],_gray[_cur_index], flow,0.5,3, 15, 5, 5, 1.2, 0);
-                        //cvtColor(_gray[_prev_index], cflow, CV_GRAY2BGR);
-                        drawOptFlowMap(flow, image,5, 1.5, CV_RGB(0, 255, 0));
-                        imshow("flow", image);
+                        //cvtColor(_gray[_prev_index], cflow, CV_GRAY2BGR);                                                
+                        aa=drawOptFlowMap(flow, image,1, 1.5, CV_RGB(0, 255, 0));
+
+                        imshow("XX",aa);
 
         }
 
         _prev_index = _cur_index;
         _cur_index = (_cur_index+1)%2;
 
-        return image;
-        */
+        return aa;
+
         //if(1==1)
         {
         prev_init=need_to_init;
@@ -302,7 +331,8 @@ public:
             minFeatures=_MaxPoints;
 
             corners[_cur_index].resize(_valid_count);
-            subpix.RefineCorner (_gray[_cur_index],corners[_cur_index]);
+
+            subpix.RefineCorner (detector.ret_current_frame (),corners[_cur_index]);
             if(_valid_count>=minFeatures)
             {
                     ///plot features compute histogram of Optical Flow
@@ -314,6 +344,7 @@ public:
 
             }
 
+            corners[_cur_index].resize(_valid_count);
         need_to_init=true;
         }
 

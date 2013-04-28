@@ -13,7 +13,8 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  * ========================================================================
- */#include "Fast3D.hpp"
+ */
+#include "Fast3D.hpp"
 
 using namespace FeatureDetection;
 
@@ -26,7 +27,7 @@ Fast3D::Fast3D()
     start=false;
     minDistance=10;
     qualityLevel=0.01;
-    image.resize(aperture_size);
+    image.resize(aperture_size+2);
     index=0;
     threshold=10;
     maxCorners=100;
@@ -47,12 +48,12 @@ vector<cv::Point2f> Fast3D::run(Mat src)
    Size size=image[0].size();
     corner_count=0;
 
-   cv::GaussianBlur (image[index],image[index],Size(3,3),2);
-   if(start==false && index == aperture_size-1)
+   cv::GaussianBlur (image[index],image[index],Size(5,5),1);
+   if(start==false && index == aperture_size+2-1)
    {
        start=true;
      }
-   if(start==false && index<aperture_size)
+   if(start==false && index<aperture_size+2)
    {
 
        Mat tmp_output;
@@ -72,10 +73,10 @@ else if(start==true)
            //computing the derivatives in x and y direction
            Mat Dx, Dy;
 
-           int mindex=(index+1)%aperture_size; //index of the oldest image
+           int mindex=(index+2+3/2)%(aperture_size+2); //index of the oldest image
            //computing the spatial derivatives
-           Sobel( image[mindex], Dx,CV_32F, 1, 0, aperture_size, scale, 0, borderType );
-           Sobel(  image[mindex], Dy,CV_32F, 0, 1, aperture_size, scale, 0, borderType );
+           Sobel( image[mindex], Dx,CV_32F, 1, 0, aperture_size, 1, 0, borderType );
+           Sobel(  image[mindex], Dy,CV_32F, 0, 1, aperture_size, 1, 0, borderType );
 
            Mat mag;
            cv::magnitude (Dx,Dy,mag);  //computing the gradient magnitude
@@ -83,28 +84,50 @@ else if(start==true)
            cv::minMaxLoc (mag,0,&max1,0,0);    //commputing the maximum value of gradient
            //cv::threshold (mag,mag,max1*qualityLevel,0,THRESH_TOZERO);
 
+           int index1=(index+1+3/2)%(aperture_size+2);
+           int index2=(index+2+3/2)%(aperture_size+2);
+           int index3=(index+3+3/2)%(aperture_size+2);
 
-           for(int i=0;i<mag.rows;i++)
+           int index2a=mindex;
+           for(int i=1;i<mag.rows-1;i++)
            {
-               float *ptr=mag.ptr <float>(i);
-               for(int j=0;j<mag.cols;j++)
+               float *ptrx=mag.ptr <float>(i);
+               //float *ptry=Dy.ptr <float>(i);
+
+
+               uchar *cptr=image[index2a].ptr<uchar>(i);
+
+
+               for(int j=1;j<mag.cols-1;j++)
                {
-                   float val=ptr[j];
+
+                   //checking the temporal derivative test
+                       int index4=i*image[0].step+j;
+                       //Rect r=Rect(j-1,i-1,3,3);
+                       //Mat a1=image[index2](r);
+                       //Mat a2=image[index1](r);
+                       //Mat a3=image[index3](r);
+                       //Mat result;
+                       //cv::addWeighted (a1,2,a2,-1,1,result);
+                       //cv::addWeighted (result,1,a3,-1,1,result);
+                       //Scalar s=cv::mean (result);
+
+                           float valx=ptrx[j];
+                 //          float valy=ptry[j];
+                           float valc=cptr[j];;
                    //point satisfies the spatial derivative test
-                   if(val >=max1*0.1)  //checking for significant spatial derivatives
-                   {
+                           //||(valy >=valc+threshold)||(valy<=valc-threshold)
+                           //threshold=10*scale;
+                        if((valx >=valc+threshold)||(valx<=valc-threshold))  //checking for significant spatial derivatives
+                       {
 
 
+                            float v1=2*image[index2].data[index4]-image[index1].data[index4]-image[index3].data[index4];
+                            v1=abs(v1);
+                                 //checking for significant temporal derivatives
+                            if(v1>threshold)
+                            {
 
-                       //checking the temporal derivative test
-                           int index1=(index+1)%3;
-                           int index2=(index+2)%3;
-                           int index3=(index+3)%3;
-                           int index4=i*image[0].step+j;
-                           float v1=2*image[index2].data[index4]-image[index1].data[index4]-image[index3].data[index4];
-                           v1=abs(v1);
-                           if(v1>threshold)            //checking for significant temporal derivatives
-                           {
                            //analyze the 3D block for spatio temporal block test.
 
                                 int l1,l2,l3,l4;
@@ -114,16 +137,21 @@ else if(start==true)
                                l4=min(mag.cols,j+1);
                                int positive=0;
                                int negative=0;
+                               float val=valc;
                                for(int x1=l1;x1<=l2;x1++)
                                {
                                    for(int x2=l3;x2<=l4;x2++)
                                    {
-                                       if(x1!=i && x2!=j)
+                                       if(x1==i && x2==j)
                                            continue;
                                        int index5=x1*image[0].step+x2;
                                        for(int x3=0;x3<3;x3++)
                                        {
-                                       float val1=image[x3].data[index5];
+                                       int x4=(index2a-1+x3)%(aperture_size+2);
+                                       if(x4<0)
+                                        x4=x4+(aperture_size+2);
+                                       float val1=image[x4].data[index5];
+                                       //threshold=1;
                                        if(val1 > val+threshold)
                                        {
                                            positive++;
@@ -168,17 +196,45 @@ else if(start==true)
            Dx.copyTo (final_return);
            final_return.setTo (cv::Scalar::all (0));
            std::vector<cv::KeyPoint>::iterator it;
-
+           //std::vector<cv::KeyPoint> r1,r2,r3;
 
            for( it= keypoints.begin(); it!= keypoints.end();it++)
            {
                //computing the harris response function
 
                cv::KeyPoint k=*it;
-               float * ptr1=Dx.ptr<float>(k.pt.y);
-               float * ptr2=Dy.ptr<float>(k.pt.y);
-               float   v1=ptr1[(int)k.pt.x];
+             /*  if(k.pt.x <block_size/2+1 || k.pt.y <block_size/2+2 || k.pt.y > Dx.cols-block_size/2-1 || k.pt.y > Dx.rows-block_size/2-1)
+                   continue;
+
+               Rect roi=Rect(k.pt.x-block_size/2-1,k.pt.y,block_size/2-1,block_size+2,block_size+2);
+               Rect roi1=Rect(k.pt.x-block_size/2,k.pt.y,block_size/2,block_size,block_size);
+               vector<Mat> regions,rDx,rDy,rDt;
+               regions.resize (aperture_size);
+               rDx.resize (aperture_size);
+               rDy.resize (aperture_size);
+               rDt.resize (aperture_size+2);
+               for(int i=0;i<aperture_size;i++)
+               {
+                   regions[i]=image[i](roi);
+                   Sobel( regions[i], rDx,CV_32F, 1, 0, aperture_size, scale, 0, borderType );
+                   Sobel( regions[i], rDy,CV_32F, 0, 1,aperture_size, scale, 0, borderType )
+
+               }
+               uchar * ptr1=image[i].ptr<uchar>(k.pt.y);
+               uchar * ptr2=image[i].ptr<uchar>(k.pt.y-1);
+               uchar * ptr3=image[i].ptr<uchar>(k.pt.y+1);
+
+
+
+               float   v1=-ptr1[(int)k.pt.x-1]+2*ptr1[(int)k.pt.x]-ptr1[(int)k.pt.x+1];
+               float   v2=-ptr2[(int)k.pt.x-1]+2*ptr2[(int)k.pt.x]-ptr2[(int)k.pt.x+1];
+               float   v3=-ptr3[(int)k.pt.x-1]+2*ptr3[(int)k.pt.x]-ptr3[(int)k.pt.x+1];
+*/
+               float * ptr1=Dx.ptr <float>(k.pt.y);
+               float * ptr2=Dy.ptr <float>(k.pt.y);
+               float  v1 =ptr1[(int)k.pt.x];
                float   v2=ptr2[(int)k.pt.x];
+
                float a=v1*v1;
                float b=v1*v2;
                float c=v2*v2;
@@ -215,11 +271,11 @@ else if(start==true)
         image[cindex].copyTo(current_frame);
 
         //subpixel corner refinement
-        //_subPixel.RefineCorner (image[cindex],corners);
+        _subPixel.RefineCorner (image[cindex],corners);
        }
 
 
-           index =(index+1) % (aperture_size);
+           index =(index+1) % (aperture_size+2);
 
 
            return corners;

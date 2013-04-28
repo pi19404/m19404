@@ -145,7 +145,7 @@ int main(int argc,char *argv[])
         if (src.empty()) break;         // check if at end
         resize(src,t, t.size(), 0, 0, INTER_AREA);
         Rect roi=Rect(t.cols/2-50,t.rows/2-50,100,150);
-        //roi=Rect(0,0,t.cols,t.rows);
+        //Rect roi=Rect(0,0,t.cols,t.rows);
         Mat draw=t;
         Mat tx=t(roi);
 
@@ -234,12 +234,13 @@ int main(int argc,char *argv[])
 
 
 //            FastFeatureDetector fx;
+            /*
             Mat t3=t(roi);
             tx=flow.run (tx);
             tx.copyTo (t3);
             cv::rectangle (t,roi,Scalar(0,255,255),3);
             imshow("flow",t);
-
+*/
 
 
 /*
@@ -253,8 +254,8 @@ int main(int argc,char *argv[])
            imshow("output1",t3);
            */
 
-/*
-            Mat t3;
+
+            Mat t3=t(roi);
 
             a.copyTo (t3);
             tx.copyTo (t3);
@@ -299,7 +300,7 @@ int main(int argc,char *argv[])
             imshow("output",draw);
             //cv::rectangle (t,roi,Scalar(255,0,0),1,8);
             //outputVideo << t3;
-*/
+
         }
 
         i=i+1;

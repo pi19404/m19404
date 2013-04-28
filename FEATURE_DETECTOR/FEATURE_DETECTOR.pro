@@ -14,7 +14,7 @@ SOURCES += main.cpp \
     Harris3D.cpp
 
 LIBS +=  `pkg-config --libs opencv` -lrt -lm
-INCLUDEPATH += -I/media/UBUNTU/softwares-linux/OpenCV-2.4.3//include/opencv -I/media/UBUNTU/softwares-linux/OpenCV-2.4.3//include
+INCLUDEPATH += -I/media/UBUNTU/softwares-linux/OpenCV-2.4.3//include/opencv -I/media/UBUNTU/softwares-linux/OpenCV-2.4.3//include -I/media/UBUNTU/repository/m19404/FEATURE_DETECTOR
 #/usr/local/include /usr/local/include/opencv /usr/local/include/opencv2
 
 HEADERS += \

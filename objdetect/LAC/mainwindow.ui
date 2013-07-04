@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>807</width>
+    <height>448</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>100</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>100</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Object Detection Training</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>40</y>
+      <width>331</width>
+      <height>141</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="ObjWidget" name="imageView_source" native="true">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>50</y>
+      <width>505</width>
+      <height>281</height>
+     </rect>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>340</y>
+      <width>98</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Previous</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>340</y>
+      <width>98</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Next</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_3">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>340</y>
+      <width>98</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Exit</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="textEdit">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>50</y>
+      <width>241</width>
+      <height>331</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>560</x>
+      <y>20</y>
+      <width>67</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <property name="lineWidth">
+     <number>4</number>
+    </property>
+    <property name="text">
+     <string>Log Info</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>20</y>
+      <width>201</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <property name="lineWidth">
+     <number>4</number>
+    </property>
+    <property name="text">
+     <string>Image Viewer</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>807</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuTraiin">
+    <property name="title">
+     <string>Training Options</string>
+    </property>
+    <widget class="QMenu" name="menuFeature_Selection_Method">
+     <property name="title">
+      <string>Feature Selection Method</string>
+     </property>
+     <addaction name="separator"/>
+     <addaction name="actionAsymBosst"/>
+     <addaction name="separator"/>
+     <addaction name="actionFFS_2"/>
+     <addaction name="separator"/>
+     <addaction name="actionAdaBoos"/>
+     <addaction name="separator"/>
+    </widget>
+    <widget class="QMenu" name="menuLinear_Classifier">
+     <property name="title">
+      <string>Ensemble Classifier Selection</string>
+     </property>
+     <addaction name="actionOriginal"/>
+     <addaction name="separator"/>
+     <addaction name="actionLAC"/>
+     <addaction name="separator"/>
+     <addaction name="actionFDA"/>
+     <addaction name="separator"/>
+    </widget>
+    <addaction name="menuFeature_Selection_Method"/>
+    <addaction name="separator"/>
+    <addaction name="menuLinear_Classifier"/>
+    <addaction name="separator"/>
+    <addaction name="actionStart_Training"/>
+    <addaction name="separator"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuTest">
+    <property name="title">
+     <string>Create/View File</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="separator"/>
+    <addaction name="actionTest_Live"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpen_File"/>
+    <addaction name="separator"/>
+    <addaction name="actionCreate_training_file"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuTest_2">
+    <property name="title">
+     <string>Testing</string>
+    </property>
+    <addaction name="actionStart_camera"/>
+    <addaction name="separator"/>
+    <addaction name="actionStop_camera"/>
+    <addaction name="separator"/>
+   </widget>
+   <addaction name="menuTraiin"/>
+   <addaction name="menuTest"/>
+   <addaction name="menuTest_2"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionAsymBosst">
+   <property name="text">
+    <string>AsymBoost</string>
+   </property>
+  </action>
+  <action name="actionFFS_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>FFS</string>
+   </property>
+  </action>
+  <action name="actionOriginal">
+   <property name="text">
+    <string>Original</string>
+   </property>
+  </action>
+  <action name="actionLAC">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>LAC</string>
+   </property>
+  </action>
+  <action name="actionFDA">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>FDA</string>
+   </property>
+  </action>
+  <action name="actionNew_Training">
+   <property name="text">
+    <string>New Training</string>
+   </property>
+  </action>
+  <action name="actionAdaBoos">
+   <property name="text">
+    <string>AdaBoos</string>
+   </property>
+  </action>
+  <action name="actionStart_Training">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Start Training</string>
+   </property>
+  </action>
+  <action name="actionTest_All">
+   <property name="text">
+    <string>Test All</string>
+   </property>
+  </action>
+  <action name="actionOpen_File">
+   <property name="text">
+    <string>Perform testing</string>
+   </property>
+  </action>
+  <action name="actionTest_Live">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>View binary training data</string>
+   </property>
+  </action>
+  <action name="actionCreate_training_file">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Create Binary Training Data file</string>
+   </property>
+  </action>
+  <action name="actionStart_camera">
+   <property name="text">
+    <string>Camera</string>
+   </property>
+  </action>
+  <action name="actionStop_camera">
+   <property name="text">
+    <string>stop camera</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>ObjWidget</class>
+   <extends>QWidget</extends>
+   <header>ObjWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

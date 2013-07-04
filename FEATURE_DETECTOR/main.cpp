@@ -144,8 +144,8 @@ int main(int argc,char *argv[])
 
         if (src.empty()) break;         // check if at end
         resize(src,t, t.size(), 0, 0, INTER_AREA);
-        Rect roi=Rect(t.cols/2-50,t.rows/2-50,100,150);
-        //Rect roi=Rect(0,0,t.cols,t.rows);
+        //Rect roi=Rect(t.cols/2-50,t.rows/2-50,100,150);
+        Rect roi=Rect(0,0,t.cols,t.rows);
         Mat draw=t;
         Mat tx=t(roi);
 

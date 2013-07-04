@@ -177,11 +177,11 @@ Harris3D::Harris3D()
     current_frame=Mat();
    start=false;
     block_size.resize(3);
-    block_size[2]=5;            //block size in termporal scale
-    block_size[0]=5;            //block size in  x spatial dimension
-    block_size[1]=5;            //block size in y spatial dimension
-    minDistance=10;
-    qualityLevel=0.001;
+    block_size[2]=3;            //block size in termporal scale
+    block_size[0]=3;            //block size in  x spatial dimension
+    block_size[1]=3;            //block size in y spatial dimension
+    minDistance=3;
+    qualityLevel=0.01;
     image.resize (block_size[2]+2);
     index=0;
     t.set_bsize (block_size);
@@ -235,8 +235,8 @@ else if(start==true)
            t.process(image,index,block_size[2],Dt,Dx,Dy);
 //             Mat xx;
 
-           Mat xx=cv::abs(Dt[2]);
-           cv::normalize(xx,xx,0,1,CV_MINMAX);
+           Mat xx=cv::abs(Dx[2]+Dy[2]);
+           cv::normalize(xx,xx,0,1,NORM_MINMAX);
            imshow("Dt",xx);
            /*
            xx=cv::abs(Dx[2]);
@@ -328,12 +328,14 @@ else if(start==true)
                 double u = (a*(c*f-e*e))-(b*(b*f-d*e))+(d*(b*e-c*d));
                 double v = a+c+f;
 
-                double l1 = u - (1/27)*v;
+                double l1 = u - ((1/27)*v);
                 //double l2 = u + v;    //maximum eigen values
 
                 o1[j] = l1;                 //using the maximum eigen value to determine strong edge
             }
         }
+
+
 
 
         filter_corners (final_return);

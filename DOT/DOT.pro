@@ -14,7 +14,8 @@ SOURCES += main.cpp\
         mainwindow.cpp
 
 HEADERS  += mainwindow.h \
-    DotTemplate.hpp
+    DotTemplate.hpp \
+    t1.hpp
 
 FORMS    += mainwindow.ui
 

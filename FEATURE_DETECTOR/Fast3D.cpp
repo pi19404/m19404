@@ -260,7 +260,6 @@ else if(start==true)
            }
 
 
-           //imshow("DDD",final_return);
            filter_corners (final_return);
 
 

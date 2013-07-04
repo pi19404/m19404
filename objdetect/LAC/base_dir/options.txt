@@ -1,0 +1,60 @@
+// trainset_filename		File name of the training set
+datasetMike.dat
+// validset_filename		File name of the validation set C:\WuJx\MITFaces\ProfileValid.dat 
+datasetTrainValid.dat
+// classifier_filename		File name of the file which stored all features (weak classifeirs)
+classifiers.txt
+// ada_log_filename		File name to save the log file produced by the Viola-Jones algorithm
+rate_adaboost.txt
+// cascade_filename		File name to save the trained cascade classifier
+cascade.txt
+// FFS_WeakClassifiers_filename	File used to save the trained weak classifiers by the FFS algorithm
+FFS_Weak.txt
+// FFS_log_filename		File name to save the log file produced by the FFS algorithm
+rate_FFS.txt
+// FileUsage_log_filename	File to record the usage information of the bootstrapping dataset
+fileused.txt
+// Bootstrap_database_filename	File to list all files in the bootstrapping dataset
+bootstrap.txt
+// Backup_directory_name	Directory to save all the backup information during the training process
+backup
+// TestSet_filename 		File to contain all test images
+0_FileList_lin.txt
+// sx				Width of input training image
+24
+// sy				Height of input training image
+24
+// train_method			Which featur selection method is used to train? 1:Ada 2:FFS
+1
+// linear_discriminant 		which linear classifier do you use? 1:Original 2:LAC 3:FDA
+1
+// bootstrap_level		The current bootstrap level
+0
+// max_bootstrap_level		Maximum bootstrap level allowed
+2
+// bootstrap_resizeratio	Array of resize ratio in bootstrapping for differnt levels
+0.5 0.8
+// bootstrap_increment		Array of step size in bootstrapping for differnt levels   
+3 1
+// totalfeatures		Number of features of the feature set used
+16233
+// max_files			Maximum number of files in the bootstrapping image database
+30000
+// goal_method			Which method is used to determine ensemble threshold
+3
+// node_det_goal		Detection rate goal for a cascade node
+0.99
+// node_fp_goal			False positive rate goal for a cascade node
+0.5
+// first_feature		In FFS, which feature is the first to be choosed?
+0
+// asym_ratio			Level of asymmetry in Asymetric AdaBoost
+1
+// max_nodes			How many nodes are allowed?
+50
+// nof				How many features in each node?
+007 015 030 030 050 050 050 100 120 140
+160 180 200 200 200 200 200 200 200 200
+200 200 200 200 200 200 200 200 200 200
+200 200 200 200 200 200 200 200 200 200
+200 200 200 200 200 200 200 200 200 200

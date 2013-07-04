@@ -57,8 +57,10 @@ void FeatureDetection::FeatureDetector::filter_corners(Mat dst)
             //selecting the maximum eigen value pixel in the subregion
             //double maxVal;
             Point minLoc;
+            Point maxLoc;
             double m1=0;
-            minMaxLoc( r, 0, &m1,0,&minLoc, Mat());
+            double m2=0;
+            minMaxLoc( r, &m2, &m1,&maxLoc,&minLoc);
             if(m1>maxVal*qualityLevel)
             {
             //threshold(r,r,m1, 0, THRESH_TOZERO );

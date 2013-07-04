@@ -223,7 +223,7 @@ public:
     //tvl1->calc(_gray[_prev_index],_gray[_cur_index], flow);
                         calcOpticalFlowFarneback(_gray[_prev_index],_gray[_cur_index], flow,0.5,3, 15, 5, 5, 1.2, 0);
                         //cvtColor(_gray[_prev_index], cflow, CV_GRAY2BGR);                                                
-                        aa=drawOptFlowMap(flow, image,1, 1.5, CV_RGB(0, 255, 0));
+                        //aa=drawOptFlowMap(flow, image,1, 1.5, CV_RGB(0, 255, 0));
 
         //                imshow("XX",aa);
 

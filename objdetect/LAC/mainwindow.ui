@@ -203,6 +203,7 @@
     <addaction name="separator"/>
     <addaction name="actionStart_Training"/>
     <addaction name="separator"/>
+    <addaction name="actionStop_Training"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuTest">
@@ -216,6 +217,8 @@
     <addaction name="actionOpen_File"/>
     <addaction name="separator"/>
     <addaction name="actionCreate_training_file"/>
+    <addaction name="separator"/>
+    <addaction name="actionCreate_Haar_Classifier_txt_file"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuTest_2">
@@ -318,6 +321,16 @@
   <action name="actionStop_camera">
    <property name="text">
     <string>stop camera</string>
+   </property>
+  </action>
+  <action name="actionStop_Training">
+   <property name="text">
+    <string>Stop Training</string>
+   </property>
+  </action>
+  <action name="actionCreate_Haar_Classifier_txt_file">
+   <property name="text">
+    <string>Create Haar Classifier.txt file</string>
    </property>
   </action>
  </widget>

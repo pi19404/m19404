@@ -20,10 +20,13 @@
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QInputDialog>
 #include <QtGui/QPen>
+#include <QtConcurrentRun>
 #include <cv.h>
 #include <highgui.h>
 #include <QtCore/QDir>
 #include <Settings.h>
+
+
 MainWindow::MainWindow(QWidget *parent,int argc,char **argv) :QMainWindow(parent),ui(new Ui::MainWindow)
 {
 
@@ -43,13 +46,61 @@ MainWindow::MainWindow(QWidget *parent,int argc,char **argv) :QMainWindow(parent
         camera_ = new Camera(this);
     }
 
+ train_exit=false;
+ dd=argv[1];
        InitGlobalData(argv[1]);
 
 
+       ProgressDialog=new QProgressDialog("Processing","Cancel", 0,0, this);
+       ProgressDialog->setWindowModality(Qt::WindowModal);
+       ProgressDialog->setValue(0);
+
+        connect(&this->FutureWatcher, SIGNAL(finished()), this, SLOT(slot_finished()));
+
        cascade->LoadDefaultCascade();
        sstm << "completed default cascade " << endl;
+       //WriteSimpleClassifiers();
        logMessage(sstm.str ());sstm.flush ();
+
+       this->setCursor(Qt::ArrowCursor);
+    //init haar features
+
+
+
+
 }
+
+
+void MainWindow::on_actionCreate_Haar_Classifier_txt_file_triggered()
+{
+    WriteSimpleClassifiers(dd);
+}
+
+
+void MainWindow::slot_finished()
+{
+  this->ProgressDialog->hide();
+}
+
+void MainWindow::on_pushButtonx_clicked(QString file,QString dir)
+{
+
+
+  ProgressDialog->show ();
+
+  QFuture<void> future = QtConcurrent::run(this,&MainWindow::train_data,file,dir);
+   this->FutureWatcher.setFuture(future);
+  this->ProgressDialog->setMinimum(0);
+    this->ProgressDialog->setMaximum(0);
+    this->ProgressDialog->setWindowModality(Qt::WindowModal);
+    this->ProgressDialog->exec();
+
+   //future.waitForFinished();
+
+  //ProgressDialog->close();
+
+}
+
 /*
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -235,18 +286,42 @@ void MainWindow::on_actionStart_Training_triggered()
 {
     QElapsedTimer timer;
         timer.start();
+//
+  //      QProgressDialog ProgressDialog("Processing","Cancel", 0,0, this);
+    //    ProgressDialog.setWindowModality(Qt::WindowModal);
+      //  ProgressDialog.setValue(0);
+
     sstm << "Starting training " << endl;
     logMessage(sstm.str ());sstm.flush ();
-this->setCursor(Qt::WaitCursor);
+    //this->setCursor(Qt::WaitCursor);
     sstm << " enterting ntrain " << endl;
     logMessage(sstm.str ());sstm.flush ();
     //InitGlobalData();
-   InitTrain(this);
-    this->setCursor(Qt::ArrowCursor);
+
+    //this->setCursor(Qt::ArrowCursor);
+      ///ProgressDialog->show ();
+
+      QFuture<void> future = QtConcurrent::run(InitTrain,this);
+       this->FutureWatcher.setFuture(future);
+      this->ProgressDialog->setMinimum(0);
+        this->ProgressDialog->setMaximum(0);
+        this->ProgressDialog->setWindowModality(Qt::WindowModal);
+        this->ProgressDialog->exec();
+
+       //future.waitForFinished();
+
+      //ProgressDialog->close();
+
+
+
+
+//   (this);
+this->setCursor(Qt::ArrowCursor);
 
    sstm << "time taken to complete training "<< ((timer.elapsed()/1000)/60) << "minutes "  << endl;
    logMessage(sstm.str ());sstm.flush ();
 
+  //    ProgressDialog.close();
 }
 
 void MainWindow::process(IplImage *img)
@@ -509,7 +584,7 @@ void MainWindow::on_actionTest_All_triggered()
    QString filename = QFileDialog::getSaveFileName(
        this,
        tr(message.toStdString().c_str()),
-       QDir::currentPath(),
+               QString(dir.c_str ()),
        tr("Documents (*.*)") );
    if( !filename.isNull() )
    {
@@ -517,12 +592,15 @@ void MainWindow::on_actionTest_All_triggered()
    }
    return filename;
  }
+
  QString MainWindow::openDir(QString message)
  {
    QString dirname = QFileDialog::getExistingDirectory(
        this,
        tr(message.toStdString().c_str()),
-       QDir::currentPath() );
+       QString(dir.c_str ()))
+
+               ;
    if( !dirname.isNull() )
    {
      qDebug( dirname.toAscii() );
@@ -531,12 +609,12 @@ void MainWindow::on_actionTest_All_triggered()
  }
  QString MainWindow::openFile(QString message)
   {
-    //QFileDialog::getOpenFileName( this, tr("Open Document"), train_dir.c_str(), tr("Document files (*.jpg *.bmp);;All files (*.*)"), 0, QFileDialog::DontUseNativeDialog );
+    //QFileDialog::getOp    enFileName( this, tr("Open Document"), train_dir.c_str(), tr("Document files (*.jpg *.bmp);;All files (*.*)"), 0, QFileDialog::DontUseNativeDialog );
 
     QString filename = QFileDialog::getOpenFileName(
         this,
         QObject::tr(message.toStdString().c_str()),
-       QDir::currentPath(),
+       QString(dir.c_str ()),
         QObject::tr("Doctument files (*.dat);;All files (*.*)") );
     if( !filename.isNull() )
     {
@@ -552,6 +630,18 @@ void MainWindow::on_actionTest_All_triggered()
      ui->textEdit->append(s);
  }
 
+ struct MyLessThan {
+     bool operator()(const QString &s1, const QString &s2) const {
+         int st1 = s1.toInt ();
+         int st2 = s2.toInt ();
+
+         if (st1 < st2)
+             return false;
+         if (st1 > st2)
+         return true;
+     }
+ };
+
  void MainWindow::on_actionCreate_Training_data_file_triggered()
  {
      // InitGlobalData();
@@ -559,7 +649,18 @@ void MainWindow::on_actionTest_All_triggered()
 
     logMessage("training direcgtory is "+dir.toStdString());
     QString file=saveFile("Select Training File ");
-     logMessage("training file is "+ file.toStdString());
+    logMessage("training file is "+ file.toStdString());
+//    train_data(file,dir);
+
+//    sleep(3);
+
+    on_pushButtonx_clicked (file,dir);
+
+   }
+
+ void MainWindow::train_data(QString file,QString dir)
+ {
+
 
 
      int count=0;
@@ -567,6 +668,7 @@ void MainWindow::on_actionTest_All_triggered()
 
     QDir data_path(dir.toStdString().c_str());
     //data_path.setFilter(QDir::NoDotAndDotDot);
+
     QStringList classes = data_path.entryList();
     QString trainSet;
 
@@ -580,10 +682,15 @@ void MainWindow::on_actionTest_All_triggered()
              continue;
          cSets.append(trainSet);
          QDir file_path1(data_path.path()+QString("/%1").arg(trainSet));
-         count=count+CountFiles(file_path1.path());
+         //if(trainSet.toInt ()==0)
+         count=count+2*CountFiles(file_path1.path());
+
          //trainSet.remove();
 
     };
+
+    MyLessThan le;
+    qSort(cSets.begin(), cSets.end(), le);
 
     sstm << "number of training sampples " << count << endl;
     logMessage(sstm.str ());sstm.flush ();
@@ -600,6 +707,10 @@ void MainWindow::on_actionTest_All_triggered()
 
  for(unsigned int trainNum=0; trainNum < cSets.size(); trainNum++) {
       trainSet = cSets.at(trainNum);
+      sstm << "training directory name " << trainSet.toStdString () <<  endl;
+      //exit(1);
+      logMessage(sstm.str ());sstm.flush ();
+
      /*if(trainNum==0)
      {
          trainSet=QString("%1").arg("0");
@@ -641,8 +752,15 @@ void MainWindow::on_actionTest_All_triggered()
     }
 
         IplImage *bb = cvCreateImage(cvSize(sx,sy),aa->depth,aa->nChannels);
+        cvEqualizeHist (aa,aa);
         cvResize(aa,bb);
+
+
         cvSaveImage("tmp.bmp",bb);
+
+
+        cvFlip (bb,bb,1);
+        cvSaveImage("tmp1.bmp",bb);
         cvReleaseImage(&bb);
 
 
@@ -672,6 +790,31 @@ void MainWindow::on_actionTest_All_triggered()
         logMessage(sstm.str ());sstm.flush ();
     }
 
+
+    b.Load("tmp1.bmp");
+
+    l=1;
+
+
+    writebuf = new unsigned char[sx*sy];
+    ASSERT(writebuf!=NULL);
+    if(trainSet.toInt()==0||trainSet.toInt()==1)
+    {
+             of<<trainSet.toInt()<<endl;
+             of<<sx<<" "<<sy<<endl;
+             for(int k=0;k<sx;k++)
+                for(int t=0;t<sy;t++)
+                   writebuf[k*sy+t] = (unsigned char)((int)b.data[k][t]);
+             of.write((char*)writebuf,sx*sy);
+                 of<<endl;
+                 delete[] writebuf; writebuf=NULL;
+}
+    else
+    {
+        sstm << "error in data"  << endl;
+        logMessage(sstm.str ());sstm.flush ();
+    }
+
              }
 
                  fileSets.clear();
@@ -680,6 +823,8 @@ void MainWindow::on_actionTest_All_triggered()
  }
    of.flush();
    of.close();
+
+
  }
 
 
@@ -854,4 +999,9 @@ void MainWindow::on_pushButton_3_clicked()
 {
     continueCalc = true;
     exitWait=true;
+}
+
+void MainWindow::on_actionStop_Training_triggered()
+{
+    train_exit=true;
 }

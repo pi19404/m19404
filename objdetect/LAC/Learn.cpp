@@ -22,72 +22,88 @@
 #include "support.h"
 using namespace std;
 
-MainWindow *dlg1;
-void InitTrain(MainWindow *dlg)
+MainWindow *dlg;
+
+//std::basic_stringstream sstm;
+void InitTrain(MainWindow *dlg1)
 {
     int i;
-    dlg1=dlg;
+    dlg=dlg1;
 
-//    dlg.m_size = starting_node;
-//    dlg.m_fs = train_method;
-//    dlg.m_lc = linear_classifier;
-//    dlg.m_ratio = asym_ratio;
-//    if(dlg.DoModal()!=IDOK)
-//    {
-//        AfxMessageBox("Training cancelled.");
-//        return;
-//    }
-   // else
-    cerr << "setting parameters of training" <<endl;
- //   {
+  //  sstm=dlg->sstm;
+    cerr << " enterting ntrain " << endl;
+    //dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
+
+    cerr  << "setting parameters of training" <<endl;
+    ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
+
         train_method = dlg->m_fs;
         linear_classifier = dlg->m_lc;
         asym_ratio = REAL(dlg->m_ratio);
-   // }
-cerr << "train_method:" <<train_method<<endl;
-cerr << "linear_classifier:" <<train_method<<endl;
-cerr << "asym_ratio:" <<asym_ratio<<endl;
-cerr << "starting_node:" <<starting_node<<endl;
-cerr << "max_nodes:" <<max_nodes<<endl;
-cerr << "FileUsage_log_filename" <<FileUsage_log_filename<<endl;
-cerr << "Bootstrap_database_filename " << Bootstrap_database_filename <<endl;
 
+cerr << "train_method:" <<train_method<<endl;
+////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
+cerr << "linear_classifier:" <<linear_classifier<<endl;
+//dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
+cerr << "asym_ratio:" << double(asym_ratio)<<endl;
+////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
+cerr << "starting_node:" <<starting_node<<endl;
+//dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
+cerr << "max_nodes:" <<max_nodes<<endl;
+//dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
+cerr << "FileUsage_log_filename" <<FileUsage_log_filename<<endl;
+////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
+cerr << "Bootstrap_database_filename " << Bootstrap_database_filename <<endl;
+////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
 
     i = starting_node;
     if(i!=1 && i<=max_nodes)
     {
         cerr << "processing node:" <<i <<endl;
+        ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
+
         ofstream f;
         if(!BoostingInputFiles(true))
         {
-            cerr << "All bootstrapping file used! Training finished! (finally...)";
+          //  cerr << "All bootstrapping file used! Training finished! (finally...)";
+            ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
             return;
         }
+
         cerr << "writng top FileUsage_log_filename" <<endl;
+        ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
+
         f.open(FileUsage_log_filename);
         for(int j=0;j<max_files;j++) f<<fileused[j]<<" ";
         f.close();
 
         cerr << "completed writng top FileUsage_log_filename" <<endl;
+        ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
     }
-    dlg1->setCursor(Qt::WaitCursor);
+    //dlg1->setCursor(Qt::WaitCursor);
     WriteRangeFile();
     cerr << "complete writing range file " << endl;
+    ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
+
     while(i<=max_nodes)
     {
         bool result;
-        cerr << "starting round " << i << endl;
+      //  cerr << "starting round " << i << endl;
+       // //dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
+
         result = cascade->OneRound(i);
         if(result==false)
         {
-            dlg1->setCursor(Qt::ArrowCursor);
-            cerr << "All bootstrapping file used! Training finished! (finally...)" << endl;
+            //dlg1->setCursor(Qt::ArrowCursor);
+         //   cerr << "All bootstrapping file used! Training finished! (finally...)" << endl;
+          //  //dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
             return;
         }
         cerr << "compled round " << i << endl;
+        ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
         i++;
     }
-     dlg1->setCursor(Qt::ArrowCursor);
+     //dlg1->setCursor(Qt::ArrowCursor);
 }
 
  bool BoostingInputFiles(const bool discard)
@@ -100,16 +116,20 @@ cerr << "Bootstrap_database_filename " << Bootstrap_database_filename <<endl;
     im.SetSize(QSize(sx+1,sy+1));
     cascade->LoadDefaultCascade();
     cerr << " Completed loading the default cascade BoostingInputFiles facecount " << discard <<endl;
+    ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
     pointer=facecount;
     cerr << "  facecount " << facecount << "  totalcount " <<totalcount <<" pointer" << pointer <<endl;
+    ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
     for(i=facecount;i<totalcount;i++)
     {
 
         if(discard)
         {
             cerr << "breaking because false" << endl;
+            //dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
             break;
         }
+
 
         if(cascade->ApplyImagePatch(trainset[i])!=0)
         {
@@ -124,6 +144,7 @@ cerr << "Bootstrap_database_filename " << Bootstrap_database_filename <<endl;
     if(pointer==totalcount)
     {
         cerr << "Completed processing non face data" << endl;
+        //dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
         return true;
     }
 
@@ -134,6 +155,7 @@ cerr << "Bootstrap_database_filename " << Bootstrap_database_filename <<endl;
         if(index==bootstrap_size)
         {
             cerr << "max_bootstrap_level " << max_bootstrap_level << "  bootstrap_level " <<bootstrap_level <<endl;
+            //dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
             if(bootstrap_level==max_bootstrap_level-1)
                 return false;
             else
@@ -143,6 +165,7 @@ cerr << "Bootstrap_database_filename " << Bootstrap_database_filename <<endl;
                 index=0;
                 pointer=facecount;
                 cerr << "max_bootstrap_level " << max_bootstrap_level << "  bootstrap_level " <<bootstrap_level <<endl;
+                //dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
             }
         }
         if(fileused[index]==1)
@@ -168,9 +191,9 @@ cerr << "Bootstrap_database_filename " << Bootstrap_database_filename <<endl;
                 trainset[i].data[k][t] = im.data[k][t]-im.data[k-1][t]-im.data[k][t-1]+im.data[k-1][t-1];
     }
      cerr << "opening train set file " << endl;
-    of.open(trainset_filename,ios_base::out | ios_base::binary);
-
-    of<<totalcount<<endl;
+     ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
+     of.open(trainset_filename,ios_base::out | ios_base::binary);
+     of<<totalcount<<endl;
     unsigned char* writebuf;
     writebuf = new unsigned char[sx*sy];
     assert(writebuf!=NULL);
@@ -187,6 +210,7 @@ cerr << "Bootstrap_database_filename " << Bootstrap_database_filename <<endl;
     delete[] writebuf; writebuf=NULL;
     of.close();
     cerr << "completed writing to train set file " << endl;
+    ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
     for(i=0;i<totalcount;i++) trainset[i].CalculateVarianceAndIntegralImageInPlace();
     for(i=facecount;i<totalcount;i++)
     {
@@ -194,6 +218,7 @@ cerr << "Bootstrap_database_filename " << Bootstrap_database_filename <<endl;
             ; //AfxMessageBox("Something is wrong?");
     }
     cerr << "completed BoostingInputFiles" << endl;
+    ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
     return true;
 }
 
@@ -231,7 +256,6 @@ const bool CascadeClassifier::OneRound(const int round)
     bool result;
     int i;
     AdaBoostClassifier ada;
-
     CStdString str;
 
 
@@ -240,8 +264,10 @@ const bool CascadeClassifier::OneRound(const int round)
     str.Format("Training node: %d \n",round);
 
     cerr << str << endl;
+    ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
     ada.TrainLDS(nof[round-1],true,goal_method);
     cerr << "completed training TrainLDS" << endl;
+    ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
     if(train_method==TRAIN_ADA)
         BackupIntermediateFile(ada_log_filename,round);
     else
@@ -251,18 +277,21 @@ const bool CascadeClassifier::OneRound(const int round)
 
     str.Format("Training node %d finished. Bootstrapping non-face data for next node.",round);
     cerr << str<< endl;
+    ////dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
     result = BoostingInputFiles(false);
 
     f.open(FileUsage_log_filename);
     for(i=0;i<max_files;i++) f<<fileused[i]<<" ";
     f.close();
-
+//
+//    cerr << "Backing up intemediate files " <<endl;
+  //  //dlg->logMessage(dlg->sstm.str ());dlg->sstm.flush ();
     BackupIntermediateFile(FileUsage_log_filename,round);
 
     return result;
 }
 
-void WriteSimpleClassifiers(void)
+void WriteSimpleClassifiers(string dd)
 {
     int x1,x2,x3,x4,y1,y2,y3,y4;
     SimpleClassifier sc;
@@ -270,8 +299,9 @@ void WriteSimpleClassifiers(void)
     ofstream f;
 
     int pickup=9;
-
-    f.open("classifiers.txt");
+    int factor=4;
+    string fi=dd+"/classifiers.txt";
+    f.open(fi.c_str ());
     index = 0;
 
     for(x1=0;x1<sx;x1+=1)
@@ -286,7 +316,8 @@ void WriteSimpleClassifiers(void)
                     sc.y1 = y1; sc.y2 = y2; sc.y3 = y3; sc.y4 = y4;
                     sc.parity = 0;
                     sc.thresh = 0.0;
-                    if(index%10==pickup) sc.WriteToFile(f);
+                    if(index%factor==0)
+                        sc.WriteToFile(f);
                     index++;
                 }
 
@@ -302,7 +333,8 @@ void WriteSimpleClassifiers(void)
                     sc.y1 = y1; sc.y2 = y2; sc.y3 = y3; sc.y4 = y4;
                     sc.parity = 0;
                     sc.thresh = 0.0;
-                    if(index%10==pickup) sc.WriteToFile(f);
+                    if(index%factor==0)
+                        sc.WriteToFile(f);
                     index++;
                 }
 
@@ -319,7 +351,8 @@ void WriteSimpleClassifiers(void)
                     sc.y1 = y1; sc.y2 = y2; sc.y3 = y3; sc.y4 = y4;
                     sc.parity = 0;
                     sc.thresh = 0.0;
-                    if(index%10==pickup) sc.WriteToFile(f);
+                    if(index%factor==0)
+                        sc.WriteToFile(f);
                     index++;
                 }
 
@@ -336,7 +369,8 @@ void WriteSimpleClassifiers(void)
                     sc.y1 = y1; sc.y2 = y2; sc.y3 = y3; sc.y4 = y4;
                     sc.parity = 0;
                     sc.thresh = 0.0;
-                    if(index%10==pickup) sc.WriteToFile(f);
+                    if(index%factor==0)
+                        sc.WriteToFile(f);
                     index++;
                 }
 
@@ -353,7 +387,8 @@ void WriteSimpleClassifiers(void)
                     sc.y1 = y1; sc.y2 = y2; sc.y3 = y3; sc.y4 = y4;
                     sc.parity = 0;
                     sc.thresh = 0.0;
-                    if(index%10==pickup) sc.WriteToFile(f);
+                    if(index%factor==0)
+                        sc.WriteToFile(f);
                     index++;
                 }
 

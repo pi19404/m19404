@@ -6,6 +6,8 @@
 #include "camera.h"
 #include <QTime>
 #include <QEventLoop>
+#include <QFutureWatcher>
+#include <QProgressDialog>
 namespace Ui {
 class MainWindow;
 }
@@ -31,9 +33,13 @@ public:
      QString openDir(QString message);
       QString saveFile(QString message);
       QString openFile(QString message);
+          QProgressDialog *ProgressDialog;
+           QFutureWatcher<void> FutureWatcher;
+           std::string dd;
       bool continueCalc;
       bool exitWait;
       int index;
+      bool train_exit;
       void waitUser()
       {
          //std::cerr << "waiiting" <<std::endl;
@@ -48,8 +54,8 @@ public:
       }
 
       void logMessage(std::string txt);
-
-    ~MainWindow();
+void train_data(QString file,QString dir);
+~MainWindow();
     void UpdateStatus();
 private slots:
     void on_actionAdaBoos_triggered();
@@ -65,7 +71,7 @@ private slots:
     void on_actionFDA_triggered();
 
     void on_actionStart_Training_triggered();
-void process(IplImage *img);
+    void process(IplImage *img);
     void on_actionOpen_File_triggered();
 
     void on_actionTest_All_triggered();
@@ -74,10 +80,11 @@ void process(IplImage *img);
 
     void on_actionTest_Live_triggered();
 
-void update(const cv::Mat & image);
+    void update(const cv::Mat & image);
 
 
-
+    void slot_finished();
+    void on_pushButtonx_clicked(QString file,QString dir);
 
 
 
@@ -100,10 +107,15 @@ void startProcessing();
 
     void on_pushButton_3_clicked();
 
+    void on_actionStop_Training_triggered();
+
+    void on_actionCreate_Haar_Classifier_txt_file_triggered();
+
 public:
     Ui::MainWindow *ui;
 
 };
 
 #endif // MAINWINDOW_H
+
 

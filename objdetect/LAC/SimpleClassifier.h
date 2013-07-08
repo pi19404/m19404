@@ -1,7 +1,45 @@
 #ifndef SimpleClassifier1
 #define SimpleClassifier1
 #define REAL double
+#include <opencv2/core/core.hpp>
 
+class Rectangles
+{
+public:
+
+    Rectangles()
+    {
+
+    }
+
+    void init(int x1,int y1,int width,int height,int weight)
+    {
+        _r.x=x1;
+        _r.y=y1;
+        _r.width=width;
+        _r.height=height;
+        _weight=weight;
+    }
+
+    Rectangles(int x1,int y1,int width,int height,int weight)
+    {
+        _r.x=x1;
+        _r.y=y1;
+        _r.width=width;
+        _r.height=height;
+        _weight=weight;
+    }
+
+    cv::Rect _r;
+    int _weight;
+};
+
+class HaarFeatures{
+public:
+    std::vector<Rectangles> features;
+    int type;
+
+};
 
 struct SimpleClassifier
 {
@@ -10,6 +48,8 @@ struct SimpleClassifier
 	int parity;
 	int type; // which type of feature?
 	int x1,x2,x3,x4,y1,y2,y3,y4;
+    std::vector<Rectangles> features;
+//    int type;
 
 	inline const REAL GetOneFeature(const IntImage& im) const;
 	inline const REAL GetOneFeatureTranslation(REAL** const data,const int y) const;

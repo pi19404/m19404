@@ -36,6 +36,7 @@ int bootstrap_level;
 int max_bootstrap_level;
 vector<REAL> bootstrap_resizeratio;
 vector<int> bootstrap_increment;
+HaarFeaturesSet s;
 int totalfeatures;
 int max_files;
 int goal_method;
@@ -66,6 +67,9 @@ int bootstrap_size;
 CString* bootstrap_filenames;
 
 REAL mean_min, mean_max, sq_min, sq_max, var_min, var_max;
+
+
+
 
 void WriteRangeFile(void)
 // images are already integral images.
@@ -124,12 +128,11 @@ void ReadOneTrainingSample(ifstream& is,IntImage& image)
 
     ASSERT(sx<=256 && sy<=256);
     is>>image.label;
- //   cerr << "image lable is " << image.label << endl;
+
     is.ignore(256,'\n');
     ASSERT( (image.label == 0) || (image.label == 1) );
 
-    is>>image.height>>image.width;
-  //  cerr << "image size is " << image.height <<":" << image.width<< endl;
+    is>>image.height>>image.width; 
     is.ignore(256,'\n');
     ASSERT(image.height==sx);
     ASSERT(image.width==sy);
@@ -148,6 +151,41 @@ void ReadOneTrainingSample(ifstream& is,IntImage& image)
     }
     is.ignore(256,'\n');
 }
+
+
+REAL Integral(REAL **data,const cv::Rect & r )
+{
+    REAL f1=data[r.x][r.y]+data[r.x+r.width][r.y+r.height]-data[r.x][r.y+r.height]-data[r.x+r.width][r.y];
+    return f1;
+}
+
+
+void GetFeatureValues0(REAL* const features,const int from,const int to,const vector<Rectangles> &features1)
+{
+    int i;
+    REAL f1;
+    REAL** data;
+
+    for(i=from;i<to;i++)
+    {
+
+        data = trainset[i].data;
+        f1=0;
+        REAL f2=0;
+        for(int j=0;j<features1.size ();j++)
+        {
+            Rectangles r=features1[j];
+            f2=Integral (data,r._r);
+            f2=f2*r._weight;
+            f1=f1+f2;
+            //f1 =   data[x1][y3] - data[x1][y1] + data[x3][y3] - data[x3][y1]+ 2*(data[x2][y1] - data[x2][y3]);
+
+
+        }
+        features[i] = f1 / trainset[i].variance;
+    }
+}
+
 
 void GetFeatureValues0(REAL* const features,const int from,const int to,const int x1,const int x2,const int x3,const int y1,const int y3)
 {
@@ -282,7 +320,9 @@ void FillTheTable(int* const row,const SimpleClassifier& sc)
     x4 = sc.x4;	y4 = sc.y4;
     switch(sc.type)
     {
-        case 0:GetFeatureValues0(features,0,totalcount,x1,x2,x3,y1,y3);break;
+        case 0:
+            GetFeatureValues0(features,0,totalcount,x1,x2,x3,y1,y3);
+            break;
         case 1:GetFeatureValues1(features,0,totalcount,x1,x3,y1,y2,y3);break;
         case 2:GetFeatureValues2(features,0,totalcount,x1,x2,x3,x4,y1,y3);break;
         case 3:GetFeatureValues3(features,0,totalcount,x1,x3,y1,y2,y3,y4);break;
@@ -325,9 +365,15 @@ void ReadClassifiers()
     ifstream f;
     int i;
 
-    f.open(classifier_filename);
-    for(i=0;i<totalfeatures;i++) classifiers[i].ReadFromFile(f);
-    f.close();
+    //f.open(classifier_filename);
+    for(i=0;i<totalfeatures;i++)
+    {
+    classifiers[i].ReadFromFile(f);
+//    classifiers[i].type=s.feature[i].type;
+    //copy(s.feature[i].features.begin(),s.feature[i].features.end(),classifiers[i].features.begin ());
+  //  classifiers[i].features=s.feature[i].features;
+    }
+    //f.close();
 }
 
 void IgnoreComments(ifstream& f)
@@ -353,6 +399,10 @@ void ReadlnString(ifstream& f, CString& s)
 
 void LoadOptions()
 {
+
+
+
+    //s.generateFeatures ();
     ifstream f;
     int i;
     cerr << "loading options from file " << option_filename << endl;
@@ -386,8 +436,9 @@ void LoadOptions()
     bootstrap_resizeratio.resize(max_bootstrap_level);
     IgnoreComments(f); for(i=0;i<max_bootstrap_level;i++) f>>bootstrap_resizeratio[i]; IgnoreComments(f);
     bootstrap_increment.resize(max_bootstrap_level);
-    IgnoreComments(f); for(i=0;i<max_bootstrap_level;i++) f>>bootstrap_increment[i]; IgnoreComments(f);
+    IgnoreComments(f); for(i=0;i<max_bootstrap_level;i++) f>>bootstrap_increment[i]; IgnoreComments(f);   
     IgnoreComments(f); f>>totalfeatures; IgnoreComments(f);
+    //totalfeatures=s.feature.size ();
     IgnoreComments(f); f>>max_files; IgnoreComments(f);
     IgnoreComments(f); f>>goal_method; IgnoreComments(f);
     IgnoreComments(f); f>>node_det_goal; IgnoreComments(f);
@@ -398,16 +449,14 @@ void LoadOptions()
     nof.resize(max_nodes);
     IgnoreComments(f); for(i=0;i<max_nodes;i++) f>>nof[i]; 	IgnoreComments(f);
     f.close();
+
+
 }
 
 void ReadTrainSet(CString filename)
 {
     ifstream f;
     int i;
-
-//    cerr << "readding training set " << filename<<endl;
-
-
     f.open(filename, ios_base::binary| ios_base::in);
     if(f.is_open()==true)
         cerr << "file opened successfully  " << endl;
@@ -562,6 +611,7 @@ void InitGlobalData(string option)
     cerr << "starting node is " << cascade->count +1 << endl;
     starting_node = cascade->count+1;
 
+    cerr << "total features " << totalfeatures << endl;
     classifiers = new SimpleClassifier[totalfeatures]; ASSERT(classifiers != NULL);
     ReadClassifiers();
     cerr << "reading classifier configuration" << endl;
@@ -570,6 +620,8 @@ void InitGlobalData(string option)
 
     ReadRangeFile();
     cerr << "completed iniitalization of global data " <<endl;
+    s.feature.clear ();
+
 }
 
 void ClearUpGlobalData()

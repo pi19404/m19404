@@ -164,10 +164,12 @@ void AdaBoostClassifier::TrainLDS(int rounds,const bool update,const int method)
     else if(train_method==TRAIN_FFS)
         ForwardFeatureSelection(*this,rounds,false,method);
 
+    cerr << "Completed with forward feature selection " << endl;
     if(linear_classifier==LC_LAC || linear_classifier==LC_FDA)
     {
         WithinClassScatter(*this);
-        curresult = new REAL[totalcount]; ASSERT(curresult!=NULL);
+        curresult = new REAL[totalcount];
+        ASSERT(curresult!=NULL);
         for(i=0;i<totalcount;i++) curresult[i]=0.0;
         for(i=0;i<totalcount;i++)
             for(j=0;j<count;j++)

@@ -62,6 +62,7 @@ extern CStdString* bootstrap_filenames;
 extern REAL mean_min,mean_max,sq_min,sq_max,var_min,var_max;
 
 void ReadOneTrainingSample(ifstream& is,IntImage& image);
+void GetFeatureValues0(REAL* const features,const int from,const int to,const vector<Rectangles> &features1);
 void GetFeatureValues0(REAL* const features,const int from,const int to,const int x1,const int x2,const int x3,const int y1,const int y3);
 void GetFeatureValues1(REAL* const features,const int from,const int to,const int x1,const int x3,const int y1,const int y2,const int y3);
 void GetFeatureValues2(REAL* const features,const int from,const int to,const int x1,const int x2,const int x3,const int x4,const int y1,const int y3);
@@ -91,3 +92,115 @@ void WithinClassScatter(AdaBoostClassifier& ada);
 
 void ReadRangeFile(void);
 void WriteRangeFile(void);
+
+
+#ifndef GLOBALL
+#define GLOBALL
+
+class HaarFeaturesSet
+{
+
+public:
+    vector<HaarFeatures> feature;
+    HaarFeaturesSet()
+    {
+        winSize=cv::Size(24,24);
+    }
+
+public:
+    cv::Size winSize;
+    void generateFeatures()
+    {
+        int offset = winSize.width + 1;
+
+        for( int dx = 1; dx <= winSize.width; dx++ )
+        {
+            for( int dy = 1; dy <= winSize.height; dy++ )
+            {
+
+                for( int y = 0; y < winSize.height; y++ )
+                {
+                for( int x = 0; x < winSize.width; x++ )
+                {
+
+                            HaarFeatures f1,f2,f3,f4,f5;
+                            Rectangles r1;//(x,y,2*dx,dy,-1);
+                            Rectangles r2;//(x+dx,y,dx,2*dy,+2);
+                            Rectangles r3(x+dx,y+dy,dx,dy,2);
+
+
+                            r1.init (x,y,2*dx,dy,-1);
+                            r2.init (x+dx,y,dx,dy,2);
+
+                            if(r1._r.x+r1._r.width <= winSize.width && r1._r.y+r1._r.height <= winSize.height &&r2._r.x+r2._r.width <= winSize.width && r2._r.y+r2._r.height <= winSize.height )
+                            {
+                            f1.features.push_back (r1);
+                            f1.features.push_back (r2);
+                            f1.type=0;
+                            feature.push_back (f1);
+                            }
+
+
+                            r1.init (x,y,1*dx,2*dy,-1);
+                            r2.init (x,y+dy,dx,dy,2);
+                            if(r1._r.x+r1._r.width <= winSize.width && r1._r.y+r1._r.height <= winSize.height &&r2._r.x+r2._r.width <= winSize.width && r2._r.y+r2._r.height <= winSize.height )
+                            {
+                            f2.features.push_back (r1);
+                            f2.features.push_back (r2);
+                            f2.type=1;
+                            feature.push_back (f2);
+                            }
+
+
+                            r1.init (x,y,3*dx,dy,-1);
+                            r2.init (x+dx,y,dx,dy,3);
+
+                            if(r1._r.x+r1._r.width <= winSize.width && r1._r.y+r1._r.height <= winSize.height &&r2._r.x+r2._r.width <= winSize.width && r2._r.y+r2._r.height <= winSize.height )
+                            {
+                            f3.features.push_back (r1);
+                            f3.features.push_back (r2);
+                            f3.type=1;
+                            feature.push_back (f3);
+                            }
+
+                            r1.init (x,y,dx,3*dy,-1);
+                            r2.init (x,y+dy,dx,dy,3);
+                            if(r1._r.x+r1._r.width <= winSize.width && r1._r.y+r1._r.height <= winSize.height &&r2._r.x+r2._r.width <= winSize.width && r2._r.y+r2._r.height <= winSize.height )
+                            {
+                            f4.features.push_back (r1);
+                            f4.features.push_back (r2);
+                            f4.type=1;
+                            feature.push_back (f4);
+                            }
+
+
+
+                            r1.init(x,y,2*dx,2*dy,-1);
+                            r2.init(x,y,dx,dy,2);
+
+
+                            if(r1._r.x+r1._r.width <= winSize.width && r1._r.y+r1._r.height <= winSize.height &&r2._r.x+r2._r.width <= winSize.width && r2._r.y+r2._r.height <= winSize.height )
+                            {
+                            f5.features.push_back (r1);
+                            f5.features.push_back (r2);
+                            f5.features.push_back (r3);
+                            feature.push_back (f5);
+                            }
+
+                    }
+
+                }
+                //if(dy==3)
+                  //  break;
+            }
+        }
+
+
+       // cerr << feature.size () << endl;
+
+    }
+
+};
+
+extern HaarFeaturesSet s;
+#endif

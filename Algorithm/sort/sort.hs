@@ -66,8 +66,46 @@ insertion_sort s = insertion_sort' [] s 0
 
 
 
--- merge sort
+--split 
+-- split an array of size N into two arrays of size N/2
+-- the computation of total length of the list is required
+split :: Ord a =>[a]->Int->([a],[a],Int)
+split s i= (l1,l2,(i+1))
+	where 
+	(l1,l2)=splitAt ( div (length(s)) 2 ) s
+
+--merge
+-- the function to merge the 2 sorted lists
+-- iput is the lists to be sorted and current number of computation
+-- output is merger list + total number of computation required for merge
+merge1 :: Ord a =>[a]->[a]->Int->([a],Int)
+merge1 [] xs i = (xs,i+1)
+merge1 xs [] i = (xs,i+1)
+merge1 (x:xs) (y:ys) i
+		|x<y = (x:a1,a2)
+		|otherwise = (y:b1,b2)
+		where
+		  (a1,a2)=merge1 xs (y:ys) (i+1)
+		  (b1,b2)=merge1 (x:xs) ys (i+1)
 
 
+-- the recrsive for merge sort algorithm
+-- input is list ,output is merge sorted list and number of computation
+merge_sort' :: Ord a=>[a]->Int->([a],Int)	
+merge_sort' list i  
+		| length(list)==1=(list,i)
+		| otherwise =(o1,o2)
+		where
+		(list1,list2,m5)=(split list 0)
+		(list3,m3)=merge_sort' list1 0
+		(list4,m4)=merge_sort' list2 0
+		(o1,o2)=merge1 list3 list4 (m3+m4+m5)
 
+
+-- main function to be called for merge sort algoritm
 merge_sort :: Ord a =>[a]->([a],Int)
+merge_sort s = merge_sort' s 0
+
+
+
+

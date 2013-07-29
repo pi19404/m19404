@@ -666,6 +666,7 @@ void MainWindow::on_actionTest_All_triggered()
      int count=0;
 
 
+
     QDir data_path(dir.toStdString().c_str());
     //data_path.setFilter(QDir::NoDotAndDotDot);
 
@@ -683,7 +684,7 @@ void MainWindow::on_actionTest_All_triggered()
          cSets.append(trainSet);
          QDir file_path1(data_path.path()+QString("/%1").arg(trainSet));
          //if(trainSet.toInt ()==0)
-         count=count+2*CountFiles(file_path1.path());
+         count=count+CountFiles(file_path1.path());
 
          //trainSet.remove();
 
@@ -742,6 +743,7 @@ void MainWindow::on_actionTest_All_triggered()
      QFileInfo handPath(data_path.path() + QString("/%1/%2").arg(trainSet).arg(fileSet));
     handPathString = handPath.filePath().toStdString();
 
+
     IplImage *aa = cvLoadImage(handPathString.c_str(),0);
     if(aa==0&&aa->width<=0&&aa->height<=0)
     {
@@ -751,17 +753,29 @@ void MainWindow::on_actionTest_All_triggered()
         continue;
     }
 
+
         IplImage *bb = cvCreateImage(cvSize(sx,sy),aa->depth,aa->nChannels);
         cvEqualizeHist (aa,aa);
+        if(trainSet.toInt()==1)
+        {
         cvResize(aa,bb);
-
-
         cvSaveImage("tmp.bmp",bb);
-
-
         cvFlip (bb,bb,1);
         cvSaveImage("tmp1.bmp",bb);
+        }
+        else
+        {
+        cvSaveImage("tmp.bmp",aa);
+        cvFlip (aa,aa,1);
+        cvSaveImage("tmp1.bmp",aa);
+        }
+        cvReleaseImage(&aa);
         cvReleaseImage(&bb);
+
+
+
+
+
 
 
 
@@ -783,14 +797,16 @@ void MainWindow::on_actionTest_All_triggered()
              of.write((char*)writebuf,sx*sy);
                  of<<endl;
                  delete[] writebuf; writebuf=NULL;
-}
+    }
     else
     {
         sstm << "error in data"  << endl;
         logMessage(sstm.str ());sstm.flush ();
     }
+    b.Clear();
 
 
+/*
     b.Load("tmp1.bmp");
 
     l=1;
@@ -814,7 +830,7 @@ void MainWindow::on_actionTest_All_triggered()
         sstm << "error in data"  << endl;
         logMessage(sstm.str ());sstm.flush ();
     }
-
+*/
              }
 
                  fileSets.clear();

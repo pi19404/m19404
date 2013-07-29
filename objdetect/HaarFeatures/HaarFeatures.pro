@@ -7,9 +7,9 @@
 QT       += core gui
 
 
-INCLUDEPATH += /usr/local/include /usr/local/include/opencv /usr/local/include/opencv2
+INCLUDEPATH += /usr/local/include /usr/local/include/opencv /usr/local/include/opencv2 /usr/include/libxml2
 # /media/UBUNTU/softwares-linux/FaceDetect_V1.3
-LIBS += -L/usr/local/lib `pkg-config --libs opencv`
+LIBS += -L/usr/local/lib `pkg-config --libs opencv` -lmlpack
 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

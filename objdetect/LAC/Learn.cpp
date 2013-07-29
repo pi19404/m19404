@@ -299,7 +299,7 @@ void WriteSimpleClassifiers(string dd)
     ofstream f;
 
     int pickup=9;
-    int factor=4;
+    int factor=10;
     string fi=dd+"/classifiers.txt";
     f.open(fi.c_str ());
     index = 0;

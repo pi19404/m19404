@@ -2,7 +2,11 @@
 import Data.Char (digitToInt)
 import Data.List 
 import Data.Ord
-
+import System.IO  
+import Control.Monad
+import Numeric
+import Foreign.Marshal.Safe
+import Foreign.Marshal
 -- running the loop till sorting in complete or N iterations :
 bubble_sort' :: Ord a => [a] ->Int->([a],Int)
 bubble_sort' s i = case (_bsort s) of
@@ -74,38 +78,64 @@ split s i= (l1,l2,(i+1))
 	where 
 	(l1,l2)=splitAt ( div (length(s)) 2 ) s
 
---merge
+--merge sort
 -- the function to merge the 2 sorted lists
--- iput is the lists to be sorted and current number of computation
+-- iput is the lists to be sorted and current number of inversions
 -- output is merger list + total number of computation required for merge
-merge1 :: Ord a =>[a]->[a]->Int->([a],Int)
-merge1 [] xs i = (xs,i+1)
-merge1 xs [] i = (xs,i+1)
-merge1 (x:xs) (y:ys) i
-		|x<y = (x:a1,a2)
-		|otherwise = (y:b1,b2)
+merge1 :: Ord a =>[a]->[a]->Int->Bool->([a],Int)
+merge1 [] xs i _ = (xs,i)
+merge1 xs [] i _ = (xs,i)
+merge1 (x:xs) (y:ys) i flag 
+		|x<y = (x:a1,a2) 
+		|otherwise = case flag of
+			t|t==False->(y:b1,val2)					
+	 		 |otherwise->(y:b1,val1)
 		where
-		  (a1,a2)=merge1 xs (y:ys) (i+1)
-		  (b1,b2)=merge1 (x:xs) ys (i+1)
+		  (a1,a2)=merge1 xs (y:ys) (i) flag
+		  (b1,b2)=merge1 (x:xs) ys (i1) flag
+		  --c1=x<y = (x:a1,a2)
+                  --c2=(y:b1,b2)
+		  i1=case flag of 
+			t|t==False->(i+1)
+			 |otherwise -> i+length(x:xs)
+		  val1=b2
+		  val2=b2
+		  
 
 
 -- the recrsive for merge sort algorithm
--- input is list ,output is merge sorted list and number of computation
+-- input is list ,output is merge sorted list and number of inversions
 merge_sort' :: Ord a=>[a]->Int->([a],Int)	
 merge_sort' list i  
 		| length(list)==1=(list,i)
 		| otherwise =(o1,o2)
 		where
 		(list1,list2,m5)=(split list 0)
-		(list3,m3)=merge_sort' list1 0
-		(list4,m4)=merge_sort' list2 0
-		(o1,o2)=merge1 list3 list4 (m3+m4+m5)
+		(list3,m3)=merge_sort' list1 (0)
+		(list4,m4)=merge_sort' list2 (0)
+-- call merge with true flag for inversion count		
+		(o1,o2)=merge1 list3 list4 (m3+m4) True
 
 
 -- main function to be called for merge sort algoritm
 merge_sort :: Ord a =>[a]->([a],Int)
 merge_sort s = merge_sort' s 0
 
+select :: Ord a=>[a]->Int-> ([a],[a])
+select (n) i= case i of 
+		t| t<=0 -> splitAt (length(n)+t) n
+		 |otherwise -> splitAt t n
 
+
+
+getWords :: FilePath ->Int-> IO (Int,[Int])
+getWords path int1 = do contents <- readFile path
+	                return(execute (select (map readInt1 (lines contents)) (int1) )  )
+		     where
+		     execute (s,s1) =(snd(merge_sort s),s1)
+
+
+readInt1 :: String -> Int
+readInt1 = read
 
 

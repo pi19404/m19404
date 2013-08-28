@@ -37,7 +37,7 @@ public:
      dx=dx*dx;
      float dy=p.y-q.y;
      dy=dy*dy;
-     return sqrt(dx+dy);
+     return (dx+dy);
 
     }
 };
@@ -49,8 +49,8 @@ public:
     FPoint2f(){};
     FPoint2f(float x,float y)
     {
-        this->x=(int)x;
-        this->y=(int)y;
+        this->x=(float)x;
+        this->y=(float)y;
     }
 
 };
@@ -60,17 +60,19 @@ class ScanPoint{
 public:
     FPoint2f position;
     int index;
-
+    float distance;
     ScanPoint()
     {
-
+        index=-1;
+        distance=0;
     }
 
-    ScanPoint(Point2f pos,int i=0)
+    ScanPoint(FPoint2f pos,float dist1,int i=0)
     {
         position.x=pos.x;
         position.y=pos.y;
         index=i;
+        distance=dist1;
     }
 
     void draw(Mat &image)

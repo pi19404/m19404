@@ -23,7 +23,8 @@ SOURCES += main.cpp \
     Simulator.cpp \
     Sensor.cpp \
     Robot.cpp \
-    Bug2.cpp
+    Bug2.cpp \
+    tangentbug.cpp
 
 HEADERS  += \
     Point.hpp \
@@ -35,6 +36,7 @@ HEADERS  += \
     Simulator.hpp \
     Sensor.hpp \
     Robot.hpp \
-    Bug2.hpp
+    Bug2.hpp \
+    tangentbug.hpp
 
 #FORMS    += mainwindow.ui

@@ -24,11 +24,60 @@
 #include "Obstacle.hpp"
 class Robot
 {
+
+public:
+    int countx;
+    vector<vector <ScanPoint> > scan1;
+    class MLine
+    {
+    public:
+        float slope;
+        float intercept;
+        float dx;
+        float dy;
+        float dr;
+        float D;
+        Point2f hit;
+        Point2f goal;
+        float radius;
+    public:
+        MLine(){};
+        MLine(Point2f hit,Point2f goal,float r)
+        {
+            this->hit=hit;
+            this->goal=goal;
+            dx=(goal.x-hit.x);
+            dy=(goal.y-hit.y);
+
+            dr=sqrt(dx*dx+dy*dy);
+            slope=(goal.y-hit.y)/(goal.x-hit.x);
+            intercept=hit.y-(hit.x*slope);
+            radius=r;
+        }
+
+        bool isMLine(Point2f position)
+        {
+
+            D=(hit.x-position.x)*(goal.y-position.y)-(hit.y-position.y)*(goal.x-position.x);
+
+            float result=(radius*radius*dr*dr)-(D*D);
+    //        cerr << result <<":" << endl;
+            //float result=position.y-(position.x*slope+intercept);
+            if(result>=0)
+                return true;
+            else
+                return false;
+        }
+
+
+    };
 public:
     Goal goal;
+    FPoint2f start;
     FPoint2f position;
     float heading;
     float distance;
+    float cur_heading;
 
     //current motion state
     MotionState m;
@@ -40,7 +89,7 @@ public:
     vector<FPoint2f> hit,leave;
 
     bool free;
-    FPoint2f prevdelta;
+    ScanPoint prevdelta;
     int radius;
 
 
@@ -69,6 +118,9 @@ public:
 
     vector<ScanPoint> scan;
     int best_index;
+    int scount;
+
+
     Point getPosti()
     {
         return Point((int)position.x,(int)position.y);

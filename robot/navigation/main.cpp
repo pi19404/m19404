@@ -36,6 +36,7 @@ static void onMouse(int event, int x, int y, int, void* )
  {
      s.r1.position.x=x;
      s.r1.position.y=-y;
+     s.r1.start=s.r1.position;
      k++;
  }
  else if(k==1)
@@ -47,7 +48,9 @@ static void onMouse(int event, int x, int y, int, void* )
  }
  else if(k==2)
  {
-     s.r1.mline=MLine(s.r1.position,s.r1.goal.position);
+     s.r1.radius=40;
+     s.s.radius=s.r1.radius;
+     s.r1.mline=Robot::MLine(s.r1.position,s.r1.goal.position,s.r1.radius);
      s.status=true;
      s.r1.computeHeading();
  }

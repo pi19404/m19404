@@ -23,6 +23,7 @@
 #include "Sensor.hpp"
 #include "Bug2.hpp"
 #include "DebugText.hpp"
+#include "tangentbug.hpp"
 class Simulator
 {
     public:

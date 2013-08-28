@@ -86,7 +86,7 @@ void Bug2::Follow()
                          prevdelta=ScanPoint(FPoint2f(1*dx,1*dy),0);
              //clear the stack
                          hl.pop_back();
-                         cerr << "AAAAAAAAAAAAAAAAA" << dx1 <<":" << d1 <<":" << d2<< endl;
+                         //cerr << "AAAAAAAAAAAAAAAAA" << dx1 <<":" << d1 <<":" << d2<< endl;
 //                         cv::waitKey(0);
 //                         return;
                              }

@@ -23,7 +23,7 @@
 class Sensor
 {
 
-    int radius;
+
     //vector containing obstacle information
 
     vector<ScanPoint> points;
@@ -34,10 +34,16 @@ class Sensor
 
 
 public:
+    int radius;
     vector<Obstacle> o;
     int besti;
     //constructors
     Sensor();
+    vector<vector<ScanPoint> > scan1;
+    vector<ScanPoint> getPoints()
+    {
+        return points;
+    }
 
     //draw sensor output
     void draw(Mat &image,vector<ScanPoint>i,Robot r);
@@ -54,7 +60,7 @@ public:
     float toRadians(float angle);
 
     //main sensor function to be called
-    vector<ScanPoint> run(Robot robot);
+    int run(Robot robot);
 
 };
 

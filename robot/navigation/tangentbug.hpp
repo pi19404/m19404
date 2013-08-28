@@ -1,3 +1,5 @@
+#ifndef TANGENTBUG_HPP
+#define TANGENTBUG_HPP
 /* ========================================================================
  * Copyright [2013][prashant iyengar] The Apache Software Foundation
  *
@@ -14,8 +16,6 @@
  *   limitations under the License.
  * ========================================================================
  */
-#ifndef BUG2_HPP
-#define BUG2_HPP
 #include "common.hpp"
 #include "Point.hpp"
 #include "Robot.hpp"
@@ -24,10 +24,54 @@
 
 
 //class implementing Bug2 algorithm
-class Bug2 :public Robot
+class TBug2 :public Robot
 {
 
+public:
+    class MLine
+    {
+    public:
+        float slope;
+        float intercept;
+        float dx;
+        float dy;
+        float dr;
+        float D;
+        Point2f hit;
+        Point2f goal;
+        float radius;
 
+    public:
+        MLine(){};
+        MLine(Point2f hit,Point2f goal,float r)
+        {
+            this->hit=hit;
+            this->goal=goal;
+            dx=(goal.x-hit.x);
+            dy=(goal.y-hit.y);
+
+            dr=sqrt(dx*dx+dy*dy);
+            slope=(goal.y-hit.y)/(goal.x-hit.x);
+            intercept=hit.y-(hit.x*slope);
+            radius=r;
+        }
+
+        bool isMLine(Point2f position)
+        {
+
+            D=(hit.x-position.x)*(goal.y-position.y)-(hit.y-position.y)*(goal.x-position.x);
+
+            float result=(radius*radius*dr*dr)-(D*D);
+    //        cerr << result <<":" << endl;
+            //float result=position.y-(position.x*slope+intercept);
+            if(result>=0)
+                return true;
+            else
+                return false;
+        }
+
+
+    };
 public:
     vector <Point> hl;
     MLine mline;
@@ -35,17 +79,25 @@ public:
     int _method;
     bool mflag;
     bool freeheading;
-    Bug2()
+    float dist1;
+    TBug2()
     {
 
     }
-
+    ScanPoint mp;
+    vector<vector<ScanPoint> > scan1;
     //bounday following for Bug2 algorithm
     void changeState();
     void Follow();
     void draw(Mat &image);
+    void Boundary();
+    float dreach;
+    int countx;
+    float dfollowed;
     //main function
     void run();
 
 };
 #endif // BUG2_HPP
+
+

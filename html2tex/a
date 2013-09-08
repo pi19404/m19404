@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html >
+<head>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">    
+</script><style type="text/css"></style>
+<script type="text/x-mathjax-config">
+//<![CDATA[
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js","TeX/AMSmath.js","TeX/AMSsymbols.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],      
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+//]]></script> 
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js">
+</script>
+
+
+<link href='http://alexgorbatchev.com/pub/sh/2.1.364/styles/shCore.css' rel='stylesheet' type='text/css'/> 
+<link href='http://alexgorbatchev.com/pub/sh/2.1.364/styles/shThemeDefault.css' rel='stylesheet' type='text/css'/> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shCore.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushCpp.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushCSharp.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushCss.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushJava.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushJScript.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushPhp.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushPython.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushRuby.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushSql.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushVb.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushXml.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushPerl.js' type='text/javascript'></script> 
+<script language='javascript'> 
+SyntaxHighlighter.config.bloggerMode = true;
+SyntaxHighlighter.config.clipboardSwf = 'http://alexgorbatchev.com/pub/sh/2.1.364/scripts/clipboard.swf';
+SyntaxHighlighter.all();
+</script>
+
+
+
+
+</head>
+
+
+<body>
+</body>
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html >
+<head>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.jsconfig=TeX-AMS-MML_HTMLorMML">    
+</script><style type="text/css"></style>
+<script type="text/x-mathjax-config">
+//<![CDATA[
+  MathJax.Hub.Config(
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: 
+      inlineMath: [[ '']],
+      displayMath:  [['']],
+      processEscapes: true
+    ,
+    "HTML-CSS":  availableFonts: ["TeX"] 
+  );
+//]]></script> 
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js">
+</script>
+
+<link href='http://alexgorbatchev.com/pub/sh/2.1.364/styles/shCore.css' rel='stylesheet' type='text/css'/> 
+<link href='http://alexgorbatchev.com/pub/sh/2.1.364/styles/shThemeDefault.css' rel='stylesheet' type='text/css'/> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shCore.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushCpp.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushCSharp.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushCss.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushJava.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushJScript.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushPhp.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushPython.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushRuby.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushSql.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushVb.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushXml.js' type='text/javascript'></script> 
+<script src='http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushPerl.js' type='text/javascript'></script> 
+<script language='javascript'> 
+SyntaxHighlighter.config.bloggerMode = true;
+SyntaxHighlighter.config.clipboardSwf = 'http://alexgorbatchev.com/pub/sh/2.1.364/scripts/clipboard.swf';
+SyntaxHighlighter.all();
+</script>
+
+
+  </head>
+<body>
+</body>
+<div dir="ltr" style="text-align: left;" trbidi="on">
+<div>
+</div>
+
+The aim of path planning algorithm is to complete a collision free path from initial to goal position.
+Bug algorithms are simplest type of path planning algorithms.</span>In the article we will look at implementation of bug 2 algorithm for motion planning
+
+In Bug algorithms no global model of the world is assumed ,the location and shapes of the obstacles are unknown.Only information acquired through sensing is known.The Bug algorithms assume local knowledge of environment and a global goal.
+
+Assumptions
+
+<ul>
+<li>The environment is a two-dimensional and bounded.</li>
+<li>The&nbsp;number of obstacles and&nbsp;perimeter of any obstacle is finite.</li>
+<li>The obstacles are unknown and can be of arbitrary shape.</li>
+<li>The robot is employed with ideal localization module.The robot can always keep track of position of robot.&nbsp;Thus robot can always measure the distance  between the source and goal.</li>
+<li>The robot is employed with tactile touch or a range sensor sensor</li>
+</ul>
+
+Sample workspace configurations are shown in below figures.
+
+<a href="http://3.bp.blogspot.com/-R3bNxr3uQ1k/UhjQlU6eYqI/AAAAAAAABPY/0PGdv17z0iA/s1600/im2.png" imageanchor="1" style="clear: left; float: left; margin-bottom: 1em; margin-right: 1em;"></a><a href="http://4.bp.blogspot.com/-4tUz-W2l9Bg/UhjQlbhjleI/AAAAAAAABPU/3euqniFCsLI/s1600/im1.png" imageanchor="1" style="clear: left; float: left; margin-bottom: 1em; margin-right: 1em;"><img border="0" src="http://4.bp.blogspot.com/-4tUz-W2l9Bg/UhjQlbhjleI/AAAAAAAABPU/3euqniFCsLI/s320/im1.png" height="200" width="320" /></a>
+
+<h4>
+</h4>
+<div>
+
+</div>
+
+
+<h4>
+<a href="http://1.bp.blogspot.com/-R3bNxr3uQ1k/UhjQlU6eYqI/AAAAAAAABPQ/iqHwgSHuzNk/s1600/im2.png" imageanchor="1" style="clear: left; float: left; margin-bottom: 1em; margin-right: 1em;"></a></h4>
+
+<h4>
+</h4>
+<h4>
+</h4>
+<h4>
+
+</h4>
+<h4>
+
+</h4>
+<h4>
+
+</h4>
+<h4>
+Bug Algorithm<span style="font-weight: normal;">&nbsp;</span></h4>
+<span style="font-weight: normal;">At any given point of time robot is assumed to be in one of following low level states Motion,Boundary&nbsp;Detection,Boundary Following or Complete.</span>
+<h4>
+<span style="font-weight: normal;"></span></h4>
+<h4>
+Motion Towards Goal</h4>
+<h4>
+<span style="font-weight: normal;">In this mode the robot moves along a specified heading direction&nbsp;which is specified in-terms of angle wrt global co-ordinate system.At initialization we have information only about the source and the goal position. The shortest distance between two points is a straight line. The heading direction is along this line from source towards the goal.The robot begins &nbsp;to move along the straight line towards the goal.</span></h4>
+<div>
+<div>
+To specify displacement to robot to move along the x and y directions,the unit vectors along the heading direction are computed.Let &nbsp;denote the unit vectors</div>
+<div>
+
+</div>
+<div>
+Then robot take a small displacement in the heading direction &nbsp;by taking a small steps&nbsp;proportional&nbsp;to components of unit vector along&nbsp;the x and y directions.Each time position is incremented the displacement is recorded .Let us call this displacement .</div>
+<div>
+*</div>
+<script class="brush: cpp" type="syntaxhighlighter">
+<![CDATA[
+//function that perform moton towards the goal operation
+     void Motion()
+    
+        if(m.value==m.Motion)
+        
+ //compute components of unit vector along the heading direction        
+        float dx=cos(heading*PI/180); 
+        float dy=sin(heading*PI/180);
+        //update the current position
+        position.x=position.x+1*dx;
+        position.y=position.y+1*dy;
+        //store the change in postion
+        prevdelta=FPoint2f(dx,dy);
+        
+    
+]]></script>
+
+
+<h4>Boundary Detection</h4>
+The robot is equiped with a range sensor.The sensor 
+range is has a finite radius R.If a obstacle is encountered
+the range sensor gives the direction and distance to the object.
+Let is assume that direction resolution of sensor is 1 degree.
+
+Thus if a range sensor detects some object lying within
+the radius R.The robot enters the boundary detection state.
+
+Since range is limited.The robot cannot estimate if
+single or multiple obstacles are encoutered.
+
+It now enters the navigate and starts moving along the heading direction.
+
+
+<script class="brush: cpp" type="syntaxhighlighter">
+<![CDATA[
+//function that perform moton towards the goal operation
+void Boundary()
+
+  if(m.value==m.Boundary)
+  
+//change the heading direction by 90 deg
+//to best scan line
+for(int i=0;i<scan.size();i++)
+
+  if(scan[i].index==best_index)
+  	
+    if(scan[i].position.x!=-1 && scan[i].position.y!=-1)
+    
+      heading=best_index+90;
+      //change state to boundary navigation
+      m.value=m.Nav;
+      return;
+    
+    else
+    
+      break;
+    
+  
+
+
+   
+
+]]></script>
+
+<h4>Navigate Boundary </h4>
+Now the robot has to navigate along the boundary of the obstace
+till some predefined criteria is statisfied.
+
+Thus robot must change it heading direction.The direction
+along with shortest distance to the boundary recorded by the range sensor is determined.
+
+The robot changes its heading along line perpendicular to
+direction along shortest distance to the boundary point.
+
+In this stage the robot still can sense obstacle with its range
+and it determines the heading direction at each instant as direction
+perpendicular to direction along shortest distance to obstacle.
+It continues to move along the heading direction.
+
+<script class="brush: cpp" type="syntaxhighlighter">
+<![CDATA[
+
+if(scan.size()==0)
+
+    //if robot moves away from boundary,try to go to previous position
+    //move along the edge
+     position.x-=prevdelta.x;
+     position.y-=prevdelta.y;
+     heading=best_index;
+
+else
+
+     //move direction perpendicular to best scan line
+     heading=best_index+90;
+
+//computing components of unit vector along heading
+float dx=cos(heading*PI/180);
+float dy=sin(heading*PI/180);
+//compute the new position of robot
+prevdelta=FPoint2f(dx,dy);
+position.x=position.x+5*dx;
+position.y=position.y+5*dy;
+]]></script>
+
+While moving along the heading direction a point is reached where no
+obstacles are encountered.
+This can happen if robot has reached a sharp edge or it has moved
+away from the boundary while navigating the boundary due to incaccuracies
+in determining the shortest distance along the boundary.
+
+The new position of robot is determine on the same lines
+as that described in motion towards the goal section.
+At each instant the current heading direction and previous displament
+information is stored.
+
+We take a step back using  and go back 
+to the last position.And begin the move in a direction perpendicular to the current heading direction.
+This is done by remaining in the same state and changing the heading direction.
+
+This will cause the robot either to move back to boundary or move along
+the edge.
+
+In this state the robot will circumnavigate the boundary of the obstacle.
+
+To move towards the goal,at some point based on some predefined
+criteria robot will leave the navigation state and enter
+the motion towards the goal state.
+
+Different bug algorithms differ in the way they define transition from
+boundary following to motion towards goal.
+
+
+
+<h4>Simulation Environment</h4>
+A basic simulation environment is developed to test the algorithm.
+The input to the simulation environment is a image file containing
+the obstacles.Thus obstacles of any complexity can be included
+for testing.
+
+The sensor also needs to be simulated.Thus given a location
+if a point lying along the circle with center at robot present location
+lies withing the obstacle needs to be determined.Also how far
+inside the obstacle the point lies determines the distance of
+the robot from the obstacle.
+
+Simulation environment plots the obstacles,robot and goal positions,
+trajectory,heading direction,direction along which obstacles are detected.
+Debug information is also displayed along with plots.
+
+OpenCV libraries are used for plotting .To determine if a point lies inside
+a polygon the function provided by opencv libraries are used.
+
+There are two types of obstacles defined bounary and normal obstacles.
+The bounray obstacles just is bounday of simulation environment.
+
+Thus for boundary obstacles the simulation env determine if the point
+on the circle lies outside the bounday while of other obstacles
+it checks if point lies inside the boundary.
+
+<h4>Sensor</h4>
+The sensor simulation if perfomed by finding point that lie on the circle
+of sensor range .The test is performed if the point lies
+inside/outside a polygon obstacles or not.All the direction along
+circle are evaluated .The current heading direction is indexed 0.
+
+
+<script class="brush: cpp" type="syntaxhighlighter">
+<![CDATA[
+for( int i = -180; i <= 179; i=i+delta)
+
+
+    intersectionPointWithSensorCircleX = cos(toRadians((heading+i)))*sensorRange;
+    intersectionPointWithSensorCircleY = sin(toRadians((heading+i)))*sensorRange;
+
+    //point on the circle
+    intersectionPointWithSensorCircleX+=robot.position.x;
+    intersectionPointWithSensorCircleY+=robot.position.y;
+    Point2f ff=Point2f(intersectionPointWithSensorCircleX,-intersectionPointWithSensorCircleY);
+    
+    //cycle over all the obstacles
+    for(int k=0;k<o.size();k++)
+    
+       Obstacle o1=o[k];
+
+
+       double d=pointPolygonTest( o1.contours[0], ff,true);
+       bool flag,flag1;
+       //check if point in inside the normal obstacle
+       if(o1.type==0)
+       
+          flag=d>=0;
+          best=-999999;
+       
+       //check if point in outside the boundary obstacle
+       else
+       
+          flag=d<0;
+          best=999999;
+       
+	//if obstacle detected
+	if(flag)
+	
+
+	//add point to stack
+	points.push_back(ScanPoint(FPoint2f(ff.x,-ff.y),heading+i));
+	if(o1.type==0)
+	   flag1=d>=best;
+	   else
+	   flag1=d<best;
+	   //find closest distance to obstacle
+        if(flag1)
+	
+	  best=d;
+	  besti=heading+i;
+        
+	
+       
+]]></script>
+
+<h4>Bug 2 Algorithm</h4>
+Bug Algorithms are greedy algorithms hence not predictible.
+
+At the initialization the MLine is defined as the line joining the starting
+location and the goal.
+
+Leave point is point at which robot transitions from boundary following
+to motion towards the goal states.
+
+In the Bug 2 algorithm the leave point is a point on the MLine encountered
+after encountering hit point during boundary following.
+
+Leave point is a point at we are able to leave the surface of obstace and have
+heading towards the goal.
+
+The leave point is corresponding point on the bounday at the other side of obstacle that lies 
+along the line joining the hit point and goal is called as leave point.
+
+<script class="brush: cpp" type="syntaxhighlighter">
+<![CDATA[
+
+//check if point on MLine
+if(mline.isMLine(position)==true)
+
+//detected hit point
+	if(hl.size()==0)
+	
+	hl.push_back(position);
+	
+//possible leave point	
+	else
+	
+//distance from hit point to goal	
+	    float d1=dist(mline.hit,goal.position);
+//distance from leave point to goal	    
+	    float d2=dist(position,goal.position);
+//if leave point farther,not leave point	    
+	    if(d2>d1)
+	return;
+//enter motition towards goal state	
+	m.value=m.Motion;
+//initialize heading	
+	computeHeading();
+//computer unit vectors along heading	
+	float dx=cos(heading*PI/180);
+	float dy=sin(heading*PI/180);
+//update the position	
+	position.x=position.x+3*dx;
+	position.y=position.y+3*dy;
+	prevdelta=FPoint2f(dx,dy);
+//clear the stack	
+	hl.pop_back();
+	
+
+
+]]></script>
+
+In some situations it may happen that Bug2 algorithm takes you farther away from the target,
+or it may be stuck in a loop and robot never reaches the target
+
+to avoid such situations a constraint is placed that the leave point should be closer
+to the goal than the hit point.
+
+Let the distance between source to goal be denoted by 
+Let the perimeter of the  obstacle be denoted by 
+The shortest distance Robot will travel using bug2 algorithm is .
+
+<h4>Analysis</h4>
+When the obstale encounters the bounday it will move in clockwise and anti clockwise
+direction till it encounters the Mline again.Thus maximum distance it will traverse
+is 
+
+It may happen that robot intersects the same obstacle multiple times .
+*
+
+
+<h4>Simulation</h4>
+The output simulation environments can be found at 
+
+<h4>Document</h4>
+PDf version of the document can be found at 
+<h4>Code</h4>
+The code for the testing and training utility can be found at
+https://github.com/pi19404/m19404/tree/master/robot/navigation
+
+<div>
+<div>
+</div>
+</div>
+</div>
+</div>
+
+</html>
+</html>

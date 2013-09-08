@@ -1,0 +1,640 @@
+\documentclass[fontsize=12pt, % Document font size
+                             paper=a4, % Document paper type
+                             oneside, % Shifts odd pages to the left for easier reading when printed, can be changed to oneside
+                             captions=tableheading,
+                             index=totoc,
+                             hyperref]{labbook}
+ 
+\usepackage[bottom=10em]{geometry} % Reduces the whitespace at the bottom of the page so more text can fit
+\usepackage[english]{babel} % English language
+\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage{emerald}
+\usepackage{booktabs,array} % Packages for tables
+\usepackage{amsmath} % For typesetting math
+\newcommand{\fullpage}[1]{
+\begin{frame}
+ #1
+\end{frame}
+}
+\usepackage{movie15}  
+\usepackage{etoolbox}
+\usepackage[norule]{footmisc} % Removes the horizontal rule from footnotes
+\usepackage{lastpage} % Counts the number of pages of the document
+\usepackage{color}
+\usepackage{listings}
+\definecolor{Code}{rgb}{0,0,0}
+\definecolor{Decorators}{rgb}{0.5,0.5,0.5}
+\definecolor{Numbers}{rgb}{0.5,0,0}
+\definecolor{MatchingBrackets}{rgb}{0.25,0.5,0.5}
+\definecolor{Keywords}{rgb}{0,0,1}
+\definecolor{self}{rgb}{0,0,0}
+\definecolor{Strings}{rgb}{0,0.63,0}
+\definecolor{Comments}{rgb}{0,0.63,1}
+\definecolor{Backquotes}{rgb}{0,0,0}
+\definecolor{Classname}{rgb}{0,0,0}
+\definecolor{FunctionName}{rgb}{0,0,0}
+\definecolor{Operators}{rgb}{0,0,0}
+\definecolor{Background}{rgb}{0.98,0.98,0.98}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[dvipsnames]{xcolor}  
+\definecolor{titleblue}{rgb}{0.16,0.24,0.64} 
+\definecolor{linkcolor}{rgb}{0,0,0.42} 
+\addtokomafont{title}{\ECFAugie\color{Mahogany}} % Titles in custom blue color
+\addtokomafont{chapter}{\ECFAugie\color{LimeGreen}} % Lab dates in olive green
+\addtokomafont{section}{\ECFAugie\color{Cyan}} % Sections in sepia
+\addtokomafont{subsection}{\ECFAugie\color{LimeGreen}} % Sections in sepia
+\addtokomafont{subsubsection}{\ECFAugie\color{Orange}} % Sections in sepia
+\addtokomafont{pagehead}{\ECFAugie\color{Red}} % Header text in gray and sans serif
+\addtokomafont{caption}{\ECFAugie\footnotesize\itshape} % Small italic font size for captions
+\addtokomafont{captionlabel}{\ECFAugie\upshape\bfseries} % Bold for caption labels
+\addtokomafont{descriptionlabel}{\ECFAugie}
+\setcapwidth[r]{10cm} % Right align caption text
+\setkomafont{footnote}{\sffamily} % Footnotes in sans serif
+\deffootnote[4cm]{4cm}{1em}{\textsuperscript{\thefootnotemark}} % Indent footnotes to line up with text
+\DeclareFixedFont{\textcap}{T1}{fjd}{bx}{n}{1.5cm} % Font for main title: Helvetica 1.5 cm
+\DeclareFixedFont{\textaut}{T1}{fjd}{bx}{n}{0.8cm} % Font for author name: Helvetica 0.8 cm
+\usepackage[nouppercase,headsepline]{scrpage2} % Provides headers and footers configuration
+\pagestyle{scrheadings} % Print the headers and footers on all pages
+\clearscrheadfoot % Clean old definitions if they exist
+\automark[chapter]{chapter}
+\ohead{\headmark} % Prints outer header
+\setlength{\headheight}{25pt} % Makes the header take up a bit of extra space for aesthetics
+\setheadsepline{.4pt} % Creates a thin rule under the header
+\addtokomafont{headsepline}{\ECFAugie\color{lightgray}} % Colors the rule under the header light gray
+\ofoot[\normalfont\normalcolor{\thepage\ |\  \pageref{LastPage}}]{\normalfont\normalcolor{\thepage\ |\  \pageref{LastPage}}}
+\makeatletter
+\patchcmd{\addchap}{\if@openright\cleardoublepage\else\clearpage\fi}{\par}{}{}
+\makeatother
+\renewcommand*{\chapterpagestyle}{scrheadings}
+\usepackage{chngcntr}
+\counterwithout{figure}{labday}
+\counterwithout{equation}{labday}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{ %
+  language=C++,                % the language of the code
+  basicstyle=\footnotesize\ttfamily,           % the size of the fonts that are used for the code
+  numbers=left,                   % where to put the line-numbers
+  numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
+  stepnumber=1,                   % the step between two line-numbers. If it's 1, each line 
+  numbersep=5pt,                  % how far the line-numbers are from the code
+  backgroundcolor=\color{black},      % choose the background color. You must add \usepackage{color}
+  showspaces=false,               % show spaces adding particular underscores
+  showstringspaces=false,         % underline spaces within strings
+  showtabs=false,                 % show tabs within strings adding particular underscores
+  frame=single,                   % adds a frame around the code
+  rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  tabsize=2,                      % sets default tabsize to 2 spaces
+  captionpos=b,                   % sets the caption-position to bottom
+  breaklines=true,                % sets automatic line breaking
+  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+  title=\lstname,                   % show the filename of files included with \lstinputlisting;
+  keywordstyle=\color{dkgreen},          % keyword style
+  commentstyle=\color{dkgreen},       % comment style
+  stringstyle=\color{mauve},         % string literal style
+  escapeinside={\%*}{*)},            % if you want to add LaTeX within your code
+  morekeywords={Rect,...},              % if you want to add more keywords to the set
+  deletekeywords={...}              % if you want to delete keywords from the given language
+}
+\usepackage[
+    pdfauthor={pi19404}, % Your name for the author field in the PDF
+    urlcolor=Goldenrod, % Color of URLs
+    citecolor=Goldenrod, % Color of citations
+    linkcolor=Goldenrod, % Color of links to other pages/figures
+    pdfpagelabels=true,
+    plainpages=false,
+    colorlinks=true, % Turn off all coloring by changing this to false
+    bookmarks=true,
+    pdfview=FitB]{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{movie15}
+\usepackage{filecontents}
+\usepackage[natbib=true,citestyle=authoryear,bibstyle=numeric]{biblatex} 
+\usepackage{graphicx}
+\DeclareGraphicsExtensions{.jpg,.jpeg,.pdf,.png,.mps,.gif}
+\usepackage{animate}
+\usepackage{eso-pic}
+\newcommand\BackgroundPic{
+\put(0,0){
+\parbox[b][\paperheight]{\paperwidth}{
+\vfill
+\centering
+\includegraphics[width=\paperwidth,height=\paperheight]{../back.jpg}
+\vfill
+}}}
+\renewcommand*{\compcitedelim}{\addsemicolon\space}
+\usepackage{minted}
+\ECFAugie\color{lightgray}
+\bibliography{test} 
+\begin{document}
+\AddToShipoutPicture{\BackgroundPic}
+\ECFAugie\color{lightgray}
+\title{\textcap{Motion Planning : Bug Algorithm \\[2cm]  
+%\textaut{Beginning 30-05-2012}
+}}
+\author{
+    \textaut{Pi19404}\\ \\ % Your name
+    %Master of Science % Your degree
+}
+%\ECFJD{\today} % No date by default, add \today if you wish to include the publication date
+
+\maketitle % Title page
+\printindex
+\tableofcontents % Table of contents
+\newpage % Start lab look on a new page
+%
+%\begin{addmargin}[0cm]{0cm} % Makes the text width much shorter for a compact look
+%
+\pagestyle{scrheadings} % Begin using headers
+%
+\ECFAugie\color{White}
+\labday{Motion Planning : Bug Algorithm}
+
+%\ECFTeenSpirit
+%\section{Augie} {\ECFJD\lipsum[4]}
+%\section{Auriocus Kalligraphicus} {\Fontauri\lipsum[4]}
+%\section{BrushScriptX-Italic} {\bsifamily\lipsum[4]}
+
+\section{Introduction}
+In the article we will look at implementation of bug 2 algorithm for motion planning
+\section{Bug Algorithms}
+The aim of path planning algorithm is to complete a collision free path from initial to goal position.
+Bug algorithms are simplest type of path planning algorithms.
+\\\\
+In Bug algorithms no global model of the world is assumed ,the location and shapes
+of the obstacles are unknown.Only information
+acquired through sensing is known.The Bug algorithms assume local knowledge of environment and a global goal.
+\\\\
+The environment is a Two-dimensional scene filled with unknown obstacles.
+The perimeter of any obstacle is finite, and that the number of obstacles is finite
+and can be of arbitrary shape.
+\\\\
+We consider a point robot that moves among arbitrary
+obstacles in a planar environment. We assume that the workspace is bounded. 
+\\\\
+The robot is employed with ideal localization module.The robot can always keep track of position of robot.
+Thus we can always measure the distance $d(s,g)$ between the source and goal.
+\\\\
+The robot is employed with tactile touch or a range sensor sensor.The touch sensor can detect
+contact with the object .
+\\\\
+
+Sample workspace configurations are shown in \ref{fig:1}.The red dot is robot center
+and green dot is the goal.
+\begin{figure}[!htbp]
+\begin{subfigure}[b]{0.5\textwidth}
+                 \centering
+                 \includegraphics[width=\textwidth]{im1.png}
+                 \caption{Workspace}
+\end{subfigure}                
+\begin{subfigure}[b]{0.5\textwidth}
+                 \centering
+                 \includegraphics[width=\textwidth]{im2.png}
+                 \caption{Workspace 2}
+  		 
+\end{subfigure}  
+\caption{Workspace}
+\label{fig:1}
+\end{figure}
+\subsection{Bug algorithm}
+The robot is equipped with a range sensor.Range sensor with a small radius 
+can be considered to be equivalent to a tactile sensor.
+\\\\
+At any given point of time robot is assumed to be in one
+of following low level states \texttt{Motion,Boundary Detection,Navigate Boundary,Done}
+\\\\
+\section{Motion}
+In this mode the robot moves along a specified heading direction which is specified
+in terms of angle wrt global co-ordinate system.
+\\\\
+At initialization we have information only about the source and the goal position.
+The shortest distance between two points is a straight line.
+The heading direction is along this line from source towards the goal.
+\\\\
+The robot begins  to move along the straight line towards the goal.
+\\\\
+To specify displacement to robot to move along the x and y directions,
+the unit vectors along the heading direction are computed.Let $\delta x,\delta y$
+denote the unit vectors
+\\\\
+Then robot take a small displacement in the heading direction 
+by taking a small steps proportional to components of unit vector along
+the x and y directions.
+\begin{eqnarray}
+  x_{t+1} = x_t + \delta{x} \\
+  y_{t+1} = x_y + \delta{y} \\
+  \delta{D}= (\delta{x},\delta{y})
+\end{eqnarray}
+Each time position is incremented the displacement is recorded
+Let us call this displacement $\delta{D}$.
+\begin{minted}{cpp}
+//function that perform motion towards the goal operation
+     void Motion()
+    {
+        if(m.value==m.Motion)
+        {
+	//compute components of unit vector along the heading direction        
+        float dx=cos(heading*PI/180); 
+        float dy=sin(heading*PI/180);
+        //update the current position
+        position.x=position.x+1*dx;
+        position.y=position.y+1*dy;
+        //store the change in postion
+        prevdelta=FPoint2f(dx,dy);
+        }
+    }
+\end{minted}
+
+\section{Boundary Detection}
+The robot is equipped with a range sensor.The sensor 
+range is has a finite radius R.If a obstacle is encountered
+the range sensor gives the direction and distance to the object.
+Let is assume that direction resolution of sensor is 1 degree.
+\\\\
+Thus if a range sensor detects some object lying within
+the radius R.The robot enters the boundary detection state.
+\\\\
+Since range is limited.The robot cannot estimate if
+single or multiple obstacles are encountered.
+\\\\
+It now enters the navigate and starts moving along the heading direction.
+\\\\
+\begin{minted}{cpp}
+void Boundary()
+{
+  if(m.value==m.Boundary)
+  {
+//change the heading direction by 90 deg
+//to best scan line
+for(int i=0;i<scan.size();i++)
+{
+  if(scan[i].index==best_index)
+  {	
+    if(scan[i].position.x!=-1 && scan[i].position.y!=-1)
+    {
+      heading=best_index+90;
+      //change state to boundary navigation
+      m.value=m.Nav;
+      return;
+    }
+    else
+    {
+      break;
+    }
+  }
+
+}
+  } 
+\end{minted}
+
+\section{Navigate Boundary}
+Now the robot has to navigate along the boundary of the obstacle
+till some predefined criteria is satisfied.
+\\\\
+Thus robot must change it heading direction.The direction
+along with shortest distance to the boundary recorded by the range sensor is determined.
+\\\\
+The robot changes its heading along line perpendicular to
+direction along shortest distance to the boundary point.
+\\\\
+In this stage the robot still can sense obstacle with its range
+and it determines the heading direction at each instant as direction
+perpendicular to direction along shortest distance to obstacle.
+It continues to move along the heading direction.
+\\\\
+\begin{minted}{cpp}
+if(scan.size()==0)
+{
+    //if robot moves away from boundary,try to go to previous position
+    //move along the edge
+     position.x-=prevdelta.x;
+     position.y-=prevdelta.y;
+     heading=best_index;
+}
+else
+{
+     //move direction perpendicular to best scan line
+     heading=best_index+90;
+}
+//computing components of unit vector along heading
+float dx=cos(heading*PI/180);
+float dy=sin(heading*PI/180);
+//compute the new position of robot
+prevdelta=FPoint2f(dx,dy);
+position.x=position.x+5*dx;
+position.y=position.y+5*dy;
+\end{minted}
+
+While moving along the heading direction a point is reached where no
+obstacles are encountered.
+This can happen if robot has reached a sharp edge or it has moved
+away from the boundary while navigating the boundary due to inaccuracies
+in determining the shortest distance along the boundary.
+\\\\
+The new position of robot is determine on the same lines
+as that described in motion towards the goal section.
+At each instant the current heading direction and previous displacement
+information is stored.
+\\\\
+We take a step back using $\delta{D}$ and go back 
+to the last position.And begin the move in a direction perpendicular to the current heading direction.
+This is done by remaining in the same state and changing the heading direction.
+\\\\
+This will cause the robot either to move back to boundary or move along
+the edge.
+\\\\
+In this state the robot will circumnavigate the boundary of the obstacle.
+\\\\
+To move towards the goal,at some point based on some predefined
+criteria robot will leave the navigation state and enter
+the motion towards the goal state.
+\\\\
+Different bug algorithms differ in the way they define transition from
+boundary following to motion towards goal.
+%\\\\
+%A path is defined as sequence of hit and leave points and different algorithm
+%differ in computation of leave points.
+%\\\\
+%A different approach, which guarantees reaching
+%the target if possible, was presented by Lumelsky and
+%Stepanov [7]. The robot, equipped only with contact
+%sensors, goes straight to the target until hitting an
+%obstacle. It then follows the object boundary. The
+%algorithms define “leaving conditions” that determine
+%where to leave the obstacle boundary and go directly
+%towards the target again. The convergence is based
+%on the fact that the distance from every leave point
+%to the target is strictly smaller than the distance from
+%the corresponding hit point.
+
+\section{Simulation Environment}
+A basic simulation environment is developed to test the algorithm.
+The input to the simulation environment is a image file containing
+the obstacles.Thus obstacles of any complexity can be included
+for testing.
+\\\\
+The sensor also needs to be simulated.Thus given a location
+if a point lying along the circle with center at robot present location
+lies withing the obstacle needs to be determined.Also how far
+inside the obstacle the point lies determines the distance of
+the robot from the obstacle.
+\\\\
+Simulation environment plots the obstacles,robot and goal positions,
+trajectory,heading direction,direction along which obstacles are detected.
+Debug information is also displayed along with plots.
+\\\\
+OpenCV libraries are used for plotting .To determine if a point lies inside
+a polygon the function provided by opencv libraries are used.
+\\\\
+There are two types of obstacles defined boundary and normal obstacles.
+The boundary obstacles just is boundary of simulation environment.
+\\\\
+Thus for boundary obstacles the simulation env determine if the point
+on the circle lies outside the boundary while of other obstacles
+it checks if point lies inside the boundary.
+\\\\
+\subsection{Sensor}
+The sensor simulation if performed by finding point that lie on the circle
+of sensor range $\mathcal{R}$.The test is performed if the point lies
+inside/outside a polygon obstacles or not.All the direction along
+circle are evaluated .The current heading direction is indexed 0.
+\\\\
+\begin{minted}{cpp}
+for( int i = -180; i <= 179; i=i+delta)
+{
+
+    intersection = cos(toRadians((heading+i)))*sensorRange;
+    intersectionPointWithSensorCircleY = sin(toRadians((heading+i)))*sensorRange;
+
+    //point on the circle
+    intersectionPointWithSensorCircleX+=robot.position.x;
+    intersectionPointWithSensorCircleY+=robot.position.y;
+    Point2f ff=Point2f(intersectionPointWithSensorCircleX,-intersectionPointWithSensorCircleY);
+    
+    //cycle over all the obstacles
+    for(int k=0;k<o.size();k++)
+    {
+       Obstacle o1=o[k];
+
+
+       double d=pointPolygonTest( o1.contours[0], ff,true);
+       bool flag,flag1;
+       //check if point in inside the normal obstacle
+       if(o1.type==0)
+       {
+          flag=d>=0;
+          best=-999999;
+       }
+       //check if point in outside the boundary obstacle
+       else
+       {
+          flag=d<0;
+          best=999999;
+       }
+	//if obstacle detected
+	if(flag)
+	{
+
+	//add point to stack
+	points.push_back(ScanPoint(FPoint2f(ff.x,-ff.y),heading+i));
+	if(o1.type==0)
+	   flag1=d>=best;
+	   else
+	   flag1=d<best;
+	   //find closest distance to obstacle
+        if(flag1)
+	{
+	  best=d;
+	  besti=heading+i;
+        }
+	}
+       
+\end{minted}
+
+\subsection{Bug 2 Algorithm}
+%The location at which boundary is hit is recorded by the robot
+%as a hit point.The line joining the hit point and the goal
+%is defined as the MLine.
+%\\\\
+Bug Algorithms are greedy algorithms hence not predictible.
+\\\\
+At the initialization the MLine is defined as the line joining the starting
+location and the goal.
+\\\\
+Leave point is point at which robot transitions from boundary following
+to motion towards the goal states.
+\\\\
+In the Bug 2 algorithm the leave point is a point on the MLine encountered
+after encountering hit point during boundary following.
+\\\\
+Leave point is a point at we are able to leave the surface of obstace and have
+heading towards the goal.
+\\\\
+The leave point is corresponding point on the bounday at the other side of obstacle that lies 
+along the line joining the hit point and goal is called as leave point.
+\\\\
+\begin{minted}{cpp}
+//check if point on MLine
+if(mline.isMLine(position)==true)
+{
+//detected hit point
+	if(hl.size()==0)
+	{
+	hl.push_back(position);
+	}
+//possible leave point	
+	else
+	{
+//distance from hit point to goal	
+	    float d1=dist(mline.hit,goal.position);
+//distance from leave point to goal	    
+	    float d2=dist(position,goal.position);
+//if leave point farther,not leave point	    
+	    if(d2>d1)
+		return;
+//enter motition towards goal state		
+	m.value=m.Motion;
+//initialize heading	
+	computeHeading();
+//computer unit vectors along heading	
+	float dx=cos(heading*PI/180);
+	float dy=sin(heading*PI/180);
+//update the position	
+	position.x=position.x+3*dx;
+	position.y=position.y+3*dy;
+	prevdelta=FPoint2f(dx,dy);
+//clear the stack	
+	hl.pop_back();
+	}
+}
+
+\end{minted}
+
+In some situations it may happen that Bug2 algorithm takes you farther away from the target,
+or it may be stuck in a loop and robot never reaches the target
+\\\\
+to avoid such situations a constraint is placed that the leave point should be closer
+to the goal than the hit point.
+\\\\
+Let the distance between source to goal be denoted by $\mathcal{D}$
+Let the perimeter of the $i'th$ obstacle be denoted by $P_i$
+The shortest distance Robot will travel using bug2 algorithm is $\mathcal{D}$.
+\\\\
+Another variation is to check if there are obstacles along the direction to the goal.
+This no obstacles are detected then change the state to motion towards the goal.
+The freeheading flag is set if there are no obstacles in the direction of the goal.
+However since the range/tactile sensor have limited range ,a free heading does not
+necessarily indicate a free heading towards the goal.
+\\\\
+Additional constraints such that potential leave point must be close to the goal
+that the previous hit point and on heading angle are imposed to ensure 
+boundary following is exited at proper position.
+\begin{minted}{cpp}
+             freeheading=false;
+             ScanPoint pp;
+             for(int k=0;k<scan.size();k++)
+             {
+                 ScanPoint p=scan[k];
+                 float h1=p.index+heading;
+                 if(h1<=-180)
+                     h1=h1+360;
+                 if(h1>180)
+                     h1=h1-360;
+                 h1=(int)h1%360;
+
+                 if(h1==cur_heading && p.distance==-1)
+                 {
+
+                     freeheading=true;
+                     pp=p;
+                 }
+
+             }
+
+             if(freeheading==true)
+             {
+                 //cv::waitKey(0);
+                 float distance1=FPoint::dist(hl[0],goal.position);
+                 float distance2=FPoint::dist(goal.position,pp.position);
+                 if(distance1>distance2 && heading<cur_heading-30)
+                 {
+                 m.value=m.Motion;
+                 computeHeading();
+                 float dx=cos(heading*PI/180);
+                 float dy=sin(heading*PI/180);
+                //update the position
+                 position.x=position.x+1*dx;
+                 position.y=position.y+1*dy;
+                 prevdelta=ScanPoint(FPoint2f(dx,dy),-1,0);
+                 //cerr << ":" << cur_heading <<":" << heading << endl;
+                 hl.pop_back();
+                 }
+
+             }
+
+\end{minted}
+
+\subsection{Analysis}
+When the obstale encounters the bounday it will move in clockwise and anti clockwise
+direction till it encounters the Mline again.Thus maximum distance it will traverse
+is $\mathcal{P}_i/2$
+\\\\
+It may happen that robot intersects the same obstacle multiple times $n_i$.
+\begin{eqnarray}
+ D + \sum_i \frac{n_i \mathcal{P}_i}{2}
+\end{eqnarray}
+\\\\
+
+%\subsection{Bug 1 Algorithm}
+\section{Simulation}
+The output simulation environments can be found at \\\\
+vurl{out.ogv}\\\\
+vurl{out-5.ogv}\\\\
+\section{Code}
+The code for the testing and training utility can be found at
+curl{https://github.com/pi19404/m19404/tree/master/robot/navigation}
+\section{PDF}
+The PDF version of the document can be found at
+durl{http://www.scribd.com/doc/163669836/Robotics-Bug-Algorithm-Simulation}
+
+
+
+%\end{addmargin}
+
+%\printbibliography
+%\nocite{2,3}
+%\embedfile{/media/sda7/SEMX/hand/test1/GaussianMixtureModel/color_balance1.cpp}
+% %----------------------------------------------------------------------------------------
+% %	BIBLIOGRAPHY
+% %----------------------------------------------------------------------------------------
+% 
+%\begin{thebibliography}{1}
+
+% 
+
+
+%\end{thebibliography}
+
+%----------------------------------------------------------------------------------------
+
+
+
+\addcontentsline{toc}{section}{References}
+%\printbibliography 
+\nocite{*}
+\end{document}
+
+% @misc{a et~al(2007)a,
+%       title = "Dynamic Time Warping",
+%        note = {at \url{http://web.science.mq.edu.au/~cassidy/comp449/html/ch11s02.html}},
+%        year = {2007},
+% }
+% @INPROCEEDINGS{b et~al(2007)b,
+%     author = {Ricardo, Gutierrez-Osuna},
+%     title = {Introduction to Speech Processing},
+%     booktitle = {CSE@TAMU},    
+%      year = {2007},
+% }

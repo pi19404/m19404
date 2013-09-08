@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 27
+/svn/!svn/ver/16/trunk/test
+END
+in.tex
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/svn/!svn/ver/16/trunk/test/in.tex
+END
+correct.txt
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svn/!svn/ver/16/trunk/test/correct.txt
+END

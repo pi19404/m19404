@@ -1,0 +1,78 @@
+\documentclass[draft]{book}
+\usepackage{makeidx}
+\usepackage[pdftex]{hyperref}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\newcommand{\sidebox}[1]{ %
+	\marginpar{#1}
+}
+\newenvironment{uwaga}{%
+  \def\FrameCommand{\fboxsep=\FrameSep \colorbox{uwagacolor}}%
+  \MakeFramed {\FrameRestore}}%
+ {\endMakeFramed}
+\definecolor{urlcolor}{rgb}{0.27,0.51,0.71}
+\hypersetup{pdftitle={C},
+	pdfauthor={auth},
+	pdfsubject={some subj},
+	pdfkeywords={keywords},
+	colorlinks=true,
+}
+\begin{document}
+
+\tableofcontents
+\setcounter{page}{2142}
+
+\chapter*{First}
+
+Between
+
+\subparagraph*{Something}\label{sth}
+
+Begin of~text. \textbf{Bold}, \texttt{teletype}, \textsc{small caps} etc.
+\emph{Emphasis} \verb+verb1+ -- or --- \verb!verb2!
+
+Now label\label{notShown} and reference\ref{notShown} and
+another\pageref{notShown} indexing \index{notShown}. Also don't show
+cites without\cite{notShown}, or with space \cite{notShown}.
+
+Footnotes have to \footnote{be shown} also with \footnote[0]{numbers\\or
+\textbf{complex} --- content}.
+
+Now hy\-phe\-na\-tion and ,,various'' ,,styles" ``of'' ``quotes" `more'.
+
+Special characters: test\slash{}slash
+
+\begin{minipage}[t]{0.5\textwidth}
+This is minipage.
+\end{minipage}
+
+\begin{figure}[htp]
+	\centering
+	\includegraphics[scale=0.333]{img/overview}
+	\caption{This is figure.}
+\end{figure}
+
+\begin{table}[H]
+\begin{tabular}{|l|r|l|}
+\hline
+A & 3 & B \\ \hline
+B & 4 & A \\ \hline
+\end{tabular}
+\caption{This is table.}
+\end{table}
+
+\begin{sloppypar}
+Hey, this is sloppypar!
+\end{sloppypar}
+
+Paragraph\linebreak[3]markup\linebreak{}commands
+
+Later on\ldots
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Index}
+\printindex
+
+\end{document}

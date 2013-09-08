@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 25
+/svn/!svn/ver/3/trunk/os2
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 32
+/svn/!svn/ver/3/trunk/os2/README
+END
+makefile.os2
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/3/trunk/os2/makefile.os2
+END
+detex.def
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/!svn/ver/3/trunk/os2/detex.def
+END
+detex-32.def
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/3/trunk/os2/detex-32.def
+END

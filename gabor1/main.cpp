@@ -1,3 +1,9 @@
+
+#include <cv.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+using namespace cv;
+
 Mat CreateGaborFilterImage(char* demoName,   float lambda, float theta, float psi, float gaussvar, float gamma,Size size=Size(21,21));
 Mat CreateGaborFilterImage(char* demoName,   float lambda, float theta, float psi, float gaussvar, float gamma,Size size)
 {
@@ -125,7 +131,7 @@ void Process(int , void *)
     cv::pow(dest, 2.0, mag);
     cv::imshow("Mag", mag);
 }
-int main()
+int main(int argc,char **argv)
 {
 
     float wavelength;
@@ -144,6 +150,7 @@ int main()
             kernel_size+=1;
         }
          cv::namedWindow("Process window", 1);
+         cv::createTrackbar("kernel", "Process window", &kernel_size, kernel_size, Process);
          cv::createTrackbar("Sigma", "Process window", &pos_sigma, kernel_size, Process);
          cv::createTrackbar("Lambda", "Process window", &pos_lm, 100, Process);
          cv::createTrackbar("Theta", "Process window", &pos_th, 180, Process);

@@ -37,10 +37,10 @@ class Histogram{
 
 
     private:
-        cv::Mat _histMat; //Histogram Mat
-        int _histSize;  // Size of the histogram
-        float _range[2]; //Range to be considered
-        const float* _histRange;  //Range for all the matrices
+        cv::Mat _histMat; 		//Histogram Mat
+        int _histSize;  		// Size of the histogram
+        float _range[2]; 		//Range to be considered
+        const float* _histRange;  	//Range for all the matrices
 
 
 };

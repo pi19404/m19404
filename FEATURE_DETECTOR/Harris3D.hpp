@@ -69,7 +69,7 @@ class SpatioTemporalDerivativeFilter
 
 class Harris3D :public FeatureDetector
 {
-
+public:
 vector <int> block_size;          // a vector to hold the block size of spatial and temporal dimensions.
 int aperture_size;          //aperture size for spatial edge detection
 vector <Mat> image;     //vector queue of images for input to termporal  block filtering
@@ -93,6 +93,7 @@ Mat ret_current_frame();
 
 //processing function for corner detection
 vector<cv::Point2f> run(Mat src);
+void run1(Mat src);
 };
 }
 #endif // HARRIS3D_H

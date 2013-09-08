@@ -196,6 +196,61 @@ Mat Harris3D::ret_current_frame()
 }
 
 
+void Harris3D::run1(Mat src)
+{
+    Mat tmp;
+    Mat xx1;
+    src.copyTo (xx1);
+//    vector <cv::Point2f> corners;
+   int ksize=block_size[2];
+
+
+   src.copyTo(image[index]);
+   Size size=image[0].size();
+
+
+   cv::GaussianBlur (image[index],image[index],Size(3,3),2);
+   if(start==false && index == ksize+2-1)
+   {
+       start=true;
+    }
+   else if(start==false)
+   {
+
+
+       Mat tmp_output;
+       tmp_output.create(image[0].rows,image[0].cols,CV_32FC(1));
+       Dt.push_back (tmp_output);
+       Dx.push_back (tmp_output.clone());
+       Dy.push_back (tmp_output.clone ());
+       Mat matrix( size, CV_32FC(6));
+       block_data.push_back (matrix.clone ());
+       matrix.copyTo (final_output);
+       Mat matrix1( size, CV_32FC(1));
+       matrix1.copyTo (final_return);
+       //cerr << index << ": " << output[index].rows << ": " << output[index].cols << endl;
+   }
+else if(start==true)
+       {
+           //cerr << index << ":" << ksize << endl;
+           t.process(image,index,block_size[2],Dt,Dx,Dy);
+           //Mat xx=cv::abs(Dt[2]);
+           //cv::normalize(xx,xx,0,1,CV_MINMAX);
+           //imshow("Dt",xx);
+           //xx=cv::abs(Dx[2]);
+           //cv::normalize(xx,xx,0,1,CV_MINMAX);
+
+           //imshow("Dx",xx);
+           //xx=cv::abs(Dy[2]);
+           //cv::normalize(xx,xx,0,1,CV_MINMAX);
+
+           //imshow("Dy",xx);
+        }
+     cv::waitKey(1);
+    index =(index+1) % (ksize+2);
+
+}
+
 vector<cv::Point2f> Harris3D::run(Mat src)
 {
     Mat tmp;
@@ -232,12 +287,14 @@ vector<cv::Point2f> Harris3D::run(Mat src)
    }
 else if(start==true)
        {
+
            t.process(image,index,block_size[2],Dt,Dx,Dy);
 //             Mat xx;
 
            Mat xx=cv::abs(Dt[2]);
-           cv::normalize(xx,xx,0,1,CV_MINMAX);
+           cv::normalize(xx,xx,0,255,CV_MINMAX);
            imshow("Dt",xx);
+
            /*
            xx=cv::abs(Dx[2]);
            cv::normalize(xx,xx,0,1,CV_MINMAX);

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<root>
-  <hmm_states>0</hmm_states>
-  <hmm_transition></hmm_transition>
-  <hmm_type>gmm</hmm_type>
-</root>

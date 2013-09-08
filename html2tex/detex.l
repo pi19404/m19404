@@ -250,7 +250,7 @@ Z	\*?
 <Normal>"\\hspace"{Z}{S}"{"{D}"}"		;
 <Normal>"\\addvspace"{S}"{"{D}"}"		;
 <Normal>"{"{N}"pt}"						; /* hack to fix \begin{minipage}{300pt} */
-
+<Normal>"\\frac" {printf("{"); }
 <Normal>"\\newlength"				{ KILLARGS(1); }
 <Normal>"\\setlength"				{ KILLARGS(2); }
 <Normal>"\\addtolength"				{ KILLARGS(2); }
@@ -455,7 +455,7 @@ strcpy(pic,yytext);}
 <Normal>"\n"					if (!fWord) NEWLINE;//printf("FFF");ECHO;//NEWLINE;
 <Normal>("\t")+					if (!fWord) putchar('\t');
 
-<LaMacro>"\["					{ BEGIN LaOptArg; }
+/*<LaMacro>"\["					{ BEGIN LaOptArg; }
 <LaMacro>"{"					{ cOpenBrace++; }
 <LaMacro>"}""\n"{0,1}					{   cOpenBrace--;
 						    if (cOpenBrace == 0)
@@ -465,6 +465,7 @@ strcpy(pic,yytext);}
 						    }
 						}
 <LaMacro>.					;
+*/
 <LaOptArg>"\]"					BEGIN LaMacro;	
 <LaOptArg>[^\]]*				;
 

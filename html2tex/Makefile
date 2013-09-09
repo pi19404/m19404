@@ -87,7 +87,7 @@ LPR	= lpr -p
 
 # Program names
 #
-PROGS	= detex delatex
+PROGS	= detex delatex comments
 
 # Header files
 #
@@ -99,7 +99,10 @@ SRC	= detex.l
 
 # Objects for various programs
 #
-D_OBJ	= detex.o
+D_OBJ	= detex.o 
+
+
+D_OBJ1 = comments.o
 
 VERSION = 2.8.1
 
@@ -108,14 +111,27 @@ all:	${PROGS}
 detex: ${D_OBJ}
 	${CC} ${CFLAGS} -o $@ ${D_OBJ} ${LEXLIB}
 
-delatex: detex
+delatex: detex comments
 	cp detex delatex
+
+comments: ${D_OBJ1}
+	${CC} ${CFLAGS} -o $@ ${D_OBJ1} ${LEXLIB}
+
+
+comments.c: comments.l
+	sed -f states.sed comments.l > c-temp.l
+	${LEX} ${LFLAGS} c-temp.l
+	rm -f c-temp.l
+	mv lex.yy.c comments.c
+
 
 detex.c: detex.l
 	sed -f states.sed detex.l > detex-temp.l
 	${LEX} ${LFLAGS} detex-temp.l
 	rm -f detex-temp.l
 	mv lex.yy.c detex.c
+
+
 
 lexout.c: detex.c
 	mv detex.c lexout.c
@@ -154,4 +170,5 @@ package:
 #
 detex.c: detex.h
 detex.c: detex.l
-
+comments.c:detex.h
+comments.c:comments.l

@@ -81,7 +81,6 @@ char	*malloc();
 #ifdef OS2
 void	yyless(int);
 #endif
-
 int BeginEnv(char*);
 int EndEnv(char*);
 void InputFile(char*);
@@ -116,6 +115,7 @@ int	fCite = 0;			/* flag to echo \cite and \ref args */
 int	fSpace = 0;			/* flag to replace \cs with space */
 int	fForcetex = 0;			/* flag to inhibit latex mode */
 int     fShowPictures = 1;  /* flag to show picture names */
+int prev_state=0;
 char pic[1000];
 int currBracesLevel = 0;
 int footnoteLevel = -100;
@@ -138,350 +138,115 @@ U	pt|pc|in|bp|cm|mm|dd|cc|sp
 D	{S}(({N}{S}{U})|(\\{W})){S}
 Z	\*?
 
-
+%option stack 
 
 %Start Define Display IncludeOnly Input Math Normal Control
 %Start LaBegin LaDisplay LaEnd LaEnv LaFormula LaInclude
 %Start LaMacro LaOptArg LaMacro2 LaOptArg2 LaVerbatim 
-%start LaBreak LaPicture AA BB CC DD EE GG FF II JJ
-
+%start LaBreak LaPicture AA BB CC DD EE GG FF II JJ KK ZZ  MAIN PARG texcaps
+%start title ignore1 section math caption figure subfigure graphics ignore2 ignore0
+%start url url1 text
 %%
-<CC>"\\begin"{S}"{"{S}"document"{S}"}""\n"*	{printf("-->");LATEX; IGNORE;BEGIN Normal;}
-<CC>"".* {KILLARGS(2);}
-<CC>"%".*		{printf("<!--");BEGIN EE;}
-<EE>"\n" {printf("-->");BEGIN CC;}
-<DD>"\n" {printf("-->");BEGIN Normal;}
-<Normal>"%".*		{printf("<!--");BEGIN DD;}
-<Normal>"\\title" {KILLARGS(2);IGNORE;}
-<Normal>"\\textaut"	{KILLARGS(1);IGNORE;}
-<Normal>"\\begin"{S}"{"{S}"document"{S}"}""\n"*	{LATEX; IGNORE;}
-<Normal>"\\begin{itemize}" { printf("<ul>");}
-<Normal>"\\item" { printf("<li>");}
-<Normal>"\\end{itemize}" { printf("</ul>");}
-<Normal>"\\begin{minted}{cpp}" {printf("<script class=\"brush: cpp\" type=\"syntaxhighlighter\"> <![CDATA[ ");}
 
-<Normal>"\\end{minted}" {printf("\]\]</script> ");}
-<Normal>"\\begin"     /* environment start */	{LaBEGIN LaBegin; IGNORE;}
+<Normal>"\\documentclass"			{printf("<!--");BEGIN CC;}
+<CC>"\\begin"{S}"{"{S}"document"{S}"}""\n"*	{printf("-->"); IGNORE;BEGIN MAIN;}
+<CC>"".* {IGNORE;}
+<MAIN>"\\end"{S}"{"{S}"document"{S}"}""\n"*     {printf("");return 0;}
+<Normal>"%".* {BEGIN ignore0;}
+<MAIN>"\\%".* {printf("%s",yytext);}
+<MAIN>"%".* ;
+<MAIN>"\\title" {printf("<h1>");yy_push_state(title);}
+<title>"\\textcap{" {yy_push_state(texcaps);}
+<texcaps>[^{}]+ {printf("<p class=\"allcaps\">%s<\p>\n",yytext);yy_pop_state();}
+<title>"%".* {IGNORE;yy_push_state(ignore2);}
+<title>[^{}]+ {printf("%s",yytext);}
+<title>"{" ;
+<title>"}" {printf("</h1>");BEGIN ignore1;}
 
-<LaBegin>{S}"{"{S}"verbatim"{S}"}"		{ if (BeginEnv("verbatim"))
-							BEGIN LaEnv;
-						    else
-							BEGIN LaVerbatim;
-						    IGNORE;
-						}
-<AA>"}" {	printf("</h4>");
-		printf("\n");
-		BEGIN Normal;			
-	}  /*NEWLINE*/
+<MAIN>"\\begin{itemize}" { printf("<ul>");}
+<MAIN>"\\item" { printf("<li>");}
+<MAIN>"\\end{itemize}" { printf("</ul>");}
 
-<BB>"}" {       printf("</b>");
-                printf("\n");
-                BEGIN Normal;
-        }  /*NEWLINE*/
+<MAIN>"\\begin{enumerate}" { printf("<ol>");}
+<MAIN>"\\item" { printf("<li>");}
+<MAIN>"\\end{enumerate}" { printf("</ol>");}
+<MAIN>"\\text{" {yy_push_state(text);}
+<text>[^{}]+ {printf("%s",yytext);}
+<text>"}" {yy_pop_state();}
+<MAIN>"\\url{" {yy_push_state(url1);}
+<url1>[^{}]+ {printf("<a href=%s>%s",yytext,yytext);}
+<url>[^{}]+ {printf("%s",yytext);}
+<url>"}" {yy_pop_state();}
+<url1>"}" {printf("</a>");yy_pop_state();}
 
+<MAIN>"\\section{" {BEGIN section;}
+<section>[^{}]+ {printf("<h4>%s</h4>\n",yytext);BEGIN ignore1;}
+<MAIN>"\\\\\\\\" {printf("<br></br>");}
 
-<LaVerbatim>"\\end"{S}"{"{S}"verbatim"{S}"}" /* verbatim mode */	{BEGIN Normal; IGNORE;}
-<LaVerbatim>[^\\]+				{ECHO;}
+<MAIN>"\\begin{figure}" {printf("<figure role=\"group\" class=\"grid1\"><div class=\"row\">");yy_push_state(figure);}
+<figure>"\\end{figure}" {printf("</figure>"); yy_pop_state();}
 
-<LaVerbatim>.					ECHO;
-
-<LaBegin>{S}"{"{S}"minipage"{S}"}"		{ KILLARGS(1);
-						  if (BeginEnv("minpage"))
-							BEGIN LaEnv;
-						  else
-							BEGIN LaMacro; /* Normal; */
-						  IGNORE;
-						}
-
-<LaBegin>{S}"{"{S}"table"{S}"}"{S}"["{W}"]"		{
-						  if (BeginEnv("table"))
-							BEGIN LaEnv;
-						  else
-							BEGIN Normal;
-						  IGNORE;
-						}
-
-<LaBegin>"{figure}".*		{
-						  printf("<div>");
-						  KILLARGS(1);
-						  if (BeginEnv("figure"))
-							BEGIN LaEnv;
-						  else
-							BEGIN Normal;
-						  IGNORE;
-						  printf("</div>");
-						}
-						
-
-<LaBegin>"{subfigure}".*            {
- 							  BEGIN Normal;
-
-                                      }
+<figure>"\\includegraphics"[^{]* { yy_push_state(graphics) ;}
 
 
-<LaBegin>{W}					{ if (BeginEnv(yytext))
-						BEGIN LaEnv;
-					    else
-						BEGIN Normal;
-					    IGNORE;
-					}
-<LaBegin>.					;
+<figure>"\\begin{subfigure}" {printf("<figure role=\"group\" class=\"image\">");yy_push_state(subfigure);}
+<subfigure>"\\end{subfigure}" {printf("</figure>"); yy_pop_state();}
 
-<LaEnv>"\\end"  /* absorb some environments */	{LaBEGIN LaEnd; IGNORE;}
-<LaEnv>"\n"+					;/*NEWLINE;*/
-<LaEnv>.					;
+<subfigure>"\\includegraphics"[^{]* { yy_push_state(graphics) ;}
+<subfigure>"\\caption"{S}"{" {yy_push_state(caption);}
+<subfigure>"[" {yy_push_state(ignore2);}
+<subfigure>"\\centering" {IGNORE;}
+<subfigure>"\\label{" {yy_push_state(ignore2);}
+<subfigure>"}";
 
-<LaEnd>{W}		 /* end environment */	{   if (EndEnv(yytext))
-							BEGIN Normal;
-						    IGNORE;
-						}
-<LaEnd>"}"					{BEGIN LaEnv; IGNORE;}
-	/*<LaEnd>"\n"					NEWLINE;*/
-<LaEnd>.					;
+<caption>[^{}]+ {printf("<figcaption class=\"caption1\">%s</figcaption>",yytext);}
+<caption>"}" { yy_pop_state();}
+<figure>"\\\\\\\\" {printf("</div><div class=\"row\"></div>");}
 
-<Normal>"\\vskip"{D}				;
-<Normal>"\\vspace"{Z}{S}"{"{D}"}"		;
-<Normal>"\\hskip"{D}				;
-<Normal>"\\hspace"{Z}{S}"{"{D}"}"		;
-<Normal>"\\addvspace"{S}"{"{D}"}"		;
-<Normal>"{"{N}"pt}"						; /* hack to fix \begin{minipage}{300pt} */
+<graphics>"{" ;
+<graphics>"}" {yy_pop_state();}
 
-<Normal>"\\newlength"				{ KILLARGS(1); }
-<Normal>"\\setlength"				{ KILLARGS(2); }
-<Normal>"\\addtolength"				{ KILLARGS(2); }
-<Normal>"\\settowidth"				{ KILLARGS(2); }
-<Normal>"\\settoheight"				{ KILLARGS(2); }
-<Normal>"\\settodepth"				{ KILLARGS(2); }
-<Normal>"\\newsavebox"				{ KILLARGS(1); }
-<Normal>"\\sbox"				{ KILLARGS(1); }
-<Normal>"\\savebox"				{ KILLARGS(2); }
-<Normal>"\\usebox"				{ KILLARGS(1); }
-<Normal>"\\raisebox"				{ STRIPARGS(2); }
-<Normal>"\\parbox"				{ KILLARGS(1); }
-<Normal>"\\scalebox"				{ STRIPARGS(2); }
-<Normal>"\\resizebox"{Z}			{ KILLARGS(2); }
-<Normal>"\\reflectbox"				;
-<Normal>"\\rotatebox"				{ KILLARGS(1); }
-<Normal>"\\includegraphics"[^{]*		{ LaBEGIN LaPicture; }
-<LaPicture>"{"					;
-<LaPicture>[^{}]+				{ IGNORE;if(fShowPictures) { 
-strcpy(pic,yytext);} 
-}
-<Normal>"\\curl{" {BEGIN II;}
-<II>[^{}]+ {printf("<a href=%s >CODE</a>",yytext);BEGIN Normal;}
-<Normal>"\\durl{" {BEGIN JJ;}
-<JJ>[^{}]+ {printf("<a href=%s >DOCUMENT</a>",yytext);BEGIN Normal;}
+<graphics>[^{}]+ { printf("<img width=320 height=240 src=\"https://googledrive.com/host/0B-pfqaQBbAAtenZiNDItSDFTSTg/%s\" > ",yytext);} 
+<figure>"[" {yy_push_state(ignore2);}
+<MAIN>"\\pagebreak" {IGNORE;}
+<figure>"\\centering" {IGNORE;}
+<figure>"\\label{" {yy_push_state(ignore2);}
+<figure>"}";
 
-<Normal>"vurl{" {BEGIN FF;}
-<FF>[^{}]+ {printf("<div><video width=\"320\" height=\"240\" controls> <source src=\"https://googledrive.com/host/0B-pfqaQBbAAtenZiNDItSDFTSTg/%s\" type='video/ogg; codecs=\"theora, vorbis\"'/> <source src=\"https://googledrive.com/host/0B-pfqaQBbAAtenZiNDItSDFTSTg/%s\" /><object width=\"320\" height=\"240\" type=\"application/x-shockwave-flash\"    data=\"flowplayer-3.2.1.swf\">    <param name=\"movie\" value=\"flowplayer-3.2.1.swf\" />    <param name=\"allowfullscreen\" value=\"true\" />    <param name=\"flashvars\" value=\"config={'clip': {'url': 'https://googledrive.com/host/0B-pfqaQBbAAtenZiNDItSDFTSTg/%s', 'autoPlay':false, 'autoBuffering':true}}\" /></object></video></div>",yytext,yytext,yytext);
-}
-<FF>"}" {BEGIN Normal;}
-<LaPicture>"\}"{S}"\n"+					BEGIN Normal;
-<LaPicture>"\}"					IGNORE;BEGIN Normal;
-<Normal>"\\caption{" { if(strlen(pic)!=0)printf("<a href=\"https://googledrive.com/host/0B-pfqaQBbAAtenZiNDItSDFTSTg/%s\" title=\"",pic); LaBEGIN GG;}
-<GG>[^{}]+ { if(strlen(pic)!=0){printf("%s\"><img src=\"https://googledrive.com/host/0B-pfqaQBbAAtenZiNDItSDFTSTg/%s\" width=\"320\" height=\"201\"/></a>",yytext,pic);strcpy(pic,"");}else{}}
-<GG>"}" {BEGIN Normal;}
+<figure>"\\caption{" {printf("</div><div class=\"row\"></div>");yy_push_state(caption);}
+<MAIN>"\\author" { KILLARGS(1);}
+<MAIN>"\\texaut" { KILLARGS(1);}
+<MAIN>"\\date" { KILLARGS(1);}
+<MAIN>"\\maketitle" ;
+<MAIN>"\\printindex" ;
+<MAIN>"\\tableofcontents" ;
+<MAIN>"\\newpage" ;
+<MAIN>"\\begin"{S}"{"{S}"addmargin"{S}"}"* {BEGIN ignore1;}
+<MAIN>"\\pagestyle" {BEGIN ignore1;}
+<MAIN>"\\labday" {BEGIN ignore1;}
 
-<Normal>"\\definecolor"				{ KILLARGS(3); }
-<Normal>"\\color"				{ KILLARGS(1); }
-<Normal>"\\textcolor"				{ KILLARGS(2); }
-<Normal>"\\colorbox"				{ KILLARGS(2); }
-<Normal>"\\fcolorbox"				{ KILLARGS(3); }
-<Normal>"\\pagecolor"				{ KILLARGS(1); }
-<Normal>"\\foilhead"				{ STRIPARGS(1); }
-<Normal>"\\addfontfeature"			{ KILLARGS(1); }
-<Normal>"\\thispagestyle"			{ KILLARGS(1); }
-<Normal>"\\addcontentsline"			{ KILLARGS(3); }
-<Normal>"\\automark" {KILLARGS(1); IGNORE;}
-<Normal>"\\counterwithout" {KILLARGS(2); IGNORE;}
-<Normal>"\\ECFAugie\\color" {KILLARGS(1); IGNORE;}
-<Normal>"\\part"{Z}					;/*NEWLINE;*/
-<Normal>"\\chapter{"	{printf("<h4>");BEGIN AA;}
-<Normal>"\\section{"	{printf("<h4>");BEGIN AA;}			
-<Normal>"\\subsection{"	{printf("<h4>");BEGIN AA;}			
-<Normal>"\\subsubsection{"{Z}	{printf("<b>");BEGIN BB;}	
-<Normal>"\\paragraph{"{Z}			;/*NEWLINE;*/
-<Normal>"\\subparagraph{"{Z}			;/*NEWLINE;*/
-<Normal>"\\/\/\begin{minted}"	{printf("AA");}
-<Normal>"\\bibitem"	    /* ignore args  */	{KILLARGS(1); IGNORE;}
-<Normal>"\\bibliography"    /* of these \cs */	{KILLARGS(1); IGNORE;}
-<Normal>"\\bibstyle"				{KILLARGS(1); IGNORE;}
-<Normal>" "?"\\cite"				{KILLARGS(1);} /* kill space before */
-<Normal>"\\addtokomafont" 			{LATEX;KILLARGS(2); IGNORE;}
-<Normal>"\\setkomafont" {LATEX;KILLARGS(2); IGNORE;}
-<Normal>"\\DeclareGraphicsExtensions" 		{KILLARGS(1); IGNORE;}
-<Normal>"\\documentstyle"			{KILLARGS(1); IGNORE;}
-<Normal>"\\documentclass"			{printf("<!--");BEGIN CC;}//{KILLARGS(1); IGNORE;}
-<Normal>"\\lstset"				{LATEX;KILLARGS(1); IGNORE;}
-<Normal>"\\usepackage"				{KILLARGS(1); IGNORE;}
-<Normal>"\\setcapwidth" 			{KILLARGS(1); IGNORE;}
-<Normal>"\\DeclareFixedFont" 			{KILLARGS(6); IGNORE;}
-<Normal>"\\setheadsepline" 			{KILLARGS(1); IGNORE;}
-<Normal>"\\deffootnote"				{KILLARGS(2); IGNORE;}
-<Normal>"\\end"					{KILLARGS(1); IGNORE;}
-<Normal>"\\hypersetup"			{KILLARGS(1);}
-<Normal>"\\index"				{KILLARGS(1);}
-	/*<Normal>"\\footnote"				{KILLARGS(1); SPACE;}*/
-<Normal>"\\label"				{KILLARGS(1); IGNORE;}
-<Normal>"\\nameref"					{CITE(1); IGNORE;}
-<Normal>"\\pageref"				{CITE(1); IGNORE;}
-<Normal>"\\pagestyle"				{KILLARGS(1); IGNORE;}
-<Normal>"\\ref"					{CITE(1); IGNORE;}
-<Normal>"\\setcounter"				{KILLARGS(2); IGNORE;}
-
-<Normal>"\\fontspec"			{KILLARGS(1);}
-
-<Normal>"\\footnote"(\[([^\]])+\])?"{"		{
-							putchar('(');
-							footnoteLevel = currBracesLevel;
-							++currBracesLevel;
-							}
-<Normal>"\\verb" /* ignore \verb<ch>...<ch> */	{   if (fLatex) {
-						 	char verbchar, c;
-						 	verbchar = input();
-						 	while ((c = input()) != verbchar)
-							    /*if (c == '\n')
-								NEWLINE;*/
-								putchar(c);
-						    }
-						    IGNORE;
-						}
-
-<Normal>"\\newcommand"				{ LATEX; KILLARGS(2); }
-<Normal>"\\renewcommand"			{ LATEX; KILLARGS(2); }
-<Normal>"\\newenvironment"			{ LATEX; KILLARGS(3); }
-
-<Normal>"\\def"		/* ignore def begin */	{BEGIN Define; IGNORE;}
-<Define>"{"					BEGIN Normal;
-<Define>"\n"					NEWLINE;
-<Define>.					;
-
-<Normal>"\\\\"	{printf("<br></br>");}
-<Normal>"\\("		/* formula mode */	{LaBEGIN LaFormula; IGNORE;}
-<LaFormula>"\\)"				BEGIN Normal;
-<LaFormula>"\n"					NEWLINE;
-<LaFormula>.					;
-
-<Normal>"\\["		/* display mode */	{LaBEGIN LaDisplay; IGNORE;}
-<LaDisplay>"\\]"				BEGIN Normal;
-<LaDisplay>"\n"					NEWLINE;
-<LaDisplay>.					;
-
-<Normal>"$$"		/* display mode */	{BEGIN Display; IGNORE;}
-<Display>"$$"					BEGIN Normal;
-<Display>"\n"					NEWLINE;
-<Display>.					;
-
-<Normal>"$"		/* math mode */		{BEGIN Math; IGNORE;}
-<Math>"$"					BEGIN Normal;
-<Math>"\n"					NEWLINE;
-<Math>"\\$"					;
-<Math>.						;
-
-<Normal>"\\include"	/* process files */	{LaBEGIN LaInclude; IGNORE;}
-<LaInclude>[^{ \t\n}]+				{   IncludeFile(yytext);
-						    BEGIN Normal;
-						}
-<LaInclude>"\n"+					NEWLINE;
-<LaInclude>.					;
-
-<Normal>"\\includeonly"				{BEGIN IncludeOnly; IGNORE;}
-<IncludeOnly>[^{ \t,\n}]+			AddInclude(yytext);
-<IncludeOnly>"}"				{   if (csbIncList == 0)
-							rgsbIncList[csbIncList++] = '\0';
-						    BEGIN Normal;
-						}
-<IncludeOnly>"\n"+				NEWLINE;
-<IncludeOnly>.					;
-
-<Normal>"\\input"				{BEGIN Input; IGNORE;}
-<Input>[^{ \t\n}]+				{   InputFile(yytext);
-						    BEGIN Normal;
-						}
-<Input>"\n"+					NEWLINE;
-<Input>.					;
-
-	/* escaping commands */
-<Normal>"\\slash"			putchar('/');
-
-<Normal>\\(aa|AA|ae|AE|oe|OE|ss)[ \t]*[ \t\n}] 	{(void)printf("%.2s", yytext+1);}
-<Normal>\\[OoijLl][ \t]*[ \t\n}]		{(void)printf("%.1s", yytext+1);}
-<Normal>"\\linebreak"(\[[0-4]\])?			{NEWLINE;}	/*BEGIN LaBreak;*/
-
-<Normal>\\[a-zA-Z@]+	/* ignore other \cs */	{BEGIN Control; IGNORE;}
-<Normal>"\\ "					SPACE;
-<Normal>"\\\\"{Z}(\[[^\]]*\])?			NEWLINE;
-<Normal>\\.					IGNORE;
-<LaBreak>[0-4]?					{  if (yytext==NULL || strlen(yytext)==0 || atoi(yytext)>=0)
-							NEWLINE;
-						BEGIN Normal;
-						}
-
-<Control>\\[a-zA-Z@]+				IGNORE;
-<Control>[a-zA-Z@0-9]*[-'=`][^ \t\n{]*		IGNORE;
-<Control>"\n"+					{BEGIN Normal; /*NEWLINE;*/}
-<Control>[ \t]*[{]+				{++currBracesLevel;BEGIN Normal; IGNORE;}
-<Control>[ \t]*				{BEGIN Normal; IGNORE;}
-<Control>.					{yyless(0);BEGIN Normal;}
-
-<Normal>[\\|]	/* special characters */	IGNORE;
-<Normal>[!?]"`"				IGNORE;
-<Normal>~					SPACE;
-<Normal>-{2,3}				putchar('-');
-<Normal>``					putchar('"');
-<Normal>`					putchar('\'');
-<Normal>''					putchar('"');
-<Normal>,,					putchar('"');
-
-	/* braces */
-<Normal>"{"					{ ++currBracesLevel; }
-<Normal>"}"					{
-							--currBracesLevel;
-							if (currBracesLevel == footnoteLevel) {
-								putchar(')');
-								footnoteLevel = -100;
-							} 
-						IGNORE;
-						}
-
-<Normal>{W}[']*{W}				{   if (fWord)
-							(void)printf("%s\n", yytext);
-						    else
-							ECHO;
-						}
-<Normal>[0-9]+					if (!fWord) ECHO;
-<Normal>.					if (!fWord) ECHO;
-<Normal>"\n"					if (!fWord) NEWLINE;//printf("FFF");ECHO;//NEWLINE;
-<Normal>("\t")+					if (!fWord) putchar('\t');
-
+<ignore2>"\n" { yy_pop_state();}
+<ignore2>"".* {IGNORE;}
+<ignore1>"\n" {BEGIN MAIN;}
+<ignore1>"".* {IGNORE;}
+<ignore0>"".* {IGNORE;}
+<ignore0>"\n" {BEGIN Normal;}
+<LaMacro>"%".* ;
+<LaOptArg>"%".*;
 <LaMacro>"\["					{ BEGIN LaOptArg; }
 <LaMacro>"{"					{ cOpenBrace++; }
 <LaMacro>"}""\n"{0,1}					{   cOpenBrace--;
 						    if (cOpenBrace == 0)
 						    {
 							if (--cArgs==0)
-							BEGIN Normal;
+							BEGIN MAIN;
 						    }
 						}
 <LaMacro>.					;
+
 <LaOptArg>"\]"					BEGIN LaMacro;	
 <LaOptArg>[^\]]*				;
 
-<LaMacro2>"\["					{ BEGIN LaOptArg2; }
-<LaMacro2>"{"				        { if (cOpenBrace == 0)
-						    {
-							if (--cArgs==0)
-							{
-							    BEGIN Normal;
-							    cOpenBrace--;
-							}
-						    }
-						  cOpenBrace++;
-						}
-<LaMacro2>"}"					{   cOpenBrace--; }
-<LaMacro2>.					;
-<LaOptArg2>"\]"					BEGIN LaMacro2;	
-<LaOptArg2>.					;
 %%
 
 /******

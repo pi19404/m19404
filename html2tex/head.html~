@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html >
 <head>
+<link href="styles.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default">    
 </script><style type="text/css"></style>
 <script type="text/x-mathjax-config">
 //<![CDATA[
   MathJax.Hub.Config({
-  jax: ["input/TeX","input/MathML","input/AsciiMath","output/HTML-CSS","output/NativeMML"],
-  extensions: ["tex2jax.js","mml2jax.js","asciimath2jax.js","MathMenu.js","MathZoom.js"],
+    extensions: ["tex2jax.js","TeX/AMSmath.js","TeX/AMSsymbols.js","tex2jax.js","mml2jax.js","asciimath2jax.js","MathMenu.js","MathZoom.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
   TeX: {
-    extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
-  }
+	equationNumbers: { autoNumber: "AMS" }
+	},	
     tex2jax: {
       inlineMath: [['$','$'], ['\\(','\\)']],      
       displayMath: [ ['$$','$$'], ["\\[","\\]"] ],

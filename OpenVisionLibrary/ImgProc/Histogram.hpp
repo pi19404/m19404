@@ -23,14 +23,37 @@
 /**
  * @brief The Histogram class provides interface to class which handles histogram related operations
  */
-class Histogram{
+class Histogram
+{
     public:
+
+    class comparison_method
+    {
+    public:
+        const static int NORM_L1=1;
+        const static int NORM_L2=6;
+        const static int INTERSECTION=2;
+        const static int CORRELATION=3;
+        const static int CHI_SQUARED=4;
+        const static int BHATTACHRYA=5;
+
+    };
+
+        /**
+         * @brief The comparison_method class contains the types of comparison method
+         */
+
 
         /**
          * @brief Histogram is default constructor for histogram class
          */
         Histogram();
 
+        /**
+         * @brief getHist -returns histogram
+         * @return
+         */
+        Mat getHist();
 
         /**
          * @brief BuildHistogram method constructs a histogram of source  input image which is required to be a single channel image
@@ -48,25 +71,65 @@ class Histogram{
          */
         std::vector<int> getThresh(cv::Mat srcImage, float s1, float s2);
 
+     /**
+     * @brief setHistSize set the bin size of the histogram
+     * @param size
+     */
+    void setHistSize(vector<int> size);
 
+    /**
+     * @brief setRange sets the maximum saturation bin value of the histogram
+     * @param range
+     */
+
+    void setRange(vector<float>);
+
+    void setChannel(vector<int>);
+
+
+    /**
+     * @brief compare - performs comparision of 2 histograms
+     * @param h1 - pointer to histogram 1
+     * @param h2  - pointer to histogram 2
+     * @param length -- number of bins of histogram
+     */
+    float compareHist(Histogram hist,int method);
+    Mat drawHist();
     private:
         /**
          * @brief _histMat is temporary matrix used to store the histogram of the image
          */
-        cv::Mat _histMat;
+        MatND _histMat;
         /**
-         * @brief _histSize is the size of the hisgoram
+         * @brief _histSize is the size of the hisgoram,number of bins
          */
-        int _histSize;  // Size of the histogram
+        vector<int> _histSize;  // Size of the histogram
 
         /**
          * @brief _range is range of pixel intensities to be considered for the histogram calculations
          */
-        float _range[2]; //Range to be considered
 
-        const float* _histRange;  //Range for all the matrices
+
+
+        vector<float> _histRange;  //Range for all the matrices
+
+        vector<int>_channels;
+
+
+
+
 
 
 };
 
+
+
+
+
+
+
+
+
 #endif
+
+

@@ -16,7 +16,8 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
-
+#include "stdlib.h"
+#include "unistd.h"
 #include <iostream>
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -43,7 +44,8 @@ using namespace std;
 #include <map>
 #include <ctime>
 #include "opencv2/highgui/highgui.hpp"
-
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/contrib/contrib.hpp"
 typedef int Mode;
 
 #endif // COMMON1_H

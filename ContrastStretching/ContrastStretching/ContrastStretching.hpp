@@ -15,6 +15,11 @@
  * ========================================================================
  */
 
+#ifndef _OPENCV_your_header_name_HPP_
+#define _OPENCV_your_header_name_HPP_ 
+#ifdef __cplusplus
+namespace cv {
+
 #include "common.hpp"
 #include "histogram.hpp"
 
@@ -107,5 +112,7 @@ Mat GlobalContrastStretching(Mat image);
 
 };
 
-
+}
+#endif
+#endif
 

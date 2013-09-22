@@ -27,6 +27,9 @@ class Histogram
 {
     public:
 
+    /**
+     * @brief The comparison_method class - containing various comparison's method
+     */
     class comparison_method
     {
     public:
@@ -36,6 +39,7 @@ class Histogram
         const static int CORRELATION=3;
         const static int CHI_SQUARED=4;
         const static int BHATTACHRYA=5;
+        const static int BHATTACHRYA1=7;
 
     };
 
@@ -71,6 +75,10 @@ class Histogram
          */
         std::vector<int> getThresh(cv::Mat srcImage, float s1, float s2);
 
+
+        Mat likeyhoodImage(Mat image);
+
+
      /**
      * @brief setHistSize set the bin size of the histogram
      * @param size
@@ -82,10 +90,17 @@ class Histogram
      * @param range
      */
 
+    /**
+     * @brief setRange : set the range values for channels
+     */
     void setRange(vector<float>);
 
+    /**
+     * @brief setChannel : set the channels which are required to be processed
+     */
     void setChannel(vector<int>);
 
+            Mat applyKernel(int,int);
 
     /**
      * @brief compare - performs comparision of 2 histograms
@@ -95,6 +110,7 @@ class Histogram
      */
     float compareHist(Histogram hist,int method);
     Mat drawHist();
+    Mat drawHist(MatND);
     private:
         /**
          * @brief _histMat is temporary matrix used to store the histogram of the image
@@ -115,7 +131,7 @@ class Histogram
 
         vector<int>_channels;
 
-
+        Mat _tmpHist;
 
 
 

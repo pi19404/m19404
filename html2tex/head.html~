@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html >
 <head>
-<link href="styles.css" rel="stylesheet" type="text/css"/>
+
 <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default">    
 </script><style type="text/css"></style>
 <script type="text/x-mathjax-config">
@@ -53,3 +53,4 @@ SyntaxHighlighter.all();
 
 <body>
 </body>
+<link href="https://googledrive.com/host/0B-pfqaQBbAAtenZiNDItSDFTSTg/common.css" rel="stylesheet" type="text/css"/>

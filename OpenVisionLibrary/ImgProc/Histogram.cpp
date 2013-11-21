@@ -16,7 +16,7 @@
  */
 
 #include "ImgProc/Histogram.hpp"
-
+using namespace ocv;
 Histogram::Histogram(){
     _histSize.push_back(256);
     _histSize.push_back(256);

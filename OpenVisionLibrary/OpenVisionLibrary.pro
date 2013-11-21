@@ -1,4 +1,4 @@
-TEMPLATE = app
+TEMPLATE = lib
 CONFIG += console
 CONFIG -= qt
 
@@ -7,7 +7,8 @@ SOURCES += main.cpp \
 #    ImgProc/Convolution.cpp \
 #    ImgProc/ContrastStretching.cpp \
     ImgProc/Histogram.cpp \
-    ImgProc/meanshift.cpp
+    ImgProc/meanshift.cpp \
+    ImgProc/test_meanshift.cpp
 
 HEADERS += \
 #    ImgProc/InterPolation.hpp \

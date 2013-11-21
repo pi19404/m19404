@@ -1,0 +1,1 @@
+"./main.obj" "./lm4f232h5qd_startup_ccs.obj" "../lm4f232h5qd.cmd" -l"rtsv7M4_T_le_v4SPD16_eabi.lib" 

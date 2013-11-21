@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?ccsproject version="1.0"?>
+<projectOptions>
+	<deviceVariant value="com.ti.ccstudio.deviceModel.TMS470.GenericARM11Device"/>
+	<deviceFamily value="TMS470"/>
+	<deviceEndianness value="big"/>
+	<codegenToolVersion value="5.1.1"/>
+	<isElfFormat value="false"/>
+	<rts value="libc.a"/>
+	<templateProperties value="id=com.ti.common.project.core.emptyProjectWithMainTemplate,"/>
+	<isTargetManual value="true"/>
+</projectOptions>

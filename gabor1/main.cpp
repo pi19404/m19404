@@ -1,4 +1,4 @@
-
+	
 #include <cv.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -10,18 +10,13 @@ Mat CreateGaborFilterImage(char* demoName,   float lambda, float theta, float ps
 
 
     Mat ima1=cv::getGaborKernel(size,gaussvar,theta,lambda,gamma,psi,CV_32F);
-//    cerr << ima.cols <<":" << ima.rows << ":"<<ima.channels() <<endl;
-    //Mat gaborKernel = getGaborKernel(size, 3.0, -Math.PI/4, Math.PI, 10.0, Math.PI*0.5, CvType.CV_64F);
-    //Imgproc.filter2D(intermediate, output, -1, gaborKernel);
-    //Bitmap temp = Bitmap.createBitmap(intermediate.cols(), intermediate.rows(), Config.ARGB_8888);
-    //Utils.matToBitmap(output, temp);
     Mat d1=Mat(size.width,size.height,CV_8UC(3));
-    //ima.convertTo(d1,CV_8U,255.0f);
     d1.setTo(cv::Scalar::all(0));
 
     int mx=d1.cols/2;
     int my=d1.rows/2;
     Mat ima;
+    return ima1;
     cv::normalize(ima1,ima,-1,1,cv::NORM_MINMAX);
     float *ptr1=ima.ptr<float>();
     uchar *ptr2=d1.ptr<uchar>();
@@ -49,7 +44,7 @@ Mat CreateGaborFilterImage(char* demoName,   float lambda, float theta, float ps
                     R = (int)floor((-val * 255.0f));
                     int sx=(size.width/2+(dx))%size.width;
                     int sy=dy;//(size.height/2+(dy))%size.height;
-                    sx=dx;
+  sx=dx;
                     //int sy=(size.width/2+(dy))%size.height;
                     ptr2[3*(sx)+(3*(sy*d1.cols))+2]=R;
                 }
@@ -98,8 +93,8 @@ Mat CreateGaborFilterImage(char* demoName,   float lambda, float theta, float ps
         sprintf_s(txt, "min gabor val : %.2f", MinGaborValue);   cvPutText (img, txt, cvPoint(10,230), &font, cvScalar(0,255,255) );
         sprintf_s(txt, "max gabor val : %.2f", MaxGaborValue);   cvPutText (img, txt, cvPoint(10,250), &font, cvScalar(0,255,255) );
 */
-    imshow(demoName,d2);
-    waitKey(1000);
+//    imshow(demoName,d2);
+//    waitKey(1000);
     return ima1;
 
 }
@@ -126,7 +121,7 @@ void Process(int , void *)
     cv::resize(kernel, Lkernel, Lkernel.size());
     Lkernel /= 2.;
     Lkernel += 0.5;
-    cv::imshow("Kernel", Lkernel);
+//    cv::imshow("Kernel", Lkernel);
     cv::Mat mag;
     cv::pow(dest, 2.0, mag);
     cv::imshow("Mag", mag);
@@ -144,7 +139,7 @@ int main(int argc,char **argv)
     Mat src,src1;
     src=imread(argv[1],0);
     cv::resize(src,src1,Size(256,256));
-     src1.convertTo(src_f, CV_32F, 1.0/255, 0);
+     src1.convertTo(src_f, CV_32F, 1.0/255.0, 0);
      if (!kernel_size%2)
         {
             kernel_size+=1;

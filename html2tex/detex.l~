@@ -145,17 +145,24 @@ Z	\*?
 %Start LaMacro LaOptArg LaMacro2 LaOptArg2 LaVerbatim 
 %start LaBreak LaPicture AA BB CC DD EE GG FF II JJ KK ZZ  MAIN PARG texcaps
 %start title ignore1 section math caption figure subfigure graphics ignore2 ignore0
-%start url url1 text table texttt
+%start url url1 text table texttt lable ref1 vurl minted
 %%
 
 <Normal>"\\documentclass"			{printf("<!--");BEGIN CC;}
 <CC>"\\begin"{S}"{"{S}"document"{S}"}""\n"*	{printf("-->"); IGNORE;BEGIN MAIN;}
 <CC>"".* {IGNORE;}
+
+<MAIN>"\\ECFAugie"* {yy_push_state(ignore2);}
+<MAIN>"\\AddToShipoutPicture"* {yy_push_state(ignore2);}
+
+
 <MAIN>"\\end"{S}"{"{S}"document"{S}"}""\n"*     {printf("");return 0;}
 <Normal>"%".* {BEGIN ignore0;}
 <MAIN>"\\%".* {printf("%s",yytext);}
 <MAIN>"%".* ;
 <MAIN>"\\title" {printf("<h1>");yy_push_state(title);}
+<MAIN>"\\printbibliography" ;
+<MAIN>"\\nocite" {yy_push_state(ignore2);}
 <title>"\\textcap{" {yy_push_state(texcaps);}
 <texcaps>[^{}]+ {printf("<p class=\"allcaps\">%s<\p>\n",yytext);yy_pop_state();}
 <title>"%".* {IGNORE;yy_push_state(ignore2);}
@@ -166,6 +173,9 @@ Z	\*?
 <MAIN>"\\begin{itemize}" { printf("<ul>");}
 <MAIN>"\\item" { printf("<li>");}
 <MAIN>"\\end{itemize}" { printf("</ul>");}
+<MAIN>"\\ref{" {yy_push_state(ref1);}
+<ref1>[^{}]+ {printf("<a href=\"#%s\">%s</a>",yytext,yytext);}
+<ref1>"}" {yy_pop_state();}
 
 <MAIN>"\\begin{enumerate}" { printf("<ol>");}
 <MAIN>"\\item" { printf("<li>");}
@@ -186,17 +196,27 @@ Z	\*?
 <url>"}" {yy_pop_state();}
 <url1>"}" {printf("</a>");yy_pop_state();}
 <MAIN>"\\texttt{" {yy_push_state(text);}
-<MAIN>"\\begin{minted}{cpp}" {printf("<script class=\"brush: cpp\" type=\"syntaxhighlighter\"> <![CDATA[ ");}
+<MAIN>"\\begin{minted}".*"{cpp}\n"* {printf("<script class=\"brush: cpp\" type=\"syntaxhighlighter\"> <![CDATA[ ");
+yy_push_state(minted);}
+<minted>"]" {yy_pop_state();}
+<minted>. ;
 <MAIN>"\\end{minted}" {printf("</script> ");}
 <MAIN>"\\end{addmargin}" {yy_push_state(ignore2);}
 <MAIN>"\\_" {printf("_");}
 <MAIN>"\\section{" {BEGIN section;}
 <section>[^{}]+ {printf("<h4>%s</h4>\n",yytext);BEGIN ignore1;}
+<MAIN>"\\subsection{" {BEGIN section;}
+<MAIN>"\\\subsubsection{" {BEGIN section;}
 <MAIN>"\\\\\\\\" {printf("<br></br>");}
 
 <MAIN>"\\begin{figure}" {printf("<figure role=\"group\" class=\"grid1\"><div class=\"row\">");yy_push_state(figure);}
 <figure>"\\end{figure}" {printf("</figure>"); yy_pop_state();}
-
+<figure>"\\label{" {yy_push_state(lable);}
+<lable>[^{}]+ {printf("<a name=\"%s\" style=\"visibility: hidden\">%s</a>",yytext,yytext);}
+<lable>"}" {yy_pop_state();}
+<MAIN>"\\vurl{" {yy_push_state(vurl);}
+<vurl>[^{}]+ {printf("<div><video width=\"320\" height=\"240\" controls> <source src=\"%s\" type='video/ogg; codecs=\"theora, vorbis'\"/> Video not found</video></div>",yytext);}
+<vurl>"}" {yy_pop_state();}
 <figure>"\\includegraphics"[^{]* { yy_push_state(graphics) ;}
 
 
@@ -217,11 +237,10 @@ Z	\*?
 <graphics>"{" ;
 <graphics>"}" {yy_pop_state();}
 
-<graphics>[^{}]+ { printf("<img width=160 height=120 src=\"https://googledrive.com/host/0B-pfqaQBbAAtenZiNDItSDFTSTg/repository/images%s\" > ",yytext);} 
+<graphics>[^{}]+ { printf("<img width=160 height=120 src=\"https://googledrive.com/host/0B-pfqaQBbAAtenZiNDItSDFTSTg/repository/images/%s\" > ",yytext);} 
 <figure>"[" {yy_push_state(ignore2);}
 <MAIN>"\\pagebreak" {IGNORE;}
 <figure>"\\centering" {IGNORE;}
-<figure>"\\label{" {yy_push_state(ignore2);}
 <figure>"}";
 
 <figure>"\\caption{" {printf("</div><div class=\"row\"></div>");yy_push_state(caption);}

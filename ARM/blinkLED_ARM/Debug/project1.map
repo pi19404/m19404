@@ -1,0 +1,146 @@
+******************************************************************************
+                  TI ARM Linker Unix v5.1.1                    
+******************************************************************************
+>> Linked Wed Nov 20 14:40:05 2013
+
+OUTPUT FILE NAME:   <project1.out>
+ENTRY POINT SYMBOL: "_c_int00"  address: 000002f4
+
+
+MEMORY CONFIGURATION
+
+         name            origin    length      used     unused   attr    fill
+----------------------  --------  ---------  --------  --------  ----  --------
+  RAM                   00000000   ffffffff  00000bd8  fffff427  RWIX
+
+
+SECTION ALLOCATION MAP
+
+ output                                  attributes/
+section   page    origin      length       input sections
+--------  ----  ----------  ----------   ----------------
+.text      0    00000000    00000384     
+                  00000000    00000180     rtsv6_A_be_tiarm9.lib : memcpy32.obj (.text)
+                  00000180    000000a8                           : auto_init.obj (.text)
+                  00000228    00000078                           : exit.obj (.text)
+                  000002a0    00000054                           : cpy_tbl.obj (.text)
+                  000002f4    00000044                           : boot.obj (.text)
+                  00000338    00000024                           : _lock.obj (.text)
+                  0000035c    00000020                           : args_main.obj (.text)
+                  0000037c    00000008     main.obj (.text)
+
+.data      0    00000000    00000000     UNINITIALIZED
+
+.pinit     0    00000000    00000000     UNINITIALIZED
+
+.cinit     0    00000384    0000003c     
+                  00000384    00000010     rtsv6_A_be_tiarm9.lib : _lock.obj (.cinit)
+                  00000394    00000010                           : exit.obj (.cinit)
+                  000003a4    0000000c                           : boot.obj (.cinit)
+                  000003b0    0000000c                           : stkdepth_vars.obj (.cinit)
+                  000003bc    00000004     --HOLE-- [fill = 0]
+
+.bss       0    000003c0    00000018     UNINITIALIZED
+                  000003c0    00000008     rtsv6_A_be_tiarm9.lib : _lock.obj (.bss)
+                  000003c8    00000008                           : exit.obj (.bss)
+                  000003d0    00000004                           : boot.obj (.bss)
+                  000003d4    00000004                           : stkdepth_vars.obj (.bss)
+
+.stack     0    000003d8    00000800     UNINITIALIZED
+                  000003d8    00000800     --HOLE--
+
+
+GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name 
+
+address    name
+--------   ----
+000003c0   .bss
+00000000   .data
+00000000   .text
+00000228   C$$EXIT
+00000000   C_MEMCPY
+00000bd8   __STACK_END
+00000800   __STACK_SIZE
+00000001   __TI_args_main
+00000180   __TI_auto_init
+000003c8   ___TI_cleanup_ptr
+000003cc   ___TI_dtors_ptr
+ffffffff   ___binit__
+000003c0   ___bss__
+ffffffff   ___c_args__
+00000384   ___cinit__
+00000000   ___data__
+00000000   ___edata__
+000003d8   ___end__
+00000384   ___etext__
+ffffffff   ___pinit__
+00000000   ___text__
+0000035c   __args_main
+000003c0   __lock
+00000350   __nop
+00000344   __register_lock
+00000338   __register_unlock
+000003d8   __stack
+000003c4   __unlock
+00000230   _abort
+000002f4   _c_int00
+000002a0   _copy_in
+0000023c   _exit
+0000037c   _main
+000003d4   _main_func_sp
+000003d0   _stkchk_called
+ffffffff   binit
+00000384   cinit
+00000000   edata
+000003d8   end
+00000384   etext
+ffffffff   pinit
+
+
+GLOBAL SYMBOLS: SORTED BY Symbol Address 
+
+address    name
+--------   ----
+00000000   .data
+00000000   .text
+00000000   C_MEMCPY
+00000000   ___data__
+00000000   ___edata__
+00000000   ___text__
+00000000   edata
+00000001   __TI_args_main
+00000180   __TI_auto_init
+00000228   C$$EXIT
+00000230   _abort
+0000023c   _exit
+000002a0   _copy_in
+000002f4   _c_int00
+00000338   __register_unlock
+00000344   __register_lock
+00000350   __nop
+0000035c   __args_main
+0000037c   _main
+00000384   ___cinit__
+00000384   ___etext__
+00000384   cinit
+00000384   etext
+000003c0   .bss
+000003c0   ___bss__
+000003c0   __lock
+000003c4   __unlock
+000003c8   ___TI_cleanup_ptr
+000003cc   ___TI_dtors_ptr
+000003d0   _stkchk_called
+000003d4   _main_func_sp
+000003d8   ___end__
+000003d8   __stack
+000003d8   end
+00000800   __STACK_SIZE
+00000bd8   __STACK_END
+ffffffff   ___binit__
+ffffffff   ___c_args__
+ffffffff   ___pinit__
+ffffffff   binit
+ffffffff   pinit
+
+[41 symbols]

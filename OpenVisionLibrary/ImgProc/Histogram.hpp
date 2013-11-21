@@ -19,7 +19,8 @@
 #define HISTOGRAM
 
 #include "Common/OpenCVCommon.hpp"
-
+namespace ocv
+{
 /**
  * @brief The Histogram class provides interface to class which handles histogram related operations
  */
@@ -139,7 +140,7 @@ class Histogram
 };
 
 
-
+}
 
 
 

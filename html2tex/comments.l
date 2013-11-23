@@ -138,152 +138,30 @@ U	pt|pc|in|bp|cm|mm|dd|cc|sp
 D	{S}(({N}{S}{U})|(\\{W})){S}
 Z	\*?
 
-%option stack 
 
+%option stack 
 %Start Define Display IncludeOnly Input Math Normal Control
 %Start LaBegin LaDisplay LaEnd LaEnv LaFormula LaInclude
 %Start LaMacro LaOptArg LaMacro2 LaOptArg2 LaVerbatim 
-%start LaBreak LaPicture AA BB CC DD EE GG FF II JJ KK ZZ  MAIN PARG texcaps
-%start title ignore1 section math caption figure subfigure graphics ignore2 ignore0
-%start url url1 text table texttt lable ref1 vurl minted graphics1
+%start LaBreak LaPicture AA BB CC DD EE GG FF II JJ KK ZZ  MAIN PARG texcaps math
 %%
-
-<Normal>"\\documentclass"			{printf("<!--");BEGIN CC;}
-<CC>"\\begin"{S}"{"{S}"document"{S}"}""\n"*	{printf("-->"); IGNORE;BEGIN MAIN;}
-<CC>"".* {IGNORE;}
-
-<MAIN>"\\ECFAugie"* {yy_push_state(ignore2);}
-<MAIN>"\\AddToShipoutPicture"* {yy_push_state(ignore2);}
-
-
-<MAIN>"\\end"{S}"{"{S}"document"{S}"}""\n"*     {printf("");return 0;}
-<Normal>"%".* {BEGIN ignore0;}
-<MAIN>"\\%".* {printf("%s",yytext);}
-<MAIN>"%".* ;
-<MAIN>"\\title" {printf("<h1>");yy_push_state(title);}
-<MAIN>"\\printbibliography" ;
-<MAIN>"\\nocite" {yy_push_state(ignore2);}
-<title>"\\textcap{" {yy_push_state(texcaps);}
-<texcaps>[^{}]+ {printf("<p class=\"allcaps\">%s<\p>\n",yytext);yy_pop_state();}
-<title>"%".* {IGNORE;yy_push_state(ignore2);}
-<title>[^{}]+ {printf("%s",yytext);}
-<title>"{" ;
-<title>"}" {printf("</h1>");BEGIN ignore1;}
-
-<MAIN>"\\begin{itemize}" { printf("<ul>");}
-<MAIN>"\\item" { printf("<li>");}
-<MAIN>"\\end{itemize}" { printf("</ul>");}
-<MAIN>"\\ref{" {yy_push_state(ref1);}
-<ref1>[^{}]+ {printf("<a href=\"#%s\">%s</a>",yytext,yytext);}
-<ref1>"}" {yy_pop_state();}
-
-
-<MAIN>"\\begin{enumerate}" { printf("<ol>");}
-<MAIN>"\\item" { printf("<li>");}
-<MAIN>"\\end{enumerate}" { printf("</ol>");}
-<MAIN>"\\text{" {yy_push_state(text);}
-<MAIN>"\\begin"{S}"{"{S}"tabular"{S}"}"{S}* { printf("<table  border=\"1\"><tr><td>");yy_push_state(table);}
-<table>"{" {yy_push_state(ignore2);}
-<table>"}" ;
-<table>"\\hline" {;}
-<table>"&" {printf("</td><td>");}
-<table>"\\\\\\\\" {printf("</td></tr><tr><td>");}
-<table>"\\end{tabular}" {printf("</td></tr></table>");yy_pop_state();}
-<text>[^{}]+ {printf("%s",yytext);}
-<text>"}" {yy_pop_state();}
-<MAIN>"\\url{" {yy_push_state(url1);}
-<url1>[^{}]+ {printf("<a href=%s>%s",yytext,yytext);}
-<url>[^{}]+ {printf("%s",yytext);}
-<url>"}" {yy_pop_state();}
-<url1>"}" {printf("</a>");yy_pop_state();}
-<MAIN>"\\texttt{" {yy_push_state(text);}
-<MAIN>"\\begin{minted}".*"{cpp}\n"* {printf("<script class=\"brush: cpp\" type=\"syntaxhighlighter\"> <![CDATA[ ");
-yy_push_state(minted);}
-<minted>"}" {yy_pop_state();}
-<minted>. ;
-<MAIN>"\\end{minted}" {printf("</script> ");}
-<MAIN>"\\end{addmargin}" {yy_push_state(ignore2);}
-<MAIN>"\\_" {printf("_");}
-<MAIN>"\\section{" {BEGIN section;}
-<section>[^{}]+ {printf("<h4>%s</h4>\n",yytext);BEGIN ignore1;}
-<MAIN>"\\subsection{" {BEGIN section;}
-<MAIN>"\\\subsubsection{" {BEGIN section;}
-<MAIN>"\\\\\\\\" {printf("<br></br>");}
-
-<MAIN>"\\begin{figure}" {printf("<figure role=\"group\" class=\"grid1\"><div class=\"row\">");yy_push_state(figure);}
-<figure>"\\end{figure}" {printf("</figure>"); yy_pop_state();}
-<figure>"\\label{" {yy_push_state(lable);}
-<lable>[^{}]+ {printf("<a name=\"%s\" style=\"visibility: hidden\">%s</a>",yytext,yytext);}
-<lable>"}" {yy_pop_state();}
-<MAIN>"\\vurl{" {yy_push_state(vurl);}
-<vurl>[^{}]+ {printf("<div><video width=\"320\" height=\"240\" controls> <source src=\"%s\" type='video/ogg; codecs=\"theora, vorbis'\"/> Video not found</video></div>",yytext);}
-<vurl>"}" {yy_pop_state();}
-<figure>"\\includegraphics"[^{]* { yy_push_state(graphics) ;}
-
-
-<figure>"\\begin{subfigure}" {printf("<figure role=\"group\" class=\"image\">");yy_push_state(subfigure);}
-<subfigure>"\\end{subfigure}" {printf("</figure>"); yy_pop_state();}
-<MAIN>"\\includegraphics"[^{]* { yy_push_state(graphics1) ;}
-<subfigure>"\\includegraphics"[^{]* { yy_push_state(graphics) ;}
-<subfigure>"\\caption"{S}"{" {yy_push_state(caption);}
-<subfigure>"[" {yy_push_state(ignore2);}
-<subfigure>"\\centering" {IGNORE;}
-<subfigure>"\\label{" {yy_push_state(ignore2);}
-<subfigure>"}";
-
-<caption>[^{}]+ {printf("<figcaption class=\"caption1\">%s</figcaption>",yytext);}
-<caption>"}" { yy_pop_state();}
-<figure>"\\\\\\\\" {printf("</div><div class=\"row\"></div>");}
-
-<graphics1>"{" ;
-<graphics1>"}" {yy_pop_state();}
-
-<graphics1>[^{}]+ { printf("<img src=\"https://googledrive.com/host/0B-pfqaQBbAAtenZiNDItSDFTSTg/repository/images/%s\" > ",yytext);} 
-
-
-<graphics>"{" ;
-<graphics>"}" {yy_pop_state();}
-
-<graphics>[^{}]+ { printf("<img width=160 height=120 src=\"https://googledrive.com/host/0B-pfqaQBbAAtenZiNDItSDFTSTg/repository/images/%s\" > ",yytext);} 
-<figure>"[" {yy_push_state(ignore2);}
-<MAIN>"\\pagebreak" {IGNORE;}
-<figure>"\\centering" {IGNORE;}
-<figure>"}";
-
-<figure>"\\caption{" {printf("</div><div class=\"row\"></div>");yy_push_state(caption);}
-<MAIN>"\\author" { KILLARGS(1);}
-<MAIN>"\\texaut" { KILLARGS(1);}
-<MAIN>"\\date" { KILLARGS(1);}
-<MAIN>"\\maketitle" ;
-<MAIN>"\\printindex" ;
-<MAIN>"\\tableofcontents" ;
-<MAIN>"\\newpage" ;
-<MAIN>"\\begin"{S}"{"{S}"addmargin"{S}"}"* {BEGIN ignore1;}
-<MAIN>"\\pagestyle" {BEGIN ignore1;}
-<MAIN>"\\labday" {BEGIN ignore1;}
-
-<ignore2>"\n" { yy_pop_state();}
-<ignore2>"".* {IGNORE;}
-<ignore1>"\n" {BEGIN MAIN;}
-<ignore1>"".* {IGNORE;}
-<ignore0>"".* {IGNORE;}
-<ignore0>"\n" {BEGIN Normal;}
-<LaMacro>"%".* ;
-<LaOptArg>"%".*;
-<LaMacro>"\["					{ BEGIN LaOptArg; }
-<LaMacro>"{"					{ cOpenBrace++; }
-<LaMacro>"}""\n"{0,1}					{   cOpenBrace--;
-						    if (cOpenBrace == 0)
-						    {
-							if (--cArgs==0)
-							BEGIN MAIN;
-						    }
-						}
-<LaMacro>.					;
-
-<LaOptArg>"\]"					BEGIN LaMacro;	
-<LaOptArg>[^\]]*				;
-
+<Normal>"\\%".* {printf("%s",yytext);}
+<Normal>"%".* ;
+<Normal>"\\\\\\\\" {printf("\\\\\\\\");}
+<Normal>"\\\\" {printf("\\\\\\\\");}
+<Normal>"\\begin{eqnarray*}".* {printf("%s",yytext);yy_push_state(math);}
+<math>"\\end{eqnarray*}" {printf("%s",yytext);yy_pop_state();}
+<Normal>"\\begin{eqnarray}".* {printf("%s",yytext);yy_push_state(math);}
+<math>"\\end{eqnarray}" {printf("%s",yytext);yy_pop_state();}
+<Normal>"\\begin{equation}".* {printf("%s",yytext);yy_push_state(math);}
+<math>"\\end{equation}" {printf("%s",yytext);yy_pop_state();}
+<Normal>"\\[".* {printf("%s",yytext);yy_push_state(math);}
+<math>"\\]" {printf("%s",yytext);yy_pop_state();}
+<Normal>"\$".* {printf("%s",yytext);yy_push_state(math);}
+<math>"\$" {printf("%s",yytext);yy_pop_state();}
+<Normal>"\\begin{equation*}".* {printf("%s",yytext);yy_push_state(math);}
+<math>"\\end{equation*}" {printf("%s",yytext);yy_pop_state();}
+ 
 %%
 
 /******

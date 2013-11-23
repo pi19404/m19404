@@ -145,7 +145,7 @@ Z	\*?
 %Start LaMacro LaOptArg LaMacro2 LaOptArg2 LaVerbatim 
 %start LaBreak LaPicture AA BB CC DD EE GG FF II JJ KK ZZ  MAIN PARG texcaps
 %start title ignore1 section math caption figure subfigure graphics ignore2 ignore0
-%start url url1 text table texttt lable ref1 vurl minted
+%start url url1 text table texttt lable ref1 vurl minted graphics1
 %%
 
 <Normal>"\\documentclass"			{printf("<!--");BEGIN CC;}
@@ -177,6 +177,7 @@ Z	\*?
 <ref1>[^{}]+ {printf("<a href=\"#%s\">%s</a>",yytext,yytext);}
 <ref1>"}" {yy_pop_state();}
 
+
 <MAIN>"\\begin{enumerate}" { printf("<ol>");}
 <MAIN>"\\item" { printf("<li>");}
 <MAIN>"\\end{enumerate}" { printf("</ol>");}
@@ -198,7 +199,7 @@ Z	\*?
 <MAIN>"\\texttt{" {yy_push_state(text);}
 <MAIN>"\\begin{minted}".*"{cpp}\n"* {printf("<script class=\"brush: cpp\" type=\"syntaxhighlighter\"> <![CDATA[ ");
 yy_push_state(minted);}
-<minted>"]" {yy_pop_state();}
+<minted>"}" {yy_pop_state();}
 <minted>. ;
 <MAIN>"\\end{minted}" {printf("</script> ");}
 <MAIN>"\\end{addmargin}" {yy_push_state(ignore2);}
@@ -222,7 +223,7 @@ yy_push_state(minted);}
 
 <figure>"\\begin{subfigure}" {printf("<figure role=\"group\" class=\"image\">");yy_push_state(subfigure);}
 <subfigure>"\\end{subfigure}" {printf("</figure>"); yy_pop_state();}
-
+<MAIN>"\\includegraphics"[^{]* { yy_push_state(graphics1) ;}
 <subfigure>"\\includegraphics"[^{]* { yy_push_state(graphics) ;}
 <subfigure>"\\caption"{S}"{" {yy_push_state(caption);}
 <subfigure>"[" {yy_push_state(ignore2);}
@@ -233,6 +234,12 @@ yy_push_state(minted);}
 <caption>[^{}]+ {printf("<figcaption class=\"caption1\">%s</figcaption>",yytext);}
 <caption>"}" { yy_pop_state();}
 <figure>"\\\\\\\\" {printf("</div><div class=\"row\"></div>");}
+
+<graphics1>"{" ;
+<graphics1>"}" {yy_pop_state();}
+
+<graphics1>[^{}]+ { printf("<img width=160 height=120 src=\"https://googledrive.com/host/0B-pfqaQBbAAtenZiNDItSDFTSTg/repository/images/%s\" > ",yytext);} 
+
 
 <graphics>"{" ;
 <graphics>"}" {yy_pop_state();}
